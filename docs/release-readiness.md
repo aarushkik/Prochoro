@@ -46,7 +46,7 @@ Name: StudyPlat: AP Study Quests
 
 Subtitle: Short lessons. Steady progress.
 
-Description: Build a steady study habit with Stu, your platypus study companion. Choose an AP course, read short field notes, practise topic questions, and follow a quest map with review stops and boss challenges. Track your sessions, streaks, and topic accuracy. Sign in with Apple, Google, Microsoft or email and your quest follows you across devices. Eight courses include Biology, Calculus AB, Chemistry, Computer Science A, English Language, Psychology, U.S. History, and World History. Questions are original practice material. StudyPlat is independent and is not affiliated with or endorsed by the College Board; AP is its registered trademark.
+Description: Build a steady study habit with Stu, your platypus study companion. Choose an AP course, read short field notes, practise topic questions, and follow a quest map with review stops and study club checks. Track your sessions, streaks, and topic accuracy. Start without an account and save progress on your device, or sign in with Apple, Google, Microsoft or email to carry it across devices. Eight courses include Biology, Calculus AB, Chemistry, Computer Science A, English Language, Psychology, U.S. History, and World History. Questions are original practice material. StudyPlat is independent and is not affiliated with or endorsed by the College Board; AP is its registered trademark.
 
 Primary category: Education. No subscriptions, ads, or in-app purchases are implemented. Choose the age rating by answering the current questionnaire accurately; the policy describes an intended audience of 13+ and this is not a Kids Category declaration.
 
