@@ -281,6 +281,7 @@ export function HomeScreen() {
                 <NextQuestCard
                   node={currentNode}
                   course={getCourse(courseId)?.name ?? 'Your course'}
+                  courseId={courseId}
                   todayCount={quest.todayCount}
                   dailyGoal={quest.dailyGoal}
                   onContinue={() => currentNode ? setSelected(currentNode) : setTab('practice')}

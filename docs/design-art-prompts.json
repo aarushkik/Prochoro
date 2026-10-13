@@ -1,0 +1,249 @@
+{
+  "mode": "builtin",
+  "reference": "src/assets/mascot/platypus-wave.png",
+  "assets": [
+    {
+      "id": "study-camp",
+      "group": "scenes",
+      "subject": "ONE wide 3:2 hero vignette: Stu the teal platypus wearing navy graduation cap, sitting with an open cream study book at a peaceful little waterside study camp. Small golden lantern, simple teal tent, distant rounded hills and a crescent moon. Stu is the central focus. Tiny island of ground, scene fades to genuine transparent edges. Fits fully inside canvas with 10 percent empty margins.",
+      "alpha": true,
+      "asset": "src/assets/illustrations/scenes/study-camp.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-03b7c9d1-7bde-40b8-a8a8-3d334b200387.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE wide 3:2 hero vignette: Stu the teal platypus wearing navy graduation cap, sitting with an open cream study book at a peaceful little waterside study camp. Small golden lantern, simple teal tent, distant rounded hills and a crescent moon. Stu is the central focus. Tiny island of ground, scene fades to genuine transparent edges. Fits fully inside canvas with 10 percent empty margins."
+    },
+    {
+      "id": "waves",
+      "group": "landscapes",
+      "subject": "Wide 3:2 transparent illustrated landscape vignette, a peaceful turquoise tidepool cove with cream sand, smooth coastal rocks, a small navy lighthouse and one little book resting by a beach bench. No characters. Keep horizon low, scenery in bottom two thirds, generous transparent sky and margins. Strong clear silhouettes, quiet center.",
+      "alpha": true,
+      "asset": "src/assets/illustrations/landscapes/waves.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-a3dec826-a684-4a13-9802-ebfd4085a1b6.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. Wide 3:2 transparent illustrated landscape vignette, a peaceful turquoise tidepool cove with cream sand, smooth coastal rocks, a small navy lighthouse and one little book resting by a beach bench. No characters. Keep horizon low, scenery in bottom two thirds, generous transparent sky and margins. Strong clear silhouettes, quiet center."
+    },
+    {
+      "id": "towers",
+      "group": "landscapes",
+      "subject": "Wide 3:2 transparent illustrated landscape vignette, a cozy rounded library village with two navy and seafoam book-shaped towers, cream windows, a little arched doorway and one tree. No characters. Scenery in bottom two thirds, generous transparent sky and margins. Strong clear silhouettes, quiet center.",
+      "alpha": true,
+      "asset": "src/assets/illustrations/landscapes/towers.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-eb3bdce0-5f0d-439a-a173-8be6f1b3d9b6.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. Wide 3:2 transparent illustrated landscape vignette, a cozy rounded library village with two navy and seafoam book-shaped towers, cream windows, a little arched doorway and one tree. No characters. Scenery in bottom two thirds, generous transparent sky and margins. Strong clear silhouettes, quiet center."
+    },
+    {
+      "id": "chimneys",
+      "group": "landscapes",
+      "alpha": true,
+      "subject": "Wide 3:2 illustrated landscape vignette of a friendly seaside science laboratory with rounded cream observatory roof, teal glass greenhouse, golden lit windows and a little outdoor experiment table; no smoke or pollution. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background.",
+      "asset": "src/assets/illustrations/landscapes/chimneys.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-15b25b1f-a45d-418a-b046-b676d83b2865.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. Wide 3:2 illustrated landscape vignette of a friendly seaside science laboratory with rounded cream observatory roof, teal glass greenhouse, golden lit windows and a little outdoor experiment table; no smoke or pollution. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background."
+    },
+    {
+      "id": "mesa",
+      "group": "landscapes",
+      "alpha": true,
+      "subject": "Wide 3:2 illustrated landscape vignette of a warm sandstone canyon with rounded terracotta mesas, teal cactus plants and a little cream field notebook on a rock; sandy trail between cliffs. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background.",
+      "asset": "src/assets/illustrations/landscapes/mesa.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-baa7f74a-0e49-4dc2-8c96-3db056152757.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. Wide 3:2 illustrated landscape vignette of a warm sandstone canyon with rounded terracotta mesas, teal cactus plants and a little cream field notebook on a rock; sandy trail between cliffs. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background."
+    },
+    {
+      "id": "gears",
+      "group": "landscapes",
+      "alpha": true,
+      "subject": "Wide 3:2 illustrated landscape vignette of a cozy turquoise maker workshop with golden wooden waterwheel, rounded roof, blueprints on a little outdoor workbench and a simple gear sign without letters. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background.",
+      "asset": "src/assets/illustrations/landscapes/gears.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-807d6c10-5818-4f9f-bdfd-db9d647d1cf3.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. Wide 3:2 illustrated landscape vignette of a cozy turquoise maker workshop with golden wooden waterwheel, rounded roof, blueprints on a little outdoor workbench and a simple gear sign without letters. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background."
+    },
+    {
+      "id": "islands",
+      "group": "landscapes",
+      "alpha": true,
+      "subject": "Wide 3:2 illustrated landscape vignette of a tiny tropical study island, rounded palm trees, cream sand, teal lagoon, a little shaded reading hut and a book on a wooden jetty. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background.",
+      "asset": "src/assets/illustrations/landscapes/islands.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-049c3d3f-9ce1-4082-a7da-f7ff95105acc.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. Wide 3:2 illustrated landscape vignette of a tiny tropical study island, rounded palm trees, cream sand, teal lagoon, a little shaded reading hut and a book on a wooden jetty. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background."
+    },
+    {
+      "id": "ridge",
+      "group": "landscapes",
+      "alpha": true,
+      "subject": "Wide 3:2 illustrated landscape vignette of a gentle mountain discovery trail with layered sage and teal hills, navy pine trees, a tiny wooden lookout and a fossil rock in foreground. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background.",
+      "asset": "src/assets/illustrations/landscapes/ridge.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-2cde3d4a-1445-4011-9679-6d4d4cb8b276.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. Wide 3:2 illustrated landscape vignette of a gentle mountain discovery trail with layered sage and teal hills, navy pine trees, a tiny wooden lookout and a fossil rock in foreground. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background."
+    },
+    {
+      "id": "reeds",
+      "group": "landscapes",
+      "alpha": true,
+      "subject": "Wide 3:2 illustrated landscape vignette of a peaceful botanical garden with round lily pads, cattails, a small arched wooden footbridge and a glass-roof greenhouse beside a teal pond. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background.",
+      "asset": "src/assets/illustrations/landscapes/reeds.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-5b4b1e38-5a3c-44ff-bc4a-34f8097f8625.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. Wide 3:2 illustrated landscape vignette of a peaceful botanical garden with round lily pads, cattails, a small arched wooden footbridge and a glass-roof greenhouse beside a teal pond. No people or animals. Scene confined to lower two thirds, plenty of transparent sky. Navy ink outlines, minimal detail, strong silhouettes, soft transparent edges, no rectangular background."
+    },
+    {
+      "id": "pylons",
+      "group": "landscapes",
+      "subject": "Wide 3:2 illustrated landscape vignette of a little hilltop communications and ideas station, navy and teal radio tower, small cream observatory cabin with golden windows, wires neatly connecting two posts, distant rolling hills. No people or animals. Scene in lower two thirds, generous transparent sky, no background rectangle.",
+      "alpha": true,
+      "asset": "src/assets/illustrations/landscapes/pylons.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-6a06eb2e-b6ba-4b25-9c50-19e4fd114c4f.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. Wide 3:2 illustrated landscape vignette of a little hilltop communications and ideas station, navy and teal radio tower, small cream observatory cabin with golden windows, wires neatly connecting two posts, distant rolling hills. No people or animals. Scene in lower two thirds, generous transparent sky, no background rectangle."
+    },
+    {
+      "id": "peak",
+      "group": "landscapes",
+      "subject": "Wide 3:2 illustrated landscape vignette of a snowy mountain summit with rounded cream snow caps, teal and pale blue mountains, a little warm wooden study lodge, a winding golden trail and small summit flag with no symbol. No people or animals. Scene in lower two thirds, generous transparent sky, no background rectangle.",
+      "alpha": true,
+      "asset": "src/assets/illustrations/landscapes/peak.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-79217e15-39fc-4dcf-8923-022660495a37.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. Wide 3:2 illustrated landscape vignette of a snowy mountain summit with rounded cream snow caps, teal and pale blue mountains, a little warm wooden study lodge, a winding golden trail and small summit flag with no symbol. No people or animals. Scene in lower two thirds, generous transparent sky, no background rectangle."
+    },
+    {
+      "id": "ap-biology",
+      "group": "courses",
+      "subject": "ONE square course icon: a chunky mint and turquoise microscope with a small bright green leaf beside it. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow.",
+      "alpha": true,
+      "asset": "src/assets/illustrations/courses/ap-biology.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-0549b6a4-2d35-4991-a0c3-69435f6893bb.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square course icon: a chunky mint and turquoise microscope with a small bright green leaf beside it. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow."
+    },
+    {
+      "id": "ap-calc-ab",
+      "group": "courses",
+      "alpha": true,
+      "subject": "ONE square course icon: a mint graph notebook with a clean navy rising curve and a golden pencil, no numbers or letters. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow.",
+      "asset": "src/assets/illustrations/courses/ap-calc-ab.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-7f5092a1-3279-4aff-8fef-5720489f7e97.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square course icon: a mint graph notebook with a clean navy rising curve and a golden pencil, no numbers or letters. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow."
+    },
+    {
+      "id": "ap-world",
+      "group": "courses",
+      "alpha": true,
+      "subject": "ONE square course icon: a teal globe with simple seafoam continents on a golden stand, no labels. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow.",
+      "asset": "src/assets/illustrations/courses/ap-world.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-b0f70c7f-d76e-41de-b280-4ff02482d458.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square course icon: a teal globe with simple seafoam continents on a golden stand, no labels. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow."
+    },
+    {
+      "id": "ap-us-history",
+      "group": "courses",
+      "alpha": true,
+      "subject": "ONE square course icon: a cream parchment scroll with a navy and golden feather quill and small teal wax seal, no writing. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow.",
+      "asset": "src/assets/illustrations/courses/ap-us-history.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-bd92d66f-29ad-4544-8cf3-5e8f5b657da8.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square course icon: a cream parchment scroll with a navy and golden feather quill and small teal wax seal, no writing. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow."
+    },
+    {
+      "id": "ap-csa",
+      "group": "courses",
+      "alpha": true,
+      "subject": "ONE square course icon: a small turquoise laptop, dark navy screen showing two cream code brackets, one warm gold keyboard key. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow.",
+      "asset": "src/assets/illustrations/courses/ap-csa.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-95557943-2ed1-48a7-9912-aebd4a5ae59e.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square course icon: a small turquoise laptop, dark navy screen showing two cream code brackets, one warm gold keyboard key. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow."
+    },
+    {
+      "id": "ap-chem",
+      "group": "courses",
+      "alpha": true,
+      "subject": "ONE square course icon: one round chemistry flask with turquoise glass and warm gold liquid. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow.",
+      "asset": "src/assets/illustrations/courses/ap-chem.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-d85a5b7a-c964-4512-83e9-bd4b27b7d0a1.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square course icon: one round chemistry flask with turquoise glass and warm gold liquid. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow."
+    },
+    {
+      "id": "ap-psych",
+      "group": "courses",
+      "alpha": true,
+      "subject": "ONE square course icon: a friendly coral brain resting on an open turquoise notebook. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow.",
+      "asset": "src/assets/illustrations/courses/ap-psych.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-200aaa38-cd73-4625-ba6a-26b47d985e21.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square course icon: a friendly coral brain resting on an open turquoise notebook. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow."
+    },
+    {
+      "id": "ap-eng-lang",
+      "group": "courses",
+      "alpha": true,
+      "subject": "ONE square course icon: an open cream book with turquoise cover and a gold fountain pen. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow.",
+      "asset": "src/assets/illustrations/courses/ap-eng-lang.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-4ffebb94-8b0d-49c7-89f9-b2b6ebd9a49b.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square course icon: an open cream book with turquoise cover and a gold fountain pen. Simple readable silhouette at 44 pixels. Centered object occupies 78 percent canvas with generous fully transparent margins, no circular tile, no background, no glow."
+    },
+    {
+      "id": "beginner",
+      "group": "badges",
+      "alpha": true,
+      "subject": "ONE square learning achievement icon: a tiny fresh seafoam seedling in a rounded turquoise pot with a cream label; two simple leaves. Readable at 44 pixels. Object centered with generous fully transparent margins. Match the reference contour thickness and palette. No background, no glow.",
+      "asset": "src/assets/illustrations/badges/beginner.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-3fdb5bff-50df-4957-9fef-274d9c544c5d.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square learning achievement icon: a tiny fresh seafoam seedling in a rounded turquoise pot with a cream label; two simple leaves. Readable at 44 pixels. Object centered with generous fully transparent margins. Match the reference contour thickness and palette. No background, no glow."
+    },
+    {
+      "id": "builder",
+      "group": "badges",
+      "alpha": true,
+      "subject": "ONE square learning achievement icon: three neatly stacked cream study notebooks with turquoise covers and one gold bookmark. Readable at 44 pixels. Object centered with generous fully transparent margins. Match the reference contour thickness and palette. No background, no glow.",
+      "asset": "src/assets/illustrations/badges/builder.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-e4279bd1-eabc-43c2-8fe1-1d3ade461ef5.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square learning achievement icon: three neatly stacked cream study notebooks with turquoise covers and one gold bookmark. Readable at 44 pixels. Object centered with generous fully transparent margins. Match the reference contour thickness and palette. No background, no glow."
+    },
+    {
+      "id": "ap-ready",
+      "group": "badges",
+      "alpha": true,
+      "subject": "ONE square learning achievement icon: a turquoise pennant on a short navy pole planted on a small cream trail marker, tiny gold star emblem. Readable at 44 pixels. Object centered with generous fully transparent margins. Match the reference contour thickness and palette. No background, no glow.",
+      "asset": "src/assets/illustrations/badges/ap-ready.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-f4c7b6aa-b547-4ef3-9a35-34c4f43d0bfd.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square learning achievement icon: a turquoise pennant on a short navy pole planted on a small cream trail marker, tiny gold star emblem. Readable at 44 pixels. Object centered with generous fully transparent margins. Match the reference contour thickness and palette. No background, no glow."
+    },
+    {
+      "id": "advanced-review",
+      "group": "badges",
+      "alpha": true,
+      "subject": "ONE square learning achievement icon: one warm gold achievement cup with turquoise base, a simple navy star embossed on the front. Readable at 44 pixels. Object centered with generous fully transparent margins. Match the reference contour thickness and palette. No background, no glow.",
+      "asset": "src/assets/illustrations/badges/advanced-review.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-08615c3a-1dd5-498b-bf9d-2ce7fefca5be.png",
+      "prompt": "Use case: stylized-concept. Production illustration for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: smooth bold navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Polished and restrained, readable small. No text, no letters, no labels, no borders or panels, no random confetti, no glossy 3D, no painterly grain. Reference is style only unless Stu is explicitly requested. ONE square learning achievement icon: one warm gold achievement cup with turquoise base, a simple navy star embossed on the front. Readable at 44 pixels. Object centered with generous fully transparent margins. Match the reference contour thickness and palette. No background, no glow."
+    },
+    {
+      "id": "lesson",
+      "group": "activities",
+      "alpha": true,
+      "subject": "An open cream field notebook with a turquoise cover and one short gold pencil tucked into its pages. Distinct from a generic book glyph.",
+      "asset": "src/assets/illustrations/activities/lesson.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-7761d8d7-e062-4877-b8be-94d8d0a0b9e0.png",
+      "prompt": "Use case: stylized-concept. Production small activity emblem for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: thick smooth dark navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Crisp silhouette at 32 pixels. Centered on fully transparent background with generous margin. NO lettering, numbers, label, border, circular tile, confetti, glow, lightning, glossy 3D, painterly grain. Reference is style only; do not draw Stu. An open cream field notebook with a turquoise cover and one short gold pencil tucked into its pages. Distinct from a generic book glyph."
+    },
+    {
+      "id": "drill",
+      "group": "activities",
+      "alpha": true,
+      "subject": "A teal practice clipboard with three cream answer boxes and one diagonal gold pencil. It should clearly mean focused question practice, never electricity or speed.",
+      "asset": "src/assets/illustrations/activities/drill.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-50b889c7-1734-4f0b-8894-b2aaac59a9f6.png",
+      "prompt": "Use case: stylized-concept. Production small activity emblem for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: thick smooth dark navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Crisp silhouette at 32 pixels. Centered on fully transparent background with generous margin. NO lettering, numbers, label, border, circular tile, confetti, glow, lightning, glossy 3D, painterly grain. Reference is style only; do not draw Stu. A teal practice clipboard with three cream answer boxes and one diagonal gold pencil. It should clearly mean focused question practice, never electricity or speed."
+    },
+    {
+      "id": "study",
+      "group": "activities",
+      "alpha": true,
+      "subject": "A small stack of two cream flashcards with a turquoise magnifying glass resting above them. Clearly means reviewing and thinking.",
+      "asset": "src/assets/illustrations/activities/study.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-52bac828-686f-4df6-83a0-90ababf9e438.png",
+      "prompt": "Use case: stylized-concept. Production small activity emblem for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: thick smooth dark navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Crisp silhouette at 32 pixels. Centered on fully transparent background with generous margin. NO lettering, numbers, label, border, circular tile, confetti, glow, lightning, glossy 3D, painterly grain. Reference is style only; do not draw Stu. A small stack of two cream flashcards with a turquoise magnifying glass resting above them. Clearly means reviewing and thinking."
+    },
+    {
+      "id": "bonus",
+      "group": "activities",
+      "alpha": true,
+      "subject": "A little open turquoise supply chest containing a cream study notebook and a single golden star token. Clearly means a found study reward.",
+      "asset": "src/assets/illustrations/activities/bonus.png",
+      "source": "/Users/aarushkikkuru/.codex/generated_images/01a0777a-90ba-7ea0-a713-d2b1c1196578/exec-07867e49-0af9-485e-8cb3-964b0a17f2ea.png",
+      "prompt": "Use case: stylized-concept. Production small activity emblem for StudyPlat, an AP study adventure. Match reference Stu's clean playful 2D cartoon style: thick smooth dark navy contours, simple rounded forms, turquoise, seafoam, cream, restrained warm gold, flat cel shading. Crisp silhouette at 32 pixels. Centered on fully transparent background with generous margin. NO lettering, numbers, label, border, circular tile, confetti, glow, lightning, glossy 3D, painterly grain. Reference is style only; do not draw Stu. A little open turquoise supply chest containing a cream study notebook and a single golden star token. Clearly means a found study reward."
+    }
+  ]
+}

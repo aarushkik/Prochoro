@@ -2,7 +2,7 @@ import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvid
 import { BossSprite } from '@/components/creatures/BossSprite';
 import { bossForNode } from '@/data/bosses';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppButton } from '@/components/ui';
 import { GlassSurface } from '@/components/ui/GlassSurface';
@@ -10,6 +10,7 @@ import { Glyph, type GlyphName } from '@/components/icons';
 import { duration, easing, questNode, radius, spacing } from '@/theme';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
 import { BOSS_TIERS } from '@/data/questMap';
+import { ACTIVITY_ART } from '@/data/illustrations';
 import type { QuestNode, QuestNodeKindId, QuestNodeState } from '@/types/quest';
 
 interface LessonSheetProps {
@@ -24,7 +25,7 @@ interface LessonSheetProps {
 /** Per-kind framing: what to call it, and what the button should promise. */
 const KIND: Record<QuestNodeKindId, { label: string; glyph: GlyphName; cta: string; again: string }> = {
   lesson: { label: 'Lesson', glyph: 'book', cta: 'Start lesson', again: 'Practice again' },
-  drill: { label: 'Drill', glyph: 'bolt', cta: 'Start drill', again: 'Run it again' },
+  drill: { label: 'Drill', glyph: 'page', cta: 'Start drill', again: 'Run it again' },
   study: { label: 'Knowledge check', glyph: 'page', cta: 'Start review', again: 'Review again' },
   bonus: { label: 'Bonus', glyph: 'chest', cta: 'Open the cache', again: 'Open again' },
   boss: { label: 'Study club check', glyph: 'swords', cta: 'Start the check', again: 'Try it again' },
@@ -138,7 +139,9 @@ function SheetBody({
           {isBoss ? <View style={{ alignItems: 'center', paddingBottom: 8 }}><BossSprite nodeId={node.id} size={156} /><Text style={{ color: colors.textSecondary, textAlign: 'center', ...typography.caption }}>{bossForNode(node.id)?.species}</Text></View> : null}
           <View style={styles.head}>
             <View style={[styles.crest, { backgroundColor: scheme.face, borderColor: scheme.edge }]}>
-              <Glyph name={kind.glyph} size={30} color={colors.white} strokeWidth={2.4} />
+              {node.kind === 'boss'
+                ? <Glyph name={kind.glyph} size={30} color={colors.white} strokeWidth={2.4} />
+                : <Image source={ACTIVITY_ART[node.kind]} style={{ width: 45, height: 45 }} resizeMode="contain" accessibilityIgnoresInvertColors />}
             </View>
             <View style={styles.headText}>
               <Text style={styles.kicker} numberOfLines={1}>

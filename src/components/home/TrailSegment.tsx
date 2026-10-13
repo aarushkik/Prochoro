@@ -1,7 +1,8 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import { BossSprite } from '@/components/creatures/BossSprite';
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { LANDSCAPE_ART } from '@/data/illustrations';
 import { Mascot } from '@/components/Mascot';
 import { Glyph } from '@/components/icons';
 import { colors, fonts, palette } from '@/theme';
@@ -175,7 +176,7 @@ function TrailSegmentImpl({ unit, width, mode, nextPlace, stateOf, onSelect, onR
         width,
         height,
         backgroundColor: appTheme.isDark ? colors.surfaceSunken : track.sky,
-        borderTopWidth: 3,
+        borderTopWidth: 1,
         borderTopColor: colors.border,
         overflow: 'hidden',
       }}
@@ -291,15 +292,13 @@ function Plaque({ unit, mode, cleared }: { unit: QuestUnit; mode: TrackMode; cle
   return (
     <View style={styles.plaqueWrap}>
       <View style={styles.plaque}>
-        <View style={[styles.num, { backgroundColor: track.deep }]}>
-          <Text style={styles.numText}>TRACK {n}</Text>
-        </View>
+        <Image source={LANDSCAPE_ART[track.kind]} resizeMode="contain" style={styles.regionArt} accessible={false} />
         <View style={styles.plaqueBody}>
-          <Text style={styles.place} numberOfLines={1}>
+          <Text style={styles.place} numberOfLines={2}>
             {track.place}
           </Text>
           <Text style={styles.topic} numberOfLines={1}>
-            {unit.title}
+            {`Track ${n} · ${unit.title}`}
           </Text>
         </View>
         <View
@@ -486,14 +485,7 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     borderRadius: 24,
     paddingHorizontal: 12,
   },
-  num: {
-    borderWidth: stroke.surface,
-    borderColor: colors.border,
-    borderRadius: 15,
-    paddingHorizontal: 9,
-    paddingVertical: 2,
-  },
-  numText: { fontFamily: fonts.displayHeavy, fontSize: 15, lineHeight: 19, color: colors.white },
+  regionArt: { width: 60, height: 48 },
   plaqueBody: { flex: 1, minWidth: 0 },
   place: { fontFamily: fonts.displayHeavy, fontSize: 17, lineHeight: 18, color: colors.ink },
   topic: { fontFamily: fonts.bodyBold, fontSize: 11.5, lineHeight: 15, color: colors.textSecondary, marginTop: 1 },

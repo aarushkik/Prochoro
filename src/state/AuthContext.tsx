@@ -21,8 +21,8 @@ export type AuthProvider = 'google' | 'azure' | 'apple';
  * Human Interface Guidelines' rules for the button — have in mind: Face ID,
  * the student's own Apple ID, no browser. It is also far simpler to run. The
  * native flow hands Supabase an identity token that it verifies against the
- * app's bundle ID, so the only setup is listing that ID in the Apple
- * provider. The browser flow needs a Services ID, a signing key and a client
+ * app's bundle ID. Account deletion additionally needs a server-side signing
+ * key to revoke Apple's authorization. The browser flow needs a Services ID and a client
  * secret that Apple expires every six months, after which sign-in silently
  * stops working.
  *
@@ -269,8 +269,36 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
     busy.current = true; setDeleting(true); setError(null);
     try {
       if (!isSupabaseConfigured) throw new Error(unavailable);
-      const { error: failure } = await supabase.rpc('delete_account');
-      if (failure) throw failure;
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw userError ?? new Error('Not signed in');
+      if (user.identities?.some(identity => identity.provider === 'apple')) {
+        if (Platform.OS !== 'ios' || !(await AppleAuthentication.isAvailableAsync())) {
+          setError('To delete this Apple-linked account, open StudyPlat on your iPhone or iPad and confirm with Apple.');
+          return false;
+        }
+        const nonce = Crypto.randomUUID();
+        let credential: AppleAuthentication.AppleAuthenticationCredential;
+        try {
+          credential = await AppleAuthentication.signInAsync({
+            requestedScopes: [],
+            nonce: await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, nonce),
+          });
+        } catch (reason) {
+          if ((reason as { code?: string })?.code === 'ERR_REQUEST_CANCELED') return false;
+          throw reason;
+        }
+        if (!credential.authorizationCode) throw new Error('delete_account: Apple confirmation missing');
+        const { data, error: failure } = await supabase.functions.invoke('delete-apple-account', {
+          body: { authorizationCode: credential.authorizationCode, nonce },
+        });
+        if (failure || data?.deleted !== true) {
+          setError('We couldn’t finish account deletion. Confirm with the Apple account linked to StudyPlat and try again. If it continues, contact support. Your study data has not been cleared from this device.');
+          return false;
+        }
+      } else {
+        const { error: failure } = await supabase.rpc('delete_account');
+        if (failure) throw failure;
+      }
       await prepareProfileExit(true);
       // Guest progress from before sign-in was required has no screen of its
       // own any more, so deleting the account is how it gets erased too.

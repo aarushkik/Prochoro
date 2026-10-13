@@ -1,0 +1,6 @@
+project_id = "studyplat"
+
+[functions.delete-apple-account]
+# The function verifies the bearer token against Auth.getUser itself, which
+# supports both legacy and asymmetric Supabase signing keys.
+verify_jwt = false

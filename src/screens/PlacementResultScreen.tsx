@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppButton, ScreenContainer } from '@/components/ui';
+import { CourseIllustration } from '@/components/ui/CourseIllustration';
 import { Glyph, PlacementIcon } from '@/components/icons';
 import { Mascot } from '@/components/Mascot';
 import { colors, radius, shadows, spacing, typography, fonts } from '@/theme';
@@ -63,7 +64,7 @@ export function PlacementResultScreen() {
           <View style={styles.levelWrap}>
             <View style={styles.levelCard}>
               <View style={styles.levelTile}>
-                <PlacementIcon id={level.id} color={colors.primary} size={38} />
+                <PlacementIcon id={level.id} size={52} />
               </View>
               <Text style={styles.levelLabel}>Your starting point</Text>
               <Text style={typography.heading}>{level.title}</Text>
@@ -76,7 +77,7 @@ export function PlacementResultScreen() {
             <View style={styles.summary}>
             <Row
               leading={
-                course ? <Text style={styles.summaryAbbr}>{course.abbr}</Text> : null
+                course ? <CourseIllustration courseId={course.id} size={32} /> : null
               }
               text={course?.name ?? 'Your course'}
             />

@@ -44,7 +44,8 @@ export function AppleSignInButton({ disabled = false, onPress }: AppleSignInButt
         buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
         cornerRadius={RADIUS}
         style={styles.button}
-        onPress={onPress}
+        accessibilityState={{ disabled }}
+        onPress={() => { if (!disabled) onPress(); }}
       />
     </View>
   );

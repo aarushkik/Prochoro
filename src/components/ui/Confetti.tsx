@@ -6,7 +6,7 @@ import { useMotionPreference } from '@/hooks/useMotionPreference';
 interface ConfettiProps {
   /** How many chips. The design uses 18; more reads as noise. */
   count?: number;
-  /** How far they fall before looping. */
+  /** How far the single celebratory burst travels. */
   distance?: number;
   active?: boolean;
 }
@@ -15,7 +15,7 @@ interface ConfettiProps {
  * Falling chips for the celebration screens — the design's `spFall` keyframe.
  *
  * Each chip is a plain bordered View rather than SVG, tumbling on its own
- * looping value with a staggered start so the field never falls in unison.
+ * one-shot value with a staggered start so the field never falls in unison.
  * Everything runs on the native driver, so a celebration screen costs nothing
  * on the JS thread while its numbers are counting up.
  */
@@ -38,13 +38,11 @@ function Chip({ index, distance, active }: { index: number; distance: number; ac
   useEffect(() => {
     if (!active) return;
     const duration = 2600 + (index % 5) * 450;
-    const loop = Animated.loop(
-      Animated.timing(t, { toValue: 1, duration, easing: Easing.linear, useNativeDriver: true }),
-    );
-    const start = setTimeout(() => loop.start(), index * 190);
+    const burst = Animated.timing(t, { toValue: 1, duration, easing: Easing.linear, useNativeDriver: true });
+    const start = setTimeout(() => burst.start(), index * 190);
     return () => {
       clearTimeout(start);
-      loop.stop();
+      burst.stop();
     };
   }, [t, index, active]);
 

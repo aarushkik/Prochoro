@@ -1,4 +1,6 @@
 import React from 'react';
+import { Image } from 'react-native';
+import { PLACEMENT_ART } from '@/data/illustrations';
 import Svg, { Circle, G, Path, Rect, Text as SvgText } from 'react-native-svg';
 import { useAppTheme } from '@/theme/ThemeProvider';
 
@@ -138,42 +140,8 @@ export function ExamIcon({ id, color: colorProp, size = 28 }: IconProps & { id: 
 
 // --- Placement-level glyphs --------------------------------------------------
 
-export function PlacementIcon({ id, color: colorProp, size = 28 }: IconProps & { id: string }) {
-  // Called unconditionally: a hook behind `??` would only run when no colour
-  // is passed, changing the hook count between renders.
-  const theme = useAppTheme();
-  const color = colorProp ?? theme.colors.primary;
-  return (
-    <Frame size={size}>
-      {id === 'beginner' ? (
-        <Stroked color={color}>
-          <Path d="M12 21 V11" />
-          <Path d="M12 13 C8 13 6 10 6 8 C10 8 12 10 12 13 Z" />
-          <Path d="M12 12 C16 12 18 9 18 7 C14 7 12 9 12 12 Z" />
-        </Stroked>
-      ) : null}
-      {id === 'builder' ? (
-        <Stroked color={color}>
-          <Rect x={4.5} y={13} width={6.5} height={6.5} rx={1} />
-          <Rect x={13} y={13} width={6.5} height={6.5} rx={1} />
-          <Rect x={8.75} y={5} width={6.5} height={6.5} rx={1} />
-        </Stroked>
-      ) : null}
-      {id === 'ap_ready' ? (
-        <Stroked color={color}>
-          <Path d="M8 3 V21" />
-          <Path d="M8 4 H18 L15 7.5 L18 11 H8" />
-        </Stroked>
-      ) : null}
-      {id === 'advanced_review' ? (
-        <Stroked color={color}>
-          <Path d="M7 4 H17 V8 A5 5 0 0 1 7 8 Z" />
-          <Path d="M7 5 H4.5 V6.5 A2.5 2.5 0 0 0 7.4 8.9" />
-          <Path d="M17 5 H19.5 V6.5 A2.5 2.5 0 0 1 16.6 8.9" />
-          <Path d="M12 13 V16 M9 20 H15 M10 16 H14 L15 20 H9 Z" />
-        </Stroked>
-      ) : null}
-    </Frame>
-  );
+/** Illustrated achievement art; color is retained for caller compatibility. */
+export function PlacementIcon({ id, size = 44 }: IconProps & { id: string }) {
+  const source = PLACEMENT_ART[id];
+  return source ? <Image source={source} style={{ width: size, height: size }} resizeMode="contain" fadeDuration={0} accessible={false} /> : null;
 }
-

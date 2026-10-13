@@ -65,8 +65,8 @@ export const lightGlass: GlassTokens = {
   tint: 'rgba(255,253,247,0.58)',
   thick: 'rgba(255,253,247,0.86)',
   thickNative: 'rgba(255,253,247,0.45)',
-  blur: 18,
-  blurThick: 28,
+  blur: 24,
+  blurThick: 32,
   sheen: 'rgba(255,255,255,0.55)',
   rim: { top: 'rgba(255,255,255,0.95)', side: 'rgba(255,255,255,0.5)', bottom: 'rgba(18,48,60,0.10)' },
   lens: 'rgba(5,177,201,0.14)',
@@ -75,8 +75,8 @@ export const lightGlass: GlassTokens = {
   sheenClear: 'rgba(255,255,255,0)',
   scrim: 'rgba(10,28,36,0.30)',
   shadow: '0 10px 30px rgba(18,48,60,0.12), 0 1px 3px rgba(18,48,60,0.08)',
-  card: 'rgba(255,255,255,0.62)',
-  cardSelected: 'rgba(214,244,248,0.82)',
+  card: 'rgba(255,255,255,0.82)',
+  cardSelected: 'rgba(222,249,246,0.96)',
   // Tight, so a stack of cards does not merge its shadows into a grey band
   // down each side of the list.
   cardShadow: '0 1px 2px rgba(18,48,60,0.06), 0 4px 12px rgba(18,48,60,0.05)',

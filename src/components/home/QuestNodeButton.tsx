@@ -1,8 +1,9 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
-import { Glyph, type GlyphName } from '@/components/icons';
+import { Glyph } from '@/components/icons';
 import { BossSprite } from '@/components/creatures/BossSprite';
+import { ACTIVITY_ART } from '@/data/illustrations';
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, glossRound, spring, typography } from '@/theme';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
 import type { TrackTheme } from '@/data/tracks';
@@ -169,12 +170,11 @@ const STATE_LABEL: Record<QuestNodeState, string> = {
 /** Kind remains visible on locked stops so the path reads as a varied itinerary. */
 function Emblem({ node, state, size }: {node:QuestNode;state:QuestNodeState;track:TrackTheme;size:number}) {
   const appTheme = useAppTheme();
-  const { colors, palette, typography, chunky } = appTheme;
-  const styles = useThemedStyles(createStyles);
+  const { colors } = appTheme;
 
   if (node.kind === 'boss') return <BossSprite nodeId={node.id} size={size * 0.96} dim={state === 'locked'} />;
-  const icon: Record<string,GlyphName> = {lesson:'book',drill:'bolt',study:'target',bonus:'sparkle'};
-  return <View style={{opacity:state === 'locked' ? 0.6 : 1}}><Glyph name={state === 'complete' ? 'check' : icon[node.kind]} size={size * 0.4} color={state === 'complete' ? colors.white : state === 'current' ? colors.textOnPrimary : colors.textPrimary} strokeWidth={2.6}/></View>;
+  if (state === 'complete') return <Glyph name="check" size={size * 0.4} color={colors.white} strokeWidth={2.6} />;
+  return <Image source={ACTIVITY_ART[node.kind]} style={{ width: size * 0.65, height: size * 0.65, opacity: state === 'locked' ? 0.62 : 1 }} resizeMode="contain" accessibilityIgnoresInvertColors />;
 }
 
 const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => StyleSheet.create({

@@ -4,10 +4,8 @@ import type { APCourse } from '@/types';
  * The AP course catalogue — the single source of truth for course selection,
  * for the onboarding copy, and for which question bank a session draws from.
  *
- * Each course carries a three-letter `abbr` rather than an illustration. The
- * detailed multi-colour icons this replaced were the one thing in the app not
- * drawn in flat ink, and next to everything else they read as clip-art from a
- * different product.
+ * Subject illustrations live in data/illustrations.ts. Abbreviations remain
+ * available for compact text-only contexts.
  */
 export const apCourses: APCourse[] = [
   { id: 'ap-biology', abbr: 'BIO', name: 'AP Biology', shortName: 'Biology', blurb: 'Cells, genetics & life', accent: 'green', category: 'stem' },

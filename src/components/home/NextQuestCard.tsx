@@ -10,11 +10,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, litRim, palette, rimOf } from '@/theme';
 import { Sheen } from '@/components/ui/Sheen';
 import type { QuestNode } from '@/types/quest';
+import { CourseIllustration } from '@/components/ui/CourseIllustration';
 
 /** A student's next step stays within one tap, even after a placement head start. */
 export function NextQuestCard({
   node,
   course,
+  courseId,
   todayCount,
   dailyGoal,
   onContinue,
@@ -22,6 +24,7 @@ export function NextQuestCard({
 }: {
   node: QuestNode | null;
   course: string;
+  courseId: string | null;
   todayCount: number;
   dailyGoal: number;
   onContinue: () => void;
@@ -45,7 +48,7 @@ export function NextQuestCard({
           <Text style={styles.heading}>{todayCount > 0 ? 'Look at you go.' : 'Make a little progress.'}</Text>
         </View>
         <View style={styles.compass} aria-hidden>
-          <Glyph name="compass" size={26} color={colors.ink} strokeWidth={2.2} />
+          <CourseIllustration courseId={courseId ?? ''} size={54} />
         </View>
       </View>
 
@@ -101,7 +104,7 @@ const createStyles = ({ colors, palette, typography, card }: AppTheme) => StyleS
   headingBody: { flex: 1 },
   eyebrow: { fontFamily: fonts.bodyBlack, fontSize: 10, letterSpacing: 1.4, color: colors.textSecondary, textTransform: 'uppercase' },
   heading: { fontFamily: fonts.displayHeavy, fontSize: 25, lineHeight: 29, color: colors.ink, marginTop: 3, maxWidth: 280 },
-  compass: { ...card, width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-12deg' }] },
+  compass: { width: 58, height: 58, alignItems: 'center', justifyContent: 'center' },
   card: { backgroundColor: colors.nightRaised, borderRadius: 30, ...litRim(0.3), padding: 18, overflow: 'hidden', boxShadow: '0 14px 32px rgba(9,45,57,0.22)' },
   pressed: { opacity: 0.96, transform: [{ scale: 0.98 }] },
   cardTop: { flexDirection: 'row', alignItems: 'center', gap: 4 },

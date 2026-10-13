@@ -1,32 +1,18 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import Svg, { G, Path } from 'react-native-svg';
+import { Image, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAppTheme } from '@/theme/ThemeProvider';
-import { CONTOURS } from '@/theme/contours';
+import { LANDSCAPE_ART } from '@/data/illustrations';
 
-/**
- * The page behind every screen: the ground colour with faint topographic
- * contour lines across it, like the paper of a trail map.
- *
- * It is what glass passes over. A translucent card on a flat page is only a
- * paler rectangle; with lines running underneath, the card visibly sits *on*
- * something. The lines are a texture rather than a transparency effect, so
- * they stay under Reduce Transparency too — only the surfaces above them
- * turn solid.
- *
- * Sliced rather than stretched, so the lines keep their shape on any screen.
- * `base` lets the night screens keep their own ground.
- */
+/** Quiet illustrated paper behind the floating glass; never animated. */
 export function Backdrop({ base }: { base?: string }) {
-  const { colors, glass } = useAppTheme();
-
+  const { colors, isDark } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const artWidth = Math.min(width, 760);
   return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: base ?? colors.background }]}>
-      <Svg width="100%" height="100%" viewBox={`0 0 ${CONTOURS.width} ${CONTOURS.height}`} preserveAspectRatio="xMidYMid slice">
-        <G fill="none" stroke={glass.contour} strokeWidth={1.1} strokeLinejoin="round" strokeLinecap="round">
-          {CONTOURS.paths.map((d, i) => <Path key={i} d={d} />)}
-        </G>
-      </Svg>
+    <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[StyleSheet.absoluteFill, { backgroundColor: base ?? colors.background, overflow: 'hidden' }]}>
+      <LinearGradient colors={isDark || base ? ['rgba(15,62,72,0.18)', 'rgba(15,62,72,0)'] : ['rgba(215,244,242,0.7)', 'rgba(255,255,255,0)']} style={StyleSheet.absoluteFill} />
+      <Image source={LANDSCAPE_ART.waves} resizeMode="contain" fadeDuration={0} accessible={false} style={{ position: 'absolute', bottom: 0, right: 0, width: artWidth, height: artWidth * 2 / 3, opacity: base ? 0.06 : isDark ? 0.075 : 0.09 }} />
     </View>
   );
 }

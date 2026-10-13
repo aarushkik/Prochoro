@@ -1,18 +1,19 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fonts, spring } from '@/theme';
 import { Glyph, type GlyphName } from '@/components/icons';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
 import { useHaptics } from '@/hooks/useHaptics';
 import { GlassSurface } from '@/components/ui/GlassSurface';
+import { ACTIVITY_ART } from '@/data/illustrations';
 
 export type QuestTab = 'map' | 'practice' | 'progress' | 'you';
 
 const TABS: { id: QuestTab; label: string; glyph: GlyphName }[] = [
   { id: 'map', label: 'Path', glyph: 'map' },
-  { id: 'practice', label: 'Practice', glyph: 'bolt' },
+  { id: 'practice', label: 'Practice', glyph: 'book' },
   { id: 'progress', label: 'Progress', glyph: 'chart' },
   { id: 'you', label: 'Profile', glyph: 'avatar' },
 ];
@@ -56,7 +57,7 @@ export function QuestTabBar({ active, onChange }: { active: QuestTab; onChange: 
     const movement = Animated.parallel([
       Animated.spring(slide, { toValue: target, useNativeDriver: true, damping: 22, stiffness: 240, mass: 0.85 }),
       Animated.sequence([
-        Animated.timing(stretch, { toValue: 1.16, duration: 120, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.timing(stretch, { toValue: 1.06, duration: 120, easing: Easing.out(Easing.quad), useNativeDriver: true }),
         Animated.spring(stretch, { toValue: 1, useNativeDriver: true, damping: 14, stiffness: 260, mass: 0.7 }),
       ]),
     ]);
@@ -87,7 +88,9 @@ export function QuestTabBar({ active, onChange }: { active: QuestTab; onChange: 
             style={({ pressed }) => [styles.tab, pressed && !on && styles.tabPressed]}
           >
             <Tile on={on}>
-              <Glyph name={tab.glyph} size={22} color={tone} strokeWidth={on ? 2.4 : 2.1} />
+              {tab.id === 'practice'
+                ? <Image source={ACTIVITY_ART.drill} style={{ width: 26, height: 26 }} resizeMode="contain" accessibilityIgnoresInvertColors />
+                : <Glyph name={tab.glyph} size={22} color={tone} strokeWidth={on ? 2.4 : 2.1} />}
               <Text style={[styles.label, { color: tone }]}>{tab.label}</Text>
             </Tile>
           </Pressable>

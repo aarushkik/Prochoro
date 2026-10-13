@@ -1,6 +1,6 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import { Backdrop } from '@/components/ui/Backdrop';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView, Platform, Pressable, ScrollView,
   StyleSheet, Text, TextInput, useWindowDimensions, View,
@@ -20,7 +20,7 @@ import { AppleSignInButton } from '@/components/ui/AppleSignInButton';
 
 type Mode = 'welcome' | 'signIn' | 'signUp' | 'reset';
 
-/** A real offline entry point, with account sync available when wanted. */
+/** Account entry with native Apple authentication on supported iOS builds. */
 export function SignInScreen() {
   const appTheme = useAppTheme();
   const { colors, palette, typography, chunky } = appTheme;
@@ -40,10 +40,15 @@ export function SignInScreen() {
   const [working, setWorking] = useState(false);
   const latch = useRef(false);
   const passwordInput = useRef<TextInput>(null);
+  const scroll = useRef<ScrollView>(null);
   const busy = pending !== null || emailPending || working;
   const welcome = mode === 'welcome' && !recovering;
   const signingUp = mode === 'signUp';
   const resetting = mode === 'reset';
+
+  useEffect(() => {
+    scroll.current?.scrollTo({ y: 0, animated: false });
+  }, [mode, recovering]);
 
   const changeMode = (next: Mode) => {
     if (busy) return;
@@ -75,12 +80,12 @@ export function SignInScreen() {
       <Backdrop base="transparent" />
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <ScrollView contentContainerStyle={[styles.scroll, welcome && styles.welcomeScroll]} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
+          <ScrollView ref={scroll} contentContainerStyle={[styles.scroll, welcome && styles.welcomeScroll]} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
             {welcome ? (
               <>
                 <View style={styles.brand}><Wordmark size={30} variant="light" /><View style={styles.edition}><Text style={styles.editionText}>THE AP ADVENTURE</Text></View></View>
                 <View style={styles.welcomeBody}>
-                  <StudyCamp size={Math.min(width - 40, height < 720 ? 220 : 270)} />
+                  <StudyCamp size={Math.min(width - 40, height < 720 ? 280 : 350)} />
                   <Text accessibilityRole="header" style={styles.headline}>AP practice,{'\n'}one stop at a time.</Text>
                   <Text style={styles.tagline}>Five-minute stops on a map of your course.{'\n'}Sign in to start yours.</Text>
                   <View style={styles.features}>

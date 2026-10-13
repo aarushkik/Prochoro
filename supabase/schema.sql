@@ -149,6 +149,11 @@ begin
   if auth.uid() is null then
     raise exception 'Not signed in';
   end if;
+  -- Apple grants must be revoked by the authenticated Edge Function first.
+  -- This also covers an Apple-linked account currently signed in with Google.
+  if exists (select 1 from auth.identities where user_id = auth.uid() and provider = 'apple') then
+    raise exception 'APPLE_REVOCATION_REQUIRED';
+  end if;
   delete from auth.users where id = auth.uid();
 end;
 $$;

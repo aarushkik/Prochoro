@@ -22,6 +22,15 @@ if (publicKey && url.startsWith('https://') && !url.includes('your-project')) {
     const data = await res.json();
     for (const provider of ['google','azure','apple']) check(res.ok && data.external?.[provider] === true, `${provider} provider is configured in Supabase`);
   } catch { check(false, 'Supabase provider configuration is reachable'); }
+  try {
+    // An unauthenticated probe cannot delete anything. It verifies the
+    // function is deployed and rejects requests before any account operation.
+    const deletion = await fetch(`${url.replace(/\/$/,'')}/functions/v1/delete-apple-account`, {
+      method: 'POST', headers: { apikey: key, 'content-type': 'application/json' }, body: '{}', signal: AbortSignal.timeout(10000),
+    });
+    const guard = await deletion.json();
+    check(deletion.status === 401 && guard.error === 'NOT_SIGNED_IN', 'Apple deletion function is deployed and denies unauthenticated requests');
+  } catch { check(false, 'Apple deletion function is reachable'); }
 }
-console.log('Manual release gates: apply/test supabase/schema.sql, native OAuth and recovery, two-device/offline sync, deletion, TestFlight, content review, privacy labels and screenshots. See docs/release-readiness.md.');
+console.log('Manual release gates: Apple server secrets and revocation test, apply/test supabase/schema.sql, native OAuth and recovery, two-device/offline sync, deletion, TestFlight, content review, privacy labels and screenshots. See docs/release-readiness.md.');
 process.exitCode = failures.length ? 1 : 0;

@@ -1,53 +1,40 @@
 # StudyPlat release readiness
 
-Updated 26 September 2026. The application has been hardened and its UI refined. It is **not yet ready for App Store submission**: external account setup, live database verification, Apple authorization revocation, and native acceptance testing remain.
+Updated 12 October 2026. The design refresh and local release work are implemented. **Do not submit yet:** Apple/Supabase configuration, the Expo project link, signing, and native acceptance are still required.
 
-## Completed
+## This update
 
-- Added persistent Light / Dark / System appearance controls in Profile without remounting navigation or resetting progress. Extended semantic colors through onboarding, lessons, results, maps, creature collections, and account controls.
-- Added a floating glass navigation bar with a spring-driven selection indicator, quieter borders and shadows, a focused next-lesson hero, native haptics, and clearer quiz feedback. On supported iOS versions, navigation uses native Liquid Glass; older iOS/web use blur and Android uses solid surfaces. Reduce Transparency and Reduce Motion are respected. Lesson reading surfaces remain opaque.
-- Local-save retry now retains the newest in-memory progress instead of reloading stale disk data. Companion elimination cannot submit a removed answer, daily display rollover does not overwrite yesterday's stored count, and offline/save notices are visible beside progress.
-- Preserved the original turquoise/cream cartoon theme, original Stu sprites, chunky controls, and the owner's supplied icon. Added a custom static camp illustration and a clearer next-quest card. Removed ambient vertical bobbing; interaction motion respects Reduce Motion and app activity.
-- Preserved Google and Microsoft login through the existing Supabase project. Both providers were confirmed enabled by a read-only API request. Email login, signup confirmation, recovery, OAuth cancellation, callback validation, and duplicate callback handling are implemented.
-- Added durable guest study, explicit account prompts, dismissal cooldown, local erase, compatible-course guest migration, offline outbox, idempotent sync, and safe failure states. Other users cannot access a profile under the tested RLS rules.
-- Corrected duplicate/empty session rewards, daily counts, streak dates across DST, placement-versus-earned unlocks, stop passing criteria, focused practice selection, unavailable boss rematches, misleading mode labels, and unearned activity claims.
-- Added scrollable feedback/results, larger touch targets, wrapping labels, reduced motion, setup restoration, and clear storage/sync errors.
-- Corrected a few overly broad Biology, Chemistry, and Java explanations. Automated validation checks all 960 bank items and all 1,440 map stops for structural consistency and playable selections. This does not certify academic accuracy.
-- Added CI checks, EAS profiles, a manual Pages publication workflow, updated policies, and a release preflight command that never prints keys.
+- Replaced procedural camp, skyline, scattered landscape motifs and placement drawings with 23 generated illustrations: one camp, ten landscapes, eight courses and four badges. Art matches Stu and is bundled offline. Existing illustrated study-club bosses and companions retain their saved IDs. See [design refinement](design-refinement.md) and [generation prompts](design-art-prompts.json).
+- Refined shared card opacity, illustrated course/region headers, narrow region labels and glass navigation motion. Removed endless celebration confetti. Retained native Liquid Glass where available, blur/solid fallbacks, dark appearance, Reduce Motion and Reduce Transparency support.
+- Kept the native Apple sign-in implementation and added the missing server-side token revocation path for account deletion. It validates the authenticated user, Apple signature/audience/nonce/identity, then revokes before deleting. The SQL guard prevents Apple-linked accounts bypassing revocation through the old RPC. No remote provider settings, keys or account data were changed.
+- Google and Microsoft remain enabled. Current app requires sign-in; migration of older guest progress remains intact. Signed-in study progress can persist locally while offline and synchronize when connected.
 
-- Added twelve generated illustrated companion portraits and sixty individually illustrated bosses across ten families, a browsable boss field guide, encounter seals tied to the real passing target, boss result art, and activity-specific locked map emblems. See [creature art](creature-art.md). Saved progress IDs are unchanged.
+## Verified locally
 
-## Verification
+- `npm run check`: TypeScript and all 33 tests pass. Coverage includes actual PostgreSQL migration/RLS/sync/deletion execution, duplicate reward prevention, persistence recovery, calendar streaks, theme contrast, asset metadata, and Apple identity/nonce/revocation failure ordering.
+- `deno check --no-config supabase/functions/delete-apple-account/index.ts`: passes. This checks the server runtime separately from Expo.
+- Production web, iOS Hermes and Android Hermes exports succeed at `/private/tmp/studyplat-refined-final`. These are JavaScript/assets exports, **not signed app archives**.
+- Read-only health check: Auth HTTP 200, database HTTP 200, Google and Azure enabled.
+- Release preflight: public Supabase configuration, 1024px opaque icon and public privacy/terms/support URLs pass. EAS project link, Apple flag/provider and deployed deletion function remain blocked.
+- Browser inspection covers welcome/account entry at 390 × 844 and 320 × 568, plus an isolated real-component preview in light/dark mode at both sizes. Fixed preserved scroll position when changing sign-in forms; verified empty-email validation without sending credentials. Course cards wrap at narrow widths, images load, and navigation/appearance controls respond. Saved user progress was not modified. Development console reports React Native Web pointer-events/native-driver fallback warnings; no runtime errors were observed in the inspected views.
 
-- 9 September art update: all 22 bundled JPEG assets load; all ten boss families render with individual portrait frames. The illustrated pack is approximately 6.2 MB and replaces the earlier vector creatures. Names, unlocks and saved IDs are unchanged.
+The signed-in study flow was not repeated in this update because the app was signed out. Earlier acceptance results are not a substitute for current native testing. Xcode is not installed here (Command Line Tools only); native Apple sign-in, native glass, VoiceOver and device performance cannot be certified on this host.
 
-- `npm run check`: TypeScript passed; 30 tests passed, including real PostgreSQL execution through PGlite, save-queue recovery/concurrency, theme contrast, companion elimination, and dependency compatibility.
-- SQL migration runs twice successfully. Tests exercise cumulative two-device rewards, replayed mutation IDs, row isolation, anonymous denial, and account/profile/receipt deletion cascades.
-- `npx expo install --check`: dependencies match Expo SDK 54. `npx expo-doctor`: all 18 checks pass.
-- Browser acceptance: guest setup and placement skip, five-question lesson (multiple choice and typed answers), 20 XP/one gem/one daily session, stop unlock, dismissible account reminder, and successful persistence after reload. Feedback checked at 390 × 844; scrollable completion checked at 320 × 568; Progress checked at 768 × 1024. Guest signup still exposes Google and Microsoft and returns to the saved quest when dismissed.
-- Production iOS Hermes and web exports, including the illustrated character pack and appearance system, succeeded at `/private/tmp/studyplat-release-polish-export-final`. These are bundles, not signed IPA archives.
-- Compatible dependency fixes removed the earlier React Navigation parsing advisories. Reviewed PostCSS, image-size, and Xcode/uuid overrides brought `npm audit` to zero reported vulnerabilities. SDK 54's Metro needs the checked, idempotent `scripts/patch-metro-image-size.cjs` postinstall adapter to pass bundled asset bytes to image-size 2. It rejects unknown upstream code; regression tests cover both installed Metro asset pipelines and Xcode UUID generation. Do not skip postinstall. Remove the adapter when upgrading to Metro with native image-size 2 support, and rerun exports/audit.
-- 26 September browser acceptance: completed a five-question lesson with choice and typed answers; verified 20 XP, one gem, one daily session, next-stop unlock, and persistence after reload. Dark appearance also persisted. Checked completion and Profile at 320 × 568, quiz at 390 × 844, and Practice/Progress at 768 × 1024. Light/dark switching preserves progress and reports the selected appearance accessibly. This is web layout validation, not native-device certification.
-- Boss acceptance: completed the first seven-question boss; the seal target stayed at five, completion awarded 70 XP, the next stop opened, and the guide marked Pebbleclaw defeated. A fresh rematch verified the guardian completion artwork and cleared stamp at 320 × 568. All ten family selectors rendered successfully; guide checked at 320 × 568.
-- Xcode is not installed on this host (Command Line Tools only). Simulator/device behavior, native memory/performance, VoiceOver, keyboards, signing, and OAuth round trips have not been certified.
+## Required setup, in order
 
-## Required external setup
+1. Complete [Apple sign-in setup](apple-sign-in.md): configure App ID capability and Supabase Apple provider, set server-only signing secrets, deploy `delete-apple-account`, and apply `supabase/migrations/202610120001_apple_account_deletion.sql`. Keep the release flag off until a signed preview passes. The live database migration and revocation have not been run in this update.
+2. Link the owner's Expo project with `eas init`. `app.json` currently has a blank EAS project ID. Set the public Supabase variables in EAS preview/production; local `.env` is not a hosted build environment. Confirm `studyplat://auth/callback` and `studyplat://auth/recovery` in Supabase URL Configuration.
+3. Create/confirm the App Store Connect app with bundle ID `com.aarushkik.studyplat`, owner team, signing credentials and submission identity. No build purchase, upload or submission has been initiated.
+4. Install a signed iOS preview/TestFlight build and complete native acceptance below. EAS currently targets the SDK-54-compatible Xcode 26 image; verify current Apple/Expo build requirements again when submitting.
+5. Complete store privacy labels, age rating, review login and real device screenshots. Verify published policies describe the actual hosting, retention and account deletion behavior. Review the question bank for academic accuracy; structural tests cannot certify course content.
 
-1. Apply the reviewed `supabase/schema.sql` in the existing project's SQL editor, preferably test/staging first. This app now calls `sync_profile`; deploying the app before the migration leaves account syncing unavailable. Back up the database according to the project's normal process. Run real two-account/two-device acceptance checks afterward.
-2. In Supabase URL Configuration, allow `studyplat://auth/callback` and `studyplat://auth/recovery`. Add exact preview URLs only where needed; `npm run auth:urls` prints examples. Google and Azure use the Supabase `/auth/v1/callback` URL in their consoles. Azure requests the email scope. Test personal Microsoft and intended school tenant policies.
-3. Configure Apple OAuth in Supabase, including Apple developer credentials, approved IDs, and callback. Then enable `EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED=true` in the EAS production environment and verify sign-in/cancel/return behavior on a physical iPhone. Apple is currently disabled in the project. Before enabling it for release, add and verify server-side Apple token revocation during account deletion; the current deletion RPC removes Supabase records but does not revoke Apple authorization. For this general study app, review Apple's 4.8 login requirement while retaining Google and Microsoft. Do not enable a nonfunctional button just to satisfy a checklist.
-4. Link the owner's Expo account/project with `eas init`; the project ID is currently blank. Configure public Supabase variables in EAS preview/production (local `.env` is not the production deployment configuration), Apple signing credentials, App Store Connect app record, and submission identity. No paid build or store submission has been initiated.
-5. Privacy, terms, and support URLs now pass the HTTPS reachability check. The owner still needs to verify the published policy text matches the actual deployment, retention practices, and current files before submitting privacy labels.
-6. Recheck dependency advisories before release, review all course content for academic accuracy and current AP scope, and avoid representing the short placement quiz as an exam-score prediction.
+## Native acceptance before submission
 
-## Native acceptance before TestFlight release
-
-- Small iPhone and iPad: full onboarding, keyboard entry, long explanations, lesson exit confirmation, results, map navigation, all tabs, companion selection, text scaling, VoiceOver, Reduce Motion, Reduce Transparency, native glass availability, Light/Dark/System appearance and native haptics.
-- Fresh install: confirm sign-in is required before setup. Then complete sessions, force quit/reopen, airplane mode, background during save, return online, low-storage failure.
-- Google/Microsoft/Apple cancel and success; email confirmation; reset link while app is closed/open; expired link; wrong password; sign out and switch accounts. No credentials or profile details should appear in logs.
-- On a device with a guest quest from an earlier build, sign in to new/same-course/different-course accounts; interrupt import; retry without duplicated XP. Two devices should combine independent offline sessions and refresh on foreground.
-- Delete an account, verify Supabase profile/auth/receipts removed, sign in denied, then verify guest erase. Device-local copies on other offline devices cannot be remotely erased; confirm policy wording with actual hosting retention.
-- Archive with production EAS profile, inspect privacy manifests in the archive, validate with App Store Connect, install via TestFlight, and capture real screenshots. Record results here before submission.
+- Small iPhone and iPad: onboarding, long text/keyboard, study notes, questions, feedback, completion, map, all tabs, companion selection, Light/Dark/System, larger text, VoiceOver, Reduce Motion/Transparency and native glass.
+- Apple first/returning sign-in, Hide My Email, cancellation, wrong account, offline failure; Google/Microsoft/email and password recovery. Test on a signed build, not Expo Go.
+- Complete a session, force quit/reopen, study offline, reconnect, and reconcile two devices without duplicated XP. Test account switching and old guest-data import using disposable profiles.
+- Account deletion with a disposable Apple account: verify Apple authorization revocation and Supabase auth/profile/receipt deletion; cancellation/wrong Apple identity/failure preserves the account. Test plain Google/email deletion separately. Destructive live tests require explicit confirmation.
+- Validate the signed archive in App Store Connect and install it through TestFlight. Confirm real screenshots and privacy manifests before submission.
 
 ## Draft store listing
 

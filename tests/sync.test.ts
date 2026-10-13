@@ -27,7 +27,7 @@ test('PostgreSQL: migration, concurrent device deltas, replay, RLS and account d
   const user1 = '10000000-0000-4000-8000-000000000001';
   const user2 = '10000000-0000-4000-8000-000000000002';
   try {
-    await db.exec(`create schema auth; create role anon; create role authenticated; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true),'')::uuid $$; grant usage on schema auth to authenticated, anon; grant execute on function auth.uid() to authenticated, anon;`);
+    await db.exec(`create schema auth; create role anon; create role authenticated; create table auth.users(id uuid primary key); create table auth.identities(user_id uuid references auth.users(id) on delete cascade, provider text); create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true),'')::uuid $$; grant usage on schema auth to authenticated, anon; grant execute on function auth.uid() to authenticated, anon;`);
     const sql = readFileSync(new URL('../supabase/schema.sql', import.meta.url), 'utf8');
     await db.exec(sql); await db.exec(sql);
     await db.exec(`grant select, insert, update on public.profiles to authenticated; grant select on public.profiles to anon; insert into auth.users(id) values ('${user1}'), ('${user2}'); set role authenticated; select set_config('request.jwt.claim.sub','${user1}',false);`);
@@ -50,5 +50,9 @@ test('PostgreSQL: migration, concurrent device deltas, replay, RLS and account d
     assert.equal((await db.query(`select * from public.profiles where id='${user1}'`)).rows.length, 0);
     assert.equal((await db.query('select * from public.profile_sync_receipts')).rows.length, 0);
     assert.equal((await db.query('select * from auth.users')).rows.length, 1);
+    await db.exec(`insert into auth.identities values ('${user2}', 'apple'); set role authenticated; select set_config('request.jwt.claim.sub','${user2}',false);`);
+    await assert.rejects(db.query('select public.delete_account()'), /APPLE_REVOCATION_REQUIRED/);
+    await db.exec('reset role;');
+    assert.equal((await db.query(`select * from auth.users where id='${user2}'`)).rows.length, 1, 'Apple-linked account cannot bypass revocation through the RPC');
   } finally { await db.close(); }
 });

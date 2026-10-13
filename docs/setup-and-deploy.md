@@ -268,7 +268,7 @@ These are the ones that actually bite apps like this one:
 1. **Guideline 5.1.1(v) — Account sign-in.** If an app offers third-party
    sign-in, Apple usually requires **Sign in with Apple** alongside it. With
    Google and Microsoft and nothing else, expect a rejection. Supabase supports
-   Apple as a provider; budget for adding it before you submit.
+   Apple as a provider; follow [the current setup guide](apple-sign-in.md) before submitting.
 2. **Guideline 5.1.1(ii) — Data collection.** You must offer **account
    deletion** from inside the app, not just a support email. A "Delete my
    account" control under Profile that calls a Supabase edge function is the
@@ -310,7 +310,7 @@ thing that has to change with it.
 
 ## 8. Recommended order
 
-1. Add **Sign in with Apple** (see rejection risk 1).
+1. Configure and test **Sign in with Apple** ([setup guide](apple-sign-in.md)).
 2. Add **account deletion** (risk 2).
 3. Write the privacy policy and host it.
 4. Publish the Google consent screen.
@@ -318,32 +318,8 @@ thing that has to change with it.
 
 ---
 
-## Still outstanding in the app itself
+## Current release status
 
-Honest list of what is not finished, so nothing surprises you at review time:
+See [release readiness](release-readiness.md) for the current gates and verified checks, and [Apple sign-in setup](apple-sign-in.md) for the native Apple provider and secure account-deletion deployment.
 
-- **Sign in with Apple is not built.** Guideline 5.1.1(v) requires it wherever
-  an app offers third-party sign-in, and Google plus Microsoft without it is a
-  near-certain rejection. `AuthProvider` already carries the case and the flow
-  is provider-agnostic, so it is a button here and a provider in Supabase — but
-  it cannot be configured or tested without an Apple Developer membership, so
-  it waits on that.
-- **Boss sprites** are specced in
-  [`character-sprite-prompts.md`](./character-sprite-prompts.md) but not
-  generated, so all sixty fights show a crest rather than a character.
-  Companion sprites are specced too, but each companion carries a prop sprite
-  chosen for its ability, which reads well enough to ship.
-- **Track backdrops are procedural.** Silhouettes and seeded arcs rather than
-  drawn art; specced in [`background-prompts.md`](./background-prompts.md).
-  Fine to ship, and the weakest-looking part of the map.
-- **Question banks are 120 per course**, twelve per unit. Enough that a track
-  does not feel thin, not enough that a single track never repeats an item —
-  around thirty per unit is where that stops being noticeable.
-- **The session screens from the design** (Summary, LevelUp, BossIntro,
-  BossFight, Victory, Defeat, WorldDone, Streak) are not built. Sessions end on
-  `LessonComplete`, which covers the same ground with one screen instead of
-  eight.
-
-Done since the last pass: account deletion, companion abilities, per-course
-weak spots, derived achievements, and the endless review at the foot of each
-cleared track.
+Bosses, companions, course icons, placement badges, the welcome camp, and all ten landscapes now use bundled generated artwork. The earlier procedural landscape illustrations are gone. Question banks remain 120 questions per course and still need editorial review before publication. Native sign-in, revocation, TestFlight, signing, and store metadata require owner account setup and device acceptance.
