@@ -1,21 +1,23 @@
 # StudyPlat release readiness
 
-Updated 12 October 2026. The design refresh and local release work are implemented. **Do not submit yet:** Apple/Supabase configuration, the Expo project link, signing, and native acceptance are still required.
+Updated 13 October 2026. The design refresh and local release work are implemented. **Do not submit yet:** Apple/Supabase configuration, the Expo project link, signing, and native acceptance are still required.
 
 ## This update
 
 - Replaced procedural camp, skyline, scattered landscape motifs, placement drawings and activity glyphs with 27 generated illustrations: one camp, ten landscapes, eight courses, four badges and four activity emblems. Art matches Stu and is bundled offline. Existing illustrated study-club bosses and companions retain their saved IDs. See [design refinement](design-refinement.md) and [generation prompts](design-art-prompts.json).
 - Refined shared card opacity, illustrated course/region headers, narrow region labels and glass navigation motion. Removed endless celebration confetti. Retained native Liquid Glass where available, blur/solid fallbacks, dark appearance, Reduce Motion and Reduce Transparency support.
 - Kept the native Apple sign-in implementation and added the missing server-side token revocation path for account deletion. It validates the authenticated user, Apple signature/audience/nonce/identity, then revokes before deleting. The SQL guard prevents Apple-linked accounts bypassing revocation through the old RPC. No remote provider settings, keys or account data were changed.
+- Declared the required-reason APIs used by the bundled React Native and Expo native packages in the app-level iOS privacy manifest, using those packages' own declared reasons. The actual signed archive still needs App Store Connect validation. Android now has an initial version code.
 - Google and Microsoft remain enabled. Students can study as guests with local saving, with persistent prompts to create an account for cross-device sync. Guest progress imports when signing in to a same-course account and stays local when the account follows a different course. Signed-in study progress can persist locally while offline and synchronize when connected.
 
 ## Verified locally
 
 - `npm run check`: TypeScript and all 33 tests pass. Coverage includes actual PostgreSQL migration/RLS/sync/deletion execution, duplicate reward prevention, persistence recovery, calendar streaks, theme contrast, asset metadata, and Apple identity/nonce/revocation failure ordering.
+- The current iOS Hermes export succeeds, and an Expo iOS prebuild generated the expected Sign in with Apple entitlement and the app-level `PrivacyInfo.xcprivacy` with all four configured required-reason API categories. This validates generation, not an archive signed by Apple.
 - `deno check --no-config supabase/functions/delete-apple-account/index.ts`: passes. This checks the server runtime separately from Expo.
 - Production web, iOS Hermes and Android Hermes exports succeed at `/private/tmp/studyplat-refined-final`. These are JavaScript/assets exports, **not signed app archives**.
 - Read-only health check: Auth HTTP 200, database HTTP 200, Google and Azure enabled.
-- Release preflight: public Supabase configuration, 1024px opaque icon and public privacy/terms/support URLs pass. EAS project link, Apple flag/provider and deployed deletion function remain blocked.
+- Network-enabled release preflight: public Supabase configuration, 1024px opaque icon, public privacy/terms/support URLs, and Google/Azure providers pass. EAS project link, Apple flag/provider and deployed deletion function remain blocked. A network-restricted shell reports the live URL checks as unavailable; that is a local DNS limitation, not a project failure.
 - Browser inspection covers welcome/account entry, the isolated real-component preview, and the published GitHub Pages site. An isolated local guest origin completed onboarding, earned 20 XP from a lesson, and retained its course, cleared stop, XP and gems after reload. Guest-to-account prompt and return to local study were checked without touching the user's saved progress. Course cards wrap at narrow widths, images load, and navigation/appearance controls respond.
 
 The signed-in study flow was not repeated in this update because the app was signed out. Earlier acceptance results are not a substitute for current native testing. Xcode is not installed here (Command Line Tools only); native Apple sign-in, native glass, VoiceOver and device performance cannot be certified on this host.
@@ -27,6 +29,8 @@ The signed-in study flow was not repeated in this update because the app was sig
 3. Create/confirm the App Store Connect app with bundle ID `com.aarushkik.studyplat`, owner team, signing credentials and submission identity. No build purchase, upload or submission has been initiated.
 4. Install a signed iOS preview/TestFlight build and complete native acceptance below. EAS currently targets the SDK-54-compatible Xcode 26 image; verify current Apple/Expo build requirements again when submitting.
 5. Complete store privacy labels, age rating, review login and real device screenshots. Verify published policies describe the actual hosting, retention and account deletion behavior. Review the question bank for academic accuracy; structural tests cannot certify course content.
+
+The public privacy policy is **https://aarushkik.github.io/StudyPlat/privacy.html**. Enter it in App Store Connect → App Privacy, and enter the support URL **https://aarushkik.github.io/StudyPlat/support.html** in the app's store listing. Both links are already available inside the app. The generic Expo compliance scanner asks for `expo.privacyPolicyUrl`, but that is not an Expo app-config field or a substitute for App Store Connect metadata. It also misses the configured `expo-splash-screen` plugin and incorrectly claims `.env` is not ignored; verify actual configuration instead of adding obsolete or invented fields.
 
 ## Native acceptance before submission
 
