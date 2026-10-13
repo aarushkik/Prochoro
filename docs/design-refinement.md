@@ -4,14 +4,15 @@
 
 ## Artwork
 
-23 original generated assets, bundled for offline rendering:
+27 original generated assets, bundled for offline rendering:
 
 - A welcome camp illustration featuring Stu.
 - Ten distinct learning landscapes, replacing the procedural skyline and scattered SVG motifs.
 - Eight subject illustrations for course selection, placement summaries and the home header.
 - Four illustrated placement badges, replacing the earlier assembled vector drawings.
+- Four study activity emblems for lessons, skill drills, knowledge checks and bonuses, replacing the lightning and generic map glyphs.
 
-Files: `src/assets/illustrations/{scenes,landscapes,courses,badges}`. Reference: `src/assets/mascot/platypus-wave.png`. Full prompts, original source paths and final asset paths: [design-art-prompts.json](design-art-prompts.json). Images were generated using the built-in image tool, then proportionally resized for app packaging. Original generated files were retained. Landscapes/camp are 960px wide; small icons are 256px. Existing generated bosses and companions are retained and fit the same visual language. Functional navigation, checkmarks, provider logos, and progress indicators remain crisp vector controls.
+Files: `src/assets/illustrations/{scenes,landscapes,courses,badges,activities}`. Reference: `src/assets/mascot/platypus-wave.png`. Full prompts, original source paths and final asset paths: [design-art-prompts.json](design-art-prompts.json). Images were generated using the built-in image tool, then proportionally resized for app packaging. Original generated files were retained. Landscapes/camp are 960px wide; small icons are 256px. Existing generated bosses and companions are retained and fit the same visual language. Functional navigation, checkmarks, provider logos, and progress indicators remain crisp vector controls.
 
 ## Interaction and layout
 

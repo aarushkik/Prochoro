@@ -22,10 +22,10 @@ interface ProfileSyncValue {
 const ProfileSyncContext = createContext<ProfileSyncValue>({ loading: true, offline: false, blocked: false, error: null, notice: null, retry: () => undefined });
 
 export function ProfileSync({ children }: { children: React.ReactNode }) {
-  const { user, guestUpgrade } = useAuth();
+  const { user, guestMode, guestUpgrade } = useAuth();
   const onboarding = useOnboarding();
   const quest = useQuest();
-  const id = user?.id ?? null;
+  const id = user?.id ?? (guestMode ? GUEST_PROFILE_ID : null);
   const [loading, setLoading] = useState(true);
   const [loadedId, setLoadedId] = useState<string | null>(null);
   const [offline, setOffline] = useState(false);
@@ -156,6 +156,41 @@ export function ProfileSync({ children }: { children: React.ReactNode }) {
       await remoteWrite;
     };
 
+    if (id === GUEST_PROFILE_ID) {
+      void (async () => {
+        cache = await readProfileCache(id);
+        if (!alive) return;
+        if (!cache) {
+          cache = { version: 1, profile: EMPTY_PROFILE, baseline: null, dirty: false, guestId: Crypto.randomUUID() };
+          await writeProfileCache(id, cache);
+        } else if (!cache.guestId) {
+          cache = { ...cache, guestId: Crypto.randomUUID() };
+          await writeProfileCache(id, cache);
+        }
+        if (!alive) return;
+        hydrate(cache.profile);
+        writer.current = {
+          id,
+          update(profile) {
+            if (!alive || !cache || JSON.stringify(profile) === JSON.stringify(cache.profile)) return;
+            cache = { ...cache, profile, dirty: false };
+            persist();
+          },
+          flush: localWrites.flush,
+        };
+        unregister = registerProfileWriter({ id, flush: localWrites.flush, stop, drain: localWrites.flush });
+        setLoadedId(id);
+        setLoading(false);
+      })().catch(() => {
+        if (!alive) return;
+        setBlocked(true);
+        setLoadedId(id);
+        setError('Your local progress could not be opened safely. Free device storage and try again.');
+        setLoading(false);
+      });
+      return () => { stop(); unregister?.(); };
+    }
+
     void (async () => {
       try {
         cache = await readProfileCache(id);
@@ -185,12 +220,13 @@ export function ProfileSync({ children }: { children: React.ReactNode }) {
               // source. Reopening after interruption cannot double rewards.
               await writeProfileCache(id, cache);
               await clearProfileCache(GUEST_PROFILE_ID);
+              await deviceStorage.removeItem(GUEST_MODE_KEY);
               setNotice('Your device quest is now connected to your account.');
             } else {
               setNotice('Your account already follows a different course, so we opened that one. Progress from before you signed in on this device was not merged into it.');
             }
           }
-          await deviceStorage.removeItem(GUEST_MODE_KEY);
+          if (!guest?.guestId) await deviceStorage.removeItem(GUEST_MODE_KEY);
         }
         hydrate(cache!.profile);
         persist();
