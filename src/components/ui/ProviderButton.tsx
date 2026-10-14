@@ -50,7 +50,7 @@ function MicrosoftMark() {
 
 const createStyles = ({ palette, solid }: AppTheme) => StyleSheet.create({
   button: {
-    backgroundColor: solid ? palette.white : 'rgba(255,255,255,0.9)',
+    backgroundColor: solid ? palette.white : 'rgba(255,255,255,0.97)',
     borderWidth: 1,
     borderTopColor: palette.white,
     borderLeftColor: 'rgba(255,255,255,0.6)',

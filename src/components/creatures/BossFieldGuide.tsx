@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useQuest } from "@/state/QuestContext";
 import { bossForNode } from "@/data/bosses";
+import { BOSS_TIERS } from "@/data/questMap";
 import { BossSprite } from "./BossSprite";
 import { colors, fonts, selectedCard } from "@/theme";
 
@@ -80,11 +81,11 @@ export function BossFieldGuide() {
                 defeated && { borderColor: colors.success },
               ]}
               accessible
-              accessibilityLabel={`${node.title}. Rank ${node.tier}. ${defeated ? "Passed" : ready ? "Ready on your path" : "Ahead on your path"}`}
+              accessibilityLabel={`${node.title}. ${BOSS_TIERS[Math.min(5, Math.max(0, (node.tier ?? 1) - 1))]}. ${defeated ? "Passed" : ready ? "Ready on your path" : "Ahead on your path"}`}
             >
               <View style={styles.rank}>
                 <Text style={styles.rankText}>
-                  {node.tier === 6 ? "FINAL CHECK" : `RANK ${node.tier}`}
+                  {BOSS_TIERS[Math.min(5, Math.max(0, (node.tier ?? 1) - 1))].toUpperCase()}
                 </Text>
               </View>
               <BossSprite nodeId={node.id} size={112} />

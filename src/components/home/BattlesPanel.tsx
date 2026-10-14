@@ -87,7 +87,7 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
             </Text>
           </View>
           <View style={styles.delta}>
-            <Text style={styles.deltaText}>{bossesBeaten} of {bossTotal} bosses</Text>
+            <Text style={styles.deltaText}>{bossesBeaten} of {bossTotal} checks</Text>
           </View>
         </View>
 
@@ -123,7 +123,7 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
 
       {nextBoss ? (
         <>
-          <Text style={styles.section}>NEXT FIGHT</Text>
+          <Text style={styles.section}>NEXT CHECK</Text>
           <ChunkyCard onPress={() => onSelect(nextBoss)} style={styles.stackTop} contentStyle={styles.bossRow}>
             <BossSprite nodeId={nextBoss.id} size={76} />
             <View style={styles.bossBody}>

@@ -62,7 +62,7 @@ const MODES: {
     xp: 40,
   },
   { name: "Mistakes", emblem: "chest", tile: "#D6F2F6", count: 6, xp: 30 },
-  { name: "Boss rematch", emblem: "banner", tile: "#E8DFF7", count: 8, xp: 45 },
+  { name: "Replay a check", emblem: "banner", tile: "#E8DFF7", count: 8, xp: 45 },
   {
     name: "Mixed review",
     emblem: "bookstack",
@@ -121,9 +121,9 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
       if (missed.length === 0) return "Nothing missed yet";
       return `${missed.length} topic${missed.length === 1 ? "" : "s"} missed`;
     }
-    if (name === "Boss rematch") {
-      if (rematches.length === 0) return "Beat a boss first";
-      return `${rematches.length} beaten`;
+    if (name === "Replay a check") {
+      if (rematches.length === 0) return "Pass a check first";
+      return `${rematches.length} passed`;
     }
     return name === "Quick practice"
       ? "A short practice set"
@@ -227,7 +227,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
           // set under a name that promises otherwise, the card goes quiet
           // until the first boss is down.
           const off =
-            (m.name === "Boss rematch" && rematches.length === 0) ||
+            (m.name === "Replay a check" && rematches.length === 0) ||
             (m.name === "Mistakes" && missed.length === 0);
           const lastBoss = rematches[rematches.length - 1];
           const focus =
@@ -239,7 +239,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
                 off
                   ? undefined
                   : () => {
-                      if (m.name === "Boss rematch" && lastBoss) {
+                      if (m.name === "Replay a check" && lastBoss) {
                         const unit = map.units.find((item) =>
                           item.nodes.some((node) => node.id === lastBoss.id),
                         );
@@ -258,7 +258,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
               style={styles.gridItem}
               contentStyle={[styles.modeCard, off && styles.modeCardOff]}
             >
-              {m.name === "Boss rematch" ? (
+              {m.name === "Replay a check" ? (
                 <BossSprite
                   nodeId={
                     lastBoss?.id ??
@@ -277,7 +277,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
                 {modeMeta(m.name)}
                 {off
                   ? ""
-                  : ` · ${m.name === "Boss rematch" && lastBoss ? questionCountFor(lastBoss) : focus?.length ? Math.min(m.count, countForSkills(courseId, focus)) : sized(m.count)}Q`}
+                  : ` · ${m.name === "Replay a check" && lastBoss ? questionCountFor(lastBoss) : focus?.length ? Math.min(m.count, countForSkills(courseId, focus)) : sized(m.count)}Q`}
               </Text>
             </ChunkyCard>
           );

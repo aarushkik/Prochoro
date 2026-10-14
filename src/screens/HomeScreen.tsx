@@ -455,8 +455,8 @@ function TrailEnd({ cleared, total, tracks }: { cleared: number; total: number; 
       </Text>
       <Text style={[typography.body, styles.endBody]}>
         {cleared === 0
-          ? `${tracks} areas and sixty bosses ahead. Clear a track and the next one opens.`
-          : 'Keep going — each boss you beat opens the area after it.'}
+          ? `${tracks} areas and sixty study club checks ahead. Clear a track and the next one opens.`
+          : 'Keep going — each final check you pass opens the area after it.'}
       </Text>
     </View>
   );

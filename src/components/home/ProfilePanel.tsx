@@ -112,7 +112,7 @@ export function ProfilePanel({ topInset = 0 }: { topInset?: number }) {
             <View style={styles.streakBody}>
               <Text style={styles.streakTitle}>{streakDays}-day streak</Text>
               <Text style={styles.streakNote}>One practice session a day keeps it going</Text>
-              <Text style={styles.streakNote}>Best streak: {quest.bestStreak} days</Text>
+              <Text style={styles.streakNote}>Best streak: {quest.bestStreak} {quest.bestStreak === 1 ? 'day' : 'days'}</Text>
             </View>
           </View>
         </View>

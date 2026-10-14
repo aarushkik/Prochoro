@@ -70,7 +70,7 @@ export const PLACEMENT_LEVELS: Record<string, PlacementLevel> = {
   advanced_review: {
     id: 'advanced_review',
     title: 'Advanced Review',
-    headline: 'Start with challenge questions, weak-area review, and boss battles',
+    headline: 'Start with challenge questions, weak-area review, and study club checks',
     description: 'A suggested review route based on this short check. Practice results do not predict an AP score.',
   },
 };
