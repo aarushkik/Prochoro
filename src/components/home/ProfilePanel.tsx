@@ -64,9 +64,8 @@ export function ProfilePanel({ topInset = 0 }: { topInset?: number }) {
     bestStreak: quest.bestStreak,
     xp,
   }).slice(0, 4);
-  const { user, guestMode, leaveGuest, eraseGuest, signOut, deleteAccount, deleting, error: authError } = useAuth();
+  const { user, signOut, deleteAccount, deleting, error: authError } = useAuth();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
-  const [confirmingClear, setConfirmingClear] = useState(false);
   const { offline, error: syncError, notice, retry } = useProfileSync();
 
   const toNext = Math.max(0, level * 500 - xp);
@@ -84,7 +83,7 @@ export function ProfilePanel({ topInset = 0 }: { topInset?: number }) {
           </View>
           <View style={styles.bannerBody}>
             <Text style={styles.name} numberOfLines={2}>
-              {guestMode ? 'Studying on this device' : displayName(user?.user_metadata, user?.email)}
+              {displayName(user?.user_metadata, user?.email)}
             </Text>
             <Text style={styles.meta}>
               {course?.name ?? 'Your course'} · Level {level} · {completed.length}/{map.order.length} stops
@@ -99,11 +98,6 @@ export function ProfilePanel({ topInset = 0 }: { topInset?: number }) {
 
       <View style={styles.body}>
         <AppearanceControls />
-        {guestMode ? <View style={styles.accountPrompt}>
-          <Text style={styles.accountPromptTitle}>Keep your progress everywhere</Text>
-          <Text style={styles.accountPromptBody}>Your study progress is saved on this device. Make an account to bring it to your other devices.</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Make an account to sync progress" onPress={() => void leaveGuest()} style={styles.accountPromptButton}><Text style={styles.accountPromptButtonText}>Make an account</Text></Pressable>
-        </View> : null}
         {(offline || syncError) && <View style={styles.offline}><Text style={styles.offlineText}>{syncError ?? 'Your latest progress hasn’t reached your account yet. We’ll retry when you reconnect.'}</Text><Pressable accessibilityRole="button" onPress={retry} style={{ minHeight: 44, justifyContent: 'center' }}><Text style={styles.offlineText}>Try again</Text></Pressable></View>}
         {notice && <View style={styles.offline}><Text style={styles.offlineText}>{notice}</Text></View>}
         {authError && <View accessibilityRole="alert" style={styles.dangerBox}><Text style={styles.dangerBody}>{authError}</Text></View>}
@@ -192,26 +186,18 @@ export function ProfilePanel({ topInset = 0 }: { topInset?: number }) {
             );
           })}
         </View>
-        {!guestMode ? <Pressable
+        <Pressable
           accessibilityRole="button"
           accessibilityLabel="Sign out"
           onPress={signOut}
           style={({ pressed }) => [styles.signOut, pressed && styles.signOutPressed]}
         >
           <Text style={styles.signOutText}>Sign out</Text>
-        </Pressable> : null}
+        </Pressable>
 
         <View style={styles.legalRow}>
           {(['privacy', 'terms', 'support'] as const).map((key) => <Pressable key={key} accessibilityRole="link" onPress={() => openLink(links[key])} style={styles.legalLink}><Text style={styles.legalText}>{key === 'privacy' ? 'Privacy' : key === 'terms' ? 'Terms' : 'Support'}</Text></Pressable>)}
         </View>
-        {guestMode ? (confirmingClear ? <View style={styles.dangerBox}>
-          <Text style={styles.dangerTitle}>Erase local progress?</Text>
-          <Text style={styles.dangerBody}>This removes the study progress saved on this device, including {xp} XP and {quest.earned.length} cleared stops. It cannot be undone.</Text>
-          <View style={styles.dangerRow}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Keep local progress" onPress={() => setConfirmingClear(false)} style={styles.keepBtn}><Text style={styles.keepText}>Keep it</Text></Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="Permanently erase local progress" onPress={() => void eraseGuest()} style={styles.deleteBtn}><Text style={styles.deleteText}>ERASE DEVICE</Text></Pressable>
-          </View>
-        </View> : <Pressable accessibilityRole="button" accessibilityLabel="Erase local progress" onPress={() => setConfirmingClear(true)} style={styles.deleteLink}><Text style={styles.deleteLinkText}>Erase local progress</Text></Pressable>) : null}
         {/* Account deletion, required by App Store guideline 5.1.1(ii) for any
             app that creates accounts — a support email is not accepted.
 
@@ -219,7 +205,7 @@ export function ProfilePanel({ topInset = 0 }: { topInset?: number }) {
             only irreversible control in the app, and the difference between a
             student idly tapping it and a student meaning it is being told,
             before the second tap, exactly how much they are about to lose. */}
-        {!guestMode && (confirmingDelete ? (
+        {confirmingDelete ? (
           <View style={styles.dangerBox}>
             <Text style={styles.dangerTitle}>Delete your account?</Text>
             <Text style={styles.dangerBody}>
@@ -258,7 +244,7 @@ export function ProfilePanel({ topInset = 0 }: { topInset?: number }) {
           >
             <Text style={styles.deleteLinkText}>Delete account</Text>
           </Pressable>
-        ))}
+        )}
       </View>
     </ScrollView>
   );
@@ -331,11 +317,6 @@ const createStyles = ({ colors, palette, typography, stroke, card, solid, glass 
   levelNote: { fontFamily: fonts.bodyBold, fontSize: 11, color: colors.ink, marginTop: 4 },
 
   body: { paddingHorizontal: 18, paddingTop: 14 },
-  accountPrompt: { marginTop: 12, padding: 17, borderRadius: 22, backgroundColor: colors.primaryTint, borderWidth: stroke.surface, borderColor: colors.border },
-  accountPromptTitle: { fontFamily: fonts.displayHeavy, fontSize: 19, color: colors.ink },
-  accountPromptBody: { fontFamily: fonts.body, fontSize: 13, lineHeight: 19, color: colors.textSecondary, marginTop: 4 },
-  accountPromptButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: 17, marginTop: 12, borderRadius: 18, backgroundColor: colors.primary },
-  accountPromptButtonText: { fontFamily: fonts.bodyHeavy, fontSize: 13, color: colors.textOnPrimary },
 
   streakWrap: { position: 'relative', marginBottom: 6 },
   streak: {

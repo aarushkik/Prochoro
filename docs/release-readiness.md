@@ -4,11 +4,11 @@ Updated 13 October 2026. The design refresh and local release work are implement
 
 ## This update
 
-- Replaced procedural camp, skyline, scattered landscape motifs, placement drawings and activity glyphs with 27 generated illustrations: one camp, ten landscapes, eight courses, four badges and four activity emblems. Art matches Stu and is bundled offline. Existing illustrated study-club bosses and companions retain their saved IDs. See [design refinement](design-refinement.md) and [generation prompts](design-art-prompts.json).
+- Replaced procedural camp, skyline, scattered landscape motifs and placement drawings with 23 generated illustrations: one camp, ten landscapes, eight courses and four badges. Art matches Stu and is bundled offline. Existing illustrated study-club bosses and companions retain their saved IDs. See [design refinement](design-refinement.md) and [generation prompts](design-art-prompts.json).
 - Refined shared card opacity, illustrated course/region headers, narrow region labels and glass navigation motion. Removed endless celebration confetti. Retained native Liquid Glass where available, blur/solid fallbacks, dark appearance, Reduce Motion and Reduce Transparency support.
 - Kept the native Apple sign-in implementation and added the missing server-side token revocation path for account deletion. It validates the authenticated user, Apple signature/audience/nonce/identity, then revokes before deleting. The SQL guard prevents Apple-linked accounts bypassing revocation through the old RPC. No remote provider settings, keys or account data were changed.
 - Declared the required-reason APIs used by the bundled React Native and Expo native packages in the app-level iOS privacy manifest, using those packages' own declared reasons. The actual signed archive still needs App Store Connect validation. Android now has an initial version code.
-- Google and Microsoft remain enabled. Students can study as guests with local saving, with persistent prompts to create an account for cross-device sync. Guest progress imports when signing in to a same-course account and stays local when the account follows a different course. Signed-in study progress can persist locally while offline and synchronize when connected.
+- Google and Microsoft remain enabled. Current app requires sign-in; migration of older guest progress remains intact. Signed-in study progress can persist locally while offline and synchronize when connected.
 
 ## Verified locally
 
@@ -18,7 +18,7 @@ Updated 13 October 2026. The design refresh and local release work are implement
 - Production web, iOS Hermes and Android Hermes exports succeed at `/private/tmp/studyplat-refined-final`. These are JavaScript/assets exports, **not signed app archives**.
 - Read-only health check: Auth HTTP 200, database HTTP 200, Google and Azure enabled.
 - Network-enabled release preflight: public Supabase configuration, 1024px opaque icon, public privacy/terms/support URLs, and Google/Azure providers pass. EAS project link, Apple flag/provider and deployed deletion function remain blocked. A network-restricted shell reports the live URL checks as unavailable; that is a local DNS limitation, not a project failure.
-- Browser inspection covers welcome/account entry, the isolated real-component preview, and the published GitHub Pages site. An isolated local guest origin completed onboarding, earned 20 XP from a lesson, and retained its course, cleared stop, XP and gems after reload. Guest-to-account prompt and return to local study were checked without touching the user's saved progress. Course cards wrap at narrow widths, images load, and navigation/appearance controls respond.
+- Browser inspection covers welcome/account entry at 390 × 844 and 320 × 568, plus an isolated real-component preview in light/dark mode at both sizes. Fixed preserved scroll position when changing sign-in forms; verified empty-email validation without sending credentials. Course cards wrap at narrow widths, images load, and navigation/appearance controls respond. Saved user progress was not modified. Development console reports React Native Web pointer-events/native-driver fallback warnings; no runtime errors were observed in the inspected views.
 
 The signed-in study flow was not repeated in this update because the app was signed out. Earlier acceptance results are not a substitute for current native testing. Xcode is not installed here (Command Line Tools only); native Apple sign-in, native glass, VoiceOver and device performance cannot be certified on this host.
 
@@ -46,13 +46,13 @@ Name: StudyPlat: AP Study Quests
 
 Subtitle: Short lessons. Steady progress.
 
-Description: Build a steady study habit with Stu, your platypus study companion. Choose an AP course, read short field notes, practise topic questions, and follow a quest map with review stops and study club checks. Track your sessions, streaks, and topic accuracy. Start without an account and save progress on your device, or sign in with Apple, Google, Microsoft or email to carry it across devices. Eight courses include Biology, Calculus AB, Chemistry, Computer Science A, English Language, Psychology, U.S. History, and World History. Questions are original practice material. StudyPlat is independent and is not affiliated with or endorsed by the College Board; AP is its registered trademark.
+Description: Build a steady study habit with Stu, your platypus study companion. Choose an AP course, read short field notes, practise topic questions, and follow a quest map with review stops and study club checks. Track your sessions, streaks, and topic accuracy. Sign in with Apple, Google, Microsoft or email and your quest follows you across devices. Eight courses include Biology, Calculus AB, Chemistry, Computer Science A, English Language, Psychology, U.S. History, and World History. Questions are original practice material. StudyPlat is independent and is not affiliated with or endorsed by the College Board; AP is its registered trademark.
 
 Primary category: Education. No subscriptions, ads, or in-app purchases are implemented. Choose the age rating by answering the current questionnaire accurately; the policy describes an intended audience of 13+ and this is not a Kids Category declaration.
 
 App privacy draft for owner review: account name/email, account user ID, and linked study activity/progress are used for app functionality. No advertising, cross-app tracking, or third-party analytics SDK is included. Include hosting/provider collection as appropriate; confirm final data types and retention against the actual Supabase deployment before submitting labels.
 
-Review notes draft: Guests can study with progress saved on one device; signing in syncs progress across devices. Provide a working demo account (email and password) in App Store Connect's Sign-In Information so the reviewer can sign in with email. Account deletion and guest-local erasure are available in Profile. No credentials are included here.
+Review notes draft: An account is required; sign-in syncs progress across devices. Provide a working demo account (email and password) in App Store Connect's Sign-In Information so the reviewer can sign in with email. Account deletion is available in Profile. No credentials are included here.
 
 ## Primary references
 

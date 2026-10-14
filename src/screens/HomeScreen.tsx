@@ -22,7 +22,6 @@ import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Presence } from '@/components/ui/Presence';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
 import { useOnboarding } from '@/state/OnboardingContext';
-import { useAuth } from '@/state/AuthContext';
 import { getCourse } from '@/data';
 import {
   BattlesPanel,
@@ -69,7 +68,6 @@ export function HomeScreen() {
   const { width: windowWidth } = useWindowDimensions();
   const width = Math.min(windowWidth, 620);
   const quest = useQuest();
-  const { guestMode, leaveGuest } = useAuth();
   const { courseId } = useOnboarding();
 
   const [tab, setTab] = useState<QuestTab>('map');
@@ -289,11 +287,6 @@ export function HomeScreen() {
                   onContinue={() => currentNode ? setSelected(currentNode) : setTab('practice')}
                   active={tab === 'map'}
                 />
-                {guestMode ? <Pressable accessibilityRole="button" accessibilityLabel="Make an account to save progress across devices" onPress={() => void leaveGuest()} style={styles.guestPrompt}>
-                  <Glyph name="book" size={22} color={colors.primaryDeep} />
-                  <View style={styles.guestPromptCopy}><Text style={styles.guestPromptTitle}>Take your progress with you</Text><Text style={styles.guestPromptBody}>Make an account to sync across devices.</Text></View>
-                  <Glyph name="arrow-right" size={17} color={colors.primaryDeep} />
-                </Pressable> : null}
                 <SaveStatusNotice />
               </View>
             }
@@ -462,8 +455,8 @@ function TrailEnd({ cleared, total, tracks }: { cleared: number; total: number; 
       </Text>
       <Text style={[typography.body, styles.endBody]}>
         {cleared === 0
-          ? `${tracks} areas and sixty study club checks ahead. Clear a track and the next one opens.`
-          : 'Keep going — each study club check you pass opens the area after it.'}
+          ? `${tracks} areas and sixty bosses ahead. Clear a track and the next one opens.`
+          : 'Keep going — each boss you beat opens the area after it.'}
       </Text>
     </View>
   );
@@ -480,10 +473,6 @@ const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => Styl
   continuePressed: { transform: [{ scale: 0.95 }] },
   continueGlass: { flexDirection: 'row', alignItems: 'center', gap: 7, minHeight: 50, borderRadius: 25, paddingHorizontal: 18 },
   continueText: { fontFamily: fonts.bodyHeavy, fontSize: 13, color: colors.textOnPrimary },
-  guestPrompt: { marginHorizontal: 18, marginBottom: 16, paddingHorizontal: 15, paddingVertical: 12, borderRadius: 20, borderWidth: stroke.surface, borderColor: colors.border, backgroundColor: colors.surface, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  guestPromptCopy: { flex: 1 },
-  guestPromptTitle: { fontFamily: fonts.bodyHeavy, fontSize: 13, color: colors.ink },
-  guestPromptBody: { fontFamily: fonts.body, fontSize: 11.5, color: colors.textSecondary },
 
   end: {
     alignItems: 'center',

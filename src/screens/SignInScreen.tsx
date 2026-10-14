@@ -28,7 +28,7 @@ export function SignInScreen() {
 
   const {
     signIn, signInWithEmail, signUpWithEmail, emailPending, pending, error, clearError,
-    resetPassword, updatePassword, recovering, cancelRecovery, startGuest,
+    resetPassword, updatePassword, recovering, cancelRecovery,
   } = useAuth();
   const { width, height } = useWindowDimensions();
   const [mode, setMode] = useState<Mode>('welcome');
@@ -87,7 +87,7 @@ export function SignInScreen() {
                 <View style={styles.welcomeBody}>
                   <StudyCamp size={Math.min(width - 40, height < 720 ? 280 : 350)} />
                   <Text accessibilityRole="header" style={styles.headline}>AP practice,{'\n'}one stop at a time.</Text>
-                  <Text style={styles.tagline}>Five-minute stops on a map of your course.{'\n'}Start now, with or without an account.</Text>
+                  <Text style={styles.tagline}>Five-minute stops on a map of your course.{'\n'}Sign in to start yours.</Text>
                   <View style={styles.features}>
                     <Feature icon="book" label="8 AP courses" />
                     <View style={styles.featureDot} />
@@ -100,12 +100,10 @@ export function SignInScreen() {
                   <ProviderButton provider="google" busy={pending === 'google'} disabled={busy} onPress={() => signIn('google')} />
                   <ProviderButton provider="azure" busy={pending === 'azure'} disabled={busy} onPress={() => signIn('azure')} />
                   {error ? <Message text={error} error /> : null}
+                  {/* An account is required — progress lives with it, on every
+                      device — so email is the last way in, not a way around. */}
                   <AppButton label="Continue with email" icon="arrow-right" disabled={busy} onPress={() => changeMode('signIn')} />
-                  <Pressable accessibilityRole="button" accessibilityLabel="Continue without an account; save progress on this device" disabled={busy} onPress={() => void startGuest()} style={({ pressed }) => [styles.guestButton, pressed && styles.pressed]}>
-                    <Text style={styles.guestButtonLabel}>Continue without an account</Text>
-                    <Text style={styles.guestButtonNote}>Save progress on this device</Text>
-                  </Pressable>
-                  <Text style={styles.deviceNote}>Sign in later to keep your progress across devices.</Text>
+                  <Text style={styles.deviceNote}>Your progress is saved to your account and syncs across devices.</Text>
                   <Pressable accessibilityRole="button" disabled={busy} onPress={() => changeMode('signUp')} style={({ pressed }) => [styles.textButton, pressed && styles.pressed]}>
                     <Text style={styles.textButtonLabel}>New here? Create an account</Text>
                   </Pressable>
@@ -197,9 +195,6 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   featureDot: { width: 3, height: 3, borderRadius: 2, backgroundColor: '#72989D' },
   actions: { gap: 4 },
   deviceNote: { fontFamily: fonts.body, fontSize: 11, lineHeight: 16, textAlign: 'center', color: '#ACC6CD', marginTop: 8 },
-  guestButton: { minHeight: 56, borderWidth: 1.5, borderColor: '#8CC3CB', borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginTop: 8, paddingHorizontal: 14 },
-  guestButtonLabel: { fontFamily: fonts.bodyHeavy, fontSize: 14, color: '#F5FCF9' },
-  guestButtonNote: { fontFamily: fonts.body, fontSize: 11, color: '#BDD9DD', marginTop: 2 },
   textButton: { minHeight: 44, paddingHorizontal: 8, paddingVertical: 12, alignItems: 'center', justifyContent: 'center' },
   textButtonLabel: { fontFamily: fonts.bodyHeavy, fontSize: 14, lineHeight: 20, color: '#D9EFF0', textAlign: 'center' },
   pressed: { opacity: 0.65 },
