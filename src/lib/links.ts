@@ -12,7 +12,7 @@ import * as Linking from 'expo-linking';
  * Served from `site/` in this repo via GitHub Pages. Change the base here if
  * the app ever gets its own domain; nothing else references these URLs.
  */
-const BASE = 'https://aarushkik.github.io/StudyPlat';
+const BASE = 'https://prochoro.net';
 
 export const links = {
   home: BASE,

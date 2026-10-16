@@ -1,5 +1,5 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
-import { Backdrop } from '@/components/ui/Backdrop';
+import { AreaBackdrop } from '@/components/ui/AreaBackdrop';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
@@ -257,7 +257,7 @@ export function HomeScreen() {
 
   return (
     <View style={styles.root}>
-      <Backdrop />
+      <AreaBackdrop kind={activeUnit?.track.kind} opacity={0.35} />
       <StatusBar style={appTheme.isDark ? "light" : "dark"} />
       {/* The map stays mounted and is hidden rather than unmounted. Rebuilding
           2,400 points of SVG on every tab switch is wasteful, it threw away
@@ -455,7 +455,7 @@ function TrailEnd({ cleared, total, tracks }: { cleared: number; total: number; 
       </Text>
       <Text style={[typography.body, styles.endBody]}>
         {cleared === 0
-          ? `${tracks} areas and sixty study club checks ahead. Clear a track and the next one opens.`
+          ? `${tracks} areas and sixty boss duels ahead. Clear a track and the next one opens.`
           : 'Keep going — each final check you pass opens the area after it.'}
       </Text>
     </View>

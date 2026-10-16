@@ -1,63 +1,41 @@
-import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
+import { GlassSurface } from '@/components/ui/GlassSurface';
+import { CourseIllustration } from '@/components/ui/CourseIllustration';
 import { ProgressBar } from '@/components/ui';
 import { Glyph } from '@/components/icons';
-import { colors, radius, spacing, typography } from '@/theme';
-import { STREAK_VISIBLE_THRESHOLD } from '@/utils/streaks';
-import { StreakBadge } from './StreakBadge';
 
-interface QuizProgressHeaderProps {
-  /** 0–1 through the question set. */
+interface Props {
   progress: number;
-  /** e.g. "3 / 8". */
   counter: string;
-  /** Current correct-answer streak; the badge appears at 2+. */
   currentCorrectStreak: number;
+  title: string;
+  subtitle: string;
+  courseId?: string | null;
   onClose: () => void;
 }
 
-/**
- * The quiz's top row: leave, how far along you are, and the running combo.
- * Everything the student needs mid-question and nothing else — the mascot lives
- * in the feedback panel, where it has something to react to.
- */
-export function QuizProgressHeader({ progress, counter, currentCorrectStreak, onClose }: QuizProgressHeaderProps) {
-  const appTheme = useAppTheme();
-  const { colors, palette, typography, chunky } = appTheme;
+/** A single glass toolbar keeps the course, position and exit within reach. */
+export function QuizProgressHeader({ progress, counter, currentCorrectStreak, title, subtitle, courseId, onClose }: Props) {
   const styles = useThemedStyles(createStyles);
-
-  return (
-    <View>
-      <View style={styles.row}>
-        <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel="Leave quiz">
-          <Glyph name="close" size={24} color={colors.textMuted} strokeWidth={2.6} />
-        </Pressable>
-
-        <ProgressBar progress={progress} height={14} style={styles.bar} />
-
-        <View style={styles.counter}>
-          <Text style={styles.counterText}>{counter}</Text>
-        </View>
-      </View>
-
-      <View style={styles.badgeSlot}>
-        <StreakBadge streakCount={currentCorrectStreak} visible={currentCorrectStreak >= STREAK_VISIBLE_THRESHOLD} />
-      </View>
+  return <GlassSurface style={styles.bar}>
+    <View style={styles.row}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Leave quiz" onPress={onClose} style={styles.close}><Glyph name="close" size={19} /></Pressable>
+      {courseId ? <CourseIllustration courseId={courseId} size={32} /> : null}
+      <View style={styles.copy}><Text style={styles.title} numberOfLines={1}>{title}</Text><Text style={styles.subtitle} numberOfLines={1}>{currentCorrectStreak > 1 ? `${currentCorrectStreak} correct in a row` : subtitle}</Text></View>
+      <Text style={styles.counter}>{counter}</Text>
     </View>
-  );
+    <ProgressBar progress={progress} height={3} style={styles.progress} />
+  </GlassSurface>;
 }
-
-const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
-  bar: { flex: 1 },
-  counter: {
-    backgroundColor: colors.surfaceSunken,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
-  },
-  counterText: { ...typography.label, color: colors.textSecondary },
-  // Fixed height so the bar never shifts when the combo badge appears.
-  badgeSlot: { height: 18, justifyContent: 'center', paddingLeft: spacing.xxxl },
+const createStyles = ({ colors, typography }: AppTheme) => StyleSheet.create({
+  bar: { borderRadius: 25, paddingHorizontal: 8, paddingTop: 6, paddingBottom: 11 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  close: { width: 36, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 20 },
+  copy: { flex: 1, minWidth: 0 },
+  title: { ...typography.subtitle, fontSize: 14, lineHeight: 19 },
+  subtitle: { ...typography.caption, fontSize: 10, lineHeight: 15 },
+  counter: { ...typography.caption, color: colors.ink, fontVariant: ['tabular-nums'], paddingRight: 9 },
+  progress: { marginTop: 7, marginHorizontal: 12 },
 });

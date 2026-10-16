@@ -18,14 +18,14 @@ export function SplashScreen() {
     return () => clearTimeout(timer);
   }, [navigation]);
   return <View style={styles.root}>
-    <StatusBar style="light" />
-    <View style={styles.emblem}><Mascot size={170} pose="excited" shadow={false} ink="dark" /></View>
-    <Wordmark size={40} variant="light" />
+    <StatusBar style={appTheme.isDark ? 'light' : 'dark'} />
+    <View style={styles.emblem}><Mascot size={170} pose="wave" shadow={false} /></View>
+    <Wordmark size={36} />
     <Text style={styles.tagline}>Your AP quest starts here.</Text>
   </View>;
 }
 const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.create({
   root: { flex: 1, backgroundColor: palette.night, alignItems: 'center', justifyContent: 'center', gap: 14 },
-  emblem: { width: 204, height: 204, backgroundColor: colors.surface, borderRadius: 102, alignItems: 'center', justifyContent: 'center', marginBottom: 12, borderWidth: 7, borderColor: '#111111' },
-  tagline: { ...typography.tagline, color: palette.turquoiseLight },
+  emblem: { width: 204, height: 204, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  tagline: { ...typography.body, color: colors.textSecondary },
 });

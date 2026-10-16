@@ -7,18 +7,6 @@ import {
 } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
-import {
-  Baloo2_600SemiBold,
-  Baloo2_700Bold,
-  Baloo2_800ExtraBold,
-} from "@expo-google-fonts/baloo-2";
-import {
-  Figtree_500Medium,
-  Figtree_600SemiBold,
-  Figtree_700Bold,
-  Figtree_800ExtraBold,
-  Figtree_900Black,
-} from "@expo-google-fonts/figtree";
 import { AuthProviderComponent } from "@/state/AuthContext";
 import { OnboardingProvider } from "@/state/OnboardingContext";
 import { ProfileSync } from "@/state/ProfileSync";
@@ -45,15 +33,9 @@ function ThemedApp() {
   const { colors, isDark } = useAppTheme();
   const navTheme: Theme = { ...DefaultTheme, dark: isDark, colors: { ...DefaultTheme.colors, background: colors.background, card: colors.surface, primary: colors.primary, text: colors.textPrimary, border: colors.border } };
   const [fontsLoaded, fontError] = useFonts({
-    // Baloo 2 carries headings, buttons and labels; Figtree carries body copy.
-    Baloo2_600SemiBold,
-    Baloo2_700Bold,
-    Baloo2_800ExtraBold,
-    Figtree_500Medium,
-    Figtree_600SemiBold,
-    Figtree_700Bold,
-    Figtree_800ExtraBold,
-    Figtree_900Black,
+    Figtree_500Medium: require('@expo-google-fonts/figtree/500Medium/Figtree_500Medium.ttf'),
+    Figtree_600SemiBold: require('@expo-google-fonts/figtree/600SemiBold/Figtree_600SemiBold.ttf'),
+    Figtree_700Bold: require('@expo-google-fonts/figtree/700Bold/Figtree_700Bold.ttf'),
   });
 
   /**
@@ -72,7 +54,7 @@ function ThemedApp() {
   }, []);
 
   if (!fontsLoaded && !fontError && !waitedForFonts) {
-    return <View style={{ flex: 1, backgroundColor: colors.night, alignItems: 'center', justifyContent: 'center', gap: 18 }}><Text style={{ color: colors.white, fontSize: 28, fontWeight: '700' }}>Prochoro</Text><ActivityIndicator color={colors.primaryLight} /></View>;
+    return <View style={{ flex: 1, backgroundColor: colors.night, alignItems: 'center', justifyContent: 'center', gap: 18 }}><Text style={{ color: colors.ink, fontSize: 28, fontWeight: '700' }}>Prochoro</Text><ActivityIndicator color={colors.primaryLight} /></View>;
   }
 
   return (

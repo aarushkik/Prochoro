@@ -15,7 +15,7 @@ export const scoreGoals: ScoreGoal[] = [
   { id: 'score4', label: 'A 4 or higher', description: 'A strong, college-ready score.' },
   { id: 'score3', label: 'A 3 or higher', description: 'Pass and earn the credit.' },
   { id: 'grade', label: 'Boost my class grade', description: 'Do better in the class itself.' },
-  { id: 'unsure', label: 'Not sure yet', description: 'Stu will help you pick a target.' },
+  { id: 'unsure', label: 'Not sure yet', description: 'Find a target as you practise.' },
 ];
 
 /** Setup step 4 — when the AP exam is happening. */
@@ -31,16 +31,16 @@ export const achievementsByCategory: Record<CourseCategory, Achievement[]> = {
   stem: [
     { icon: 'layers', title: 'Master the core concepts', description: 'Lock in the ideas every later unit builds on.' },
     { icon: 'target', title: 'Train on AP-style problems', description: 'Get fluent in how the exam actually asks things.' },
-    { icon: 'rocket', title: 'Gear up for test day', description: 'Close weak spots with review and study club checks.' },
+    { icon: 'rocket', title: 'Gear up for test day', description: 'Close weak spots with review and boss duels.' },
   ],
   history: [
     { icon: 'book', title: 'Master the key ideas', description: 'Build the foundation every unit needs.' },
     { icon: 'page', title: 'Decode source questions', description: 'Read, reason, and answer the way the AP wants.' },
-    { icon: 'medal', title: 'Build exam-day confidence', description: 'Close weak spots with review and study club checks.' },
+    { icon: 'medal', title: 'Build exam-day confidence', description: 'Close weak spots with review and boss duels.' },
   ],
   english: [
     { icon: 'compass', title: 'Read like a detective', description: 'Break down passages and prompts with ease.' },
     { icon: 'quill', title: 'Sharpen your arguments', description: 'Nail evidence, reasoning, and structure.' },
-    { icon: 'rocket', title: 'Gear up for test day', description: 'Close weak skills with review and study club checks.' },
+    { icon: 'rocket', title: 'Gear up for test day', description: 'Close weak skills with review and boss duels.' },
   ],
 };

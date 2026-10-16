@@ -28,7 +28,7 @@ const KIND: Record<QuestNodeKindId, { label: string; glyph: GlyphName; cta: stri
   drill: { label: 'Drill', glyph: 'page', cta: 'Start drill', again: 'Run it again' },
   study: { label: 'Knowledge check', glyph: 'page', cta: 'Start review', again: 'Review again' },
   bonus: { label: 'Bonus', glyph: 'chest', cta: 'Open the cache', again: 'Open again' },
-  boss: { label: 'Study club check', glyph: 'swords', cta: 'Start the check', again: 'Try it again' },
+  boss: { label: 'Boss duel', glyph: 'swords', cta: 'Challenge boss', again: 'Rematch boss' },
 };
 
 /**
@@ -138,10 +138,10 @@ function SheetBody({
 
           {isBoss ? <View style={{ alignItems: 'center', paddingBottom: 8 }}><BossSprite nodeId={node.id} size={156} /><Text style={{ color: colors.textSecondary, textAlign: 'center', ...typography.caption }}>{bossForNode(node.id)?.species}</Text></View> : null}
           <View style={styles.head}>
-            <View style={[styles.crest, { backgroundColor: scheme.face, borderColor: scheme.edge }]}>
+            <View style={[styles.crest, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               {node.kind === 'boss'
-                ? <Glyph name={kind.glyph} size={30} color={colors.white} strokeWidth={2.4} />
-                : <ActivityIllustration id={node.kind} size={45} ink={state === 'locked' ? 'dark' : 'light'} />}
+                ? <Glyph name={kind.glyph} size={26} color={colors.ink} strokeWidth={1.5} />
+                : <ActivityIllustration id={node.kind} size={45} />}
             </View>
             <View style={styles.headText}>
               <Text style={styles.kicker} numberOfLines={1}>
@@ -153,7 +153,7 @@ function SheetBody({
             </View>
             {cleared ? (
               <View style={styles.clearedBadge}>
-                <Glyph name="check" size={14} color={colors.white} strokeWidth={3.2} />
+                <Glyph name="check" size={14} color={colors.textOnPrimary} strokeWidth={2.2} />
               </View>
             ) : null}
           </View>
@@ -274,15 +274,15 @@ const createStyles = ({ colors, palette, typography, stroke, glass }: AppTheme) 
     alignItems: 'center',
     gap: spacing.md,
     marginTop: spacing.lg,
-    backgroundColor: '#111111',
+    backgroundColor: colors.surface,
     borderWidth: stroke.surface,
     borderColor: colors.border,
     borderRadius: 18,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
   },
-  bossNoteFinal: { backgroundColor: '#292929' },
-  bossText: { ...typography.caption, color: '#F4F4F4', flex: 1 },
+  bossNoteFinal: { borderColor: colors.ink },
+  bossText: { ...typography.caption, color: colors.ink, flex: 1 },
 
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },
   // A translucent well, not a solid one: on glass, an opaque chip reads as a

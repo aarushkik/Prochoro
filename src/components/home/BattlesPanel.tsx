@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Mascot } from '@/components/Mascot';
 import { ChunkyCard } from '@/components/ui';
-import { colors, fonts, palette, litRim, tintedCard } from '@/theme';
+import { colors, fonts, palette, outlinedCard } from '@/theme';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuest } from '@/state/QuestContext';
@@ -110,7 +110,7 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
               {unit.track.place}
             </Text>
             <View style={styles.miniTrack}>
-              <View style={[styles.miniFill, { width: `${pct}%`, backgroundColor: unit.track.deep }]} />
+              <View style={[styles.miniFill, { width: `${pct}%`, backgroundColor: colors.ink }]} />
             </View>
             <Text style={styles.trackPct}>{pct}%</Text>
           </ChunkyCard>
@@ -188,7 +188,7 @@ const createStyles = ({ colors, palette, typography, stroke, glass, solid }: App
   bigUnit: { fontSize: 22, color: colors.textMuted },
   delta: {
     marginBottom: 6,
-    ...tintedCard(glass, colors.primaryTint, colors.primary, solid),
+    ...outlinedCard(glass),
     borderRadius: 14,
     paddingHorizontal: 9,
     paddingVertical: 4,
@@ -253,12 +253,13 @@ const createStyles = ({ colors, palette, typography, stroke, glass, solid }: App
   drill: {
     marginTop: 11,
     backgroundColor: palette.ember,
-    ...litRim(0.55),
-    boxShadow: solid ? 'none' : '0 4px 12px rgba(18,48,60,0.14)',
+    borderWidth: 1,
+    borderColor: colors.primary,
+    boxShadow: 'none',
     borderRadius: 20,
     paddingVertical: 10,
     alignItems: 'center',
   },
   drillPressed: { transform: [{ translateY: 2 }], opacity: 0.92 },
-  drillText: { fontFamily: fonts.bodyBlack, fontSize: 12.5, letterSpacing: 1, color: colors.white },
+  drillText: { fontFamily: fonts.bodyBlack, fontSize: 12.5, letterSpacing: 0.2, color: colors.textOnPrimary },
 });

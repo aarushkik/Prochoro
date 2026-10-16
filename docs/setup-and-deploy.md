@@ -296,7 +296,7 @@ static pages cover it, in `site/`:
 
 To publish them free from this repo: **GitHub → Settings → Pages → Source:
 Deploy from a branch → Branch `main`, folder `/site` → Save.** They appear at
-`https://aarushkik.github.io/StudyPlat/` within a minute or two.
+`https://prochoro.net/` within a minute or two.
 
 If GitHub only offers `/` and `/docs` as folders, either move `site/` to
 `docs/` or use a Pages action; the URLs in `src/lib/links.ts` are the only

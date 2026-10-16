@@ -36,8 +36,8 @@ export function ExamTimelineScreen() {
         onBack={() => navigation.goBack()}
         step={4}
         total={5}
-        question="When’s your AP exam?"
-        subtitle="So Stu can pace the quest just right."
+        question="When is your exam?"
+        subtitle="Keep your goal and timeline in view."
         mascotPose="thinking"
       />
 
@@ -45,7 +45,7 @@ export function ExamTimelineScreen() {
         {examTimeframes.map((t) => (
           <ChoiceCard
             key={t.id}
-            icon={<ExamIcon id={t.id} color={colors.primary} size={28} />}
+            icon={<ExamIcon id={t.id} size={44} />}
             label={t.label}
             description={t.description}
             selected={selected === t.id}

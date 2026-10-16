@@ -13,7 +13,7 @@ check(process.env.EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED === 'true', 'Apple sign-in i
 const icon = readFileSync(new URL(`../${app.icon}`, import.meta.url));
 check(icon.readUInt32BE(16) === 1024 && icon.readUInt32BE(20) === 1024 && ![4,6].includes(icon[25]), 'App icon is 1024 square without an alpha channel');
 for (const path of ['privacy.html','terms.html','support.html']) {
-  try { const res = await fetch(`https://aarushkik.github.io/StudyPlat/${path}`, {signal:AbortSignal.timeout(10000)}); check(res.ok, `${path} is publicly reachable`); }
+  try { const res = await fetch(`https://prochoro.net/${path}`, {signal:AbortSignal.timeout(10000)}); check(res.ok, `${path} is publicly reachable over HTTPS`); }
   catch { check(false, `${path} is publicly reachable`); }
 }
 if (publicKey && url.startsWith('https://') && !url.includes('your-project')) {

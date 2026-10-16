@@ -70,6 +70,17 @@ test('explicit appearances override the device and system safely falls back to l
   assert.equal(resolveAppearance('system', null), 'light');
 });
 
+test('page and content surfaces invert between pure white and black', () => {
+  for (const key of ['background', 'surface', 'surfaceSelected', 'surfaceSunken', 'primaryTint', 'primarySoft', 'locked', 'disabledBg', 'successSoft', 'dangerSoft'] as const) {
+    assert.equal(colors[key], '#FFFFFF', key);
+    assert.equal(darkColors[key], '#000000', key);
+  }
+  assert.equal(colors.primary, '#000000');
+  assert.equal(darkColors.primary, '#FFFFFF');
+  assert.equal(colors.textOnPrimary, '#FFFFFF');
+  assert.equal(darkColors.textOnPrimary, '#000000');
+});
+
 function luminance(hex: string) {
   const channels = hex.slice(1).match(/../g)!.map(c => parseInt(c, 16) / 255).map(c => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
   return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;

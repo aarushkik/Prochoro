@@ -1,11 +1,11 @@
 /** Single import surface for the design system. */
 export { colors, palette, accents, stopColors, questNode, nightScreens, confettiColors } from './colors';
 export type { NightScreen, AccentName, Accent, QuestNodeKind } from './colors';
-export { chunky, gloss, glossRound, depth, chunkyRadius, BORDER } from './chunky';
+export { chunky, depth, chunkyRadius, BORDER } from './chunky';
 export type { ChunkyStyles } from './chunky';
 export { spacing } from './spacing';
 export { stroke } from './stroke';
-export { withAlpha, rimOf, selectedCard, glassCard, litRim, tintedCard } from './glass';
+export { withAlpha, rimOf, selectedCard, glassCard, outlinedCard } from './glass';
 export type { GlassTokens } from './glass';
 export type { StrokeToken } from './stroke';
 export { radius } from './radius';

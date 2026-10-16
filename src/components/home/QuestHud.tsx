@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Glyph, type GlyphName } from '@/components/icons';
 import { Mascot } from '@/components/Mascot';
 import { GlassSurface } from '@/components/ui/GlassSurface';
+import { UtilityIllustration, type UtilityIllustrationId } from '@/components/ui/UtilityIllustration';
 import { companionById } from '@/data/companions';
 import { fonts } from '@/theme';
 
@@ -67,7 +68,7 @@ export function QuestHud({ streakDays, gems, xp, equippedId, onOpenCharacters, o
       />
       <GlassSurface style={styles.stats}>
         <Stat
-          icon="flame"
+          icon="streak"
           tint={palette.ember}
           value={streakDays}
           unit="day streak"
@@ -75,7 +76,7 @@ export function QuestHud({ streakDays, gems, xp, equippedId, onOpenCharacters, o
         />
         <View style={styles.divider} />
         <Stat
-          icon="gem"
+          icon="gems"
           tint={colors.primary}
           value={gems}
           unit={gems === 1 ? 'gem' : 'gems'}
@@ -83,7 +84,7 @@ export function QuestHud({ streakDays, gems, xp, equippedId, onOpenCharacters, o
         />
         <View style={styles.divider} />
         <Stat
-          icon="star"
+          icon="xp"
           tint={palette.violet}
           value={xp}
           unit="total XP"
@@ -120,7 +121,7 @@ function Stat({
   unit,
   label,
 }: {
-  icon: GlyphName;
+  icon: UtilityIllustrationId;
   tint: string;
   value: number;
   unit: string;
@@ -131,7 +132,7 @@ function Stat({
   return (
     <View style={styles.stat} accessible accessibilityLabel={label}>
       <View style={styles.statTop}>
-        <Glyph name={icon} size={16} color={tint} strokeWidth={2.6} />
+        <UtilityIllustration id={icon} size={22} />
         <Text style={styles.value} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
           {value >= 10000 ? `${Math.round(value / 1000)}k` : value.toLocaleString()}
         </Text>

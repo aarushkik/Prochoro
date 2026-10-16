@@ -15,8 +15,7 @@ export function Wordmark({ size = 34, variant = 'brand' }: WordmarkProps) {
   const onDarkSurface = variant === 'light' || theme.isDark;
   return (
     <View style={styles.row}>
-      <Mascot pose="neutral" size={size * 0.94} ink={onDarkSurface ? 'light' : 'dark'} />
-      <Text style={[styles.word, { fontSize: size, color: onDarkSurface ? '#FFFFFF' : '#111111' }]}>Prochoro</Text>
+      <Text style={[styles.word, { fontSize: size, color: onDarkSurface ? '#FFFFFF' : '#000000' }]}>Prochoro</Text>
     </View>
   );
 }

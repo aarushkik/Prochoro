@@ -14,7 +14,7 @@ export interface GlassSurfaceProps extends ViewProps {
    * competes with the text.
    */
   variant?: 'regular' | 'thick';
-  /** A coloured glass rather than a neutral one, e.g. the next-quest button. */
+  /** Optional monochrome material tint. */
   tint?: string;
   /** iOS 26: the material reacts under the finger. Only for things you press. */
   interactive?: boolean;
@@ -33,8 +33,7 @@ const DEFAULT_RADIUS = 28;
  *   the glass view, not beside it, so `interactive` glass can respond to the
  *   touches its children receive. Nothing is drawn on top of it — the system
  *   material lights its own edges, and a second rim would look painted on.
- * - **The web and older iOS** get a built material: blur with boosted
- *   saturation, a translucent tint, a sheen and a specular rim (see
+ * - **The web and older iOS** get a built material: a desaturated blur, a translucent tint, a sheen and a specular rim (see
  *   `theme/glass.ts`). On the web the blur is a CSS backdrop filter set
  *   directly; `BlurView` on the web lays a fixed grey under everything, which
  *   turned every bar into an opaque slab.
@@ -118,7 +117,7 @@ export function GlassSurface({ children, style, variant = 'regular', tint, inter
             styles.under,
             // Not in React Native's style types, but react-native-web passes
             // both straight through to CSS.
-            { backdropFilter: `blur(${blur}px) saturate(180%)`, WebkitBackdropFilter: `blur(${blur}px) saturate(180%)` } as ViewStyle,
+            { backdropFilter: `blur(${blur}px) saturate(0%)`, WebkitBackdropFilter: `blur(${blur}px) saturate(0%)` } as ViewStyle,
           ]}
         />
       ) : (

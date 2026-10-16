@@ -12,6 +12,7 @@ import { useQuest } from "@/state/QuestContext";
 import { bossForNode } from "@/data/bosses";
 import { BOSS_TIERS } from "@/data/questMap";
 import { BossSprite } from "./BossSprite";
+import { AreaIllustration } from '@/components/ui/AreaBackdrop';
 import { colors, fonts, selectedCard } from "@/theme";
 
 export function BossFieldGuide() {
@@ -35,7 +36,7 @@ export function BossFieldGuide() {
   return (
     <View style={styles.root}>
       <Text style={styles.intro}>
-        Every area has its own study club. Pass all six checks to open the next one.
+        Every area has six boss rivals. Beat them to open the next area.
       </Text>
       <ScrollView
         ref={areaStrip}
@@ -61,6 +62,7 @@ export function BossFieldGuide() {
         ))}
       </ScrollView>
       <View style={[styles.chapter, { backgroundColor: appTheme.isDark ? colors.primaryTint : unit.track.sky }]}>
+        <AreaIllustration kind={family.kind} opacity={0.22} />
         <View style={styles.chapterCopy}>
           <Text style={styles.eyebrow}>FIELD GUIDE · AREA {area + 1}</Text>
           <Text style={styles.title}>{unit.areaName}</Text>
@@ -81,7 +83,7 @@ export function BossFieldGuide() {
                 defeated && { borderColor: colors.success },
               ]}
               accessible
-              accessibilityLabel={`${node.title}. ${BOSS_TIERS[Math.min(5, Math.max(0, (node.tier ?? 1) - 1))]}. ${defeated ? "Passed" : ready ? "Ready on your path" : "Ahead on your path"}`}
+              accessibilityLabel={`${node.title}. ${BOSS_TIERS[Math.min(5, Math.max(0, (node.tier ?? 1) - 1))]}. ${defeated ? "Defeated" : ready ? "Ready on your path" : "Ahead on your path"}`}
             >
               <View style={styles.rank}>
                 <Text style={styles.rankText}>
@@ -92,7 +94,7 @@ export function BossFieldGuide() {
               <Text style={styles.name}>{node.title}</Text>
               <Text style={styles.status}>
                 {defeated
-                  ? "✓ Passed"
+                  ? "✓ Defeated"
                   : ready
                     ? "Ready on your path"
                     : "Ahead on your path"}
@@ -132,6 +134,7 @@ const createStyles = ({ colors, palette, typography, card, glass }: AppTheme) =>
   chapter: {
     ...card,
     borderRadius: 24,
+    overflow: 'hidden',
     padding: 16,
     flexDirection: "row",
     alignItems: "center",

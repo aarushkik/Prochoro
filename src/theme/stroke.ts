@@ -22,9 +22,9 @@
  */
 export const stroke = {
   hairline: 1,
-  surface: 1.5,
-  control: 2,
-  focus: 2.5,
+  surface: 1,
+  control: 1,
+  focus: 1.5,
 } as const;
 
 export type StrokeToken = keyof typeof stroke;

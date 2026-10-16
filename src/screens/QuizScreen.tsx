@@ -1,6 +1,6 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
-import { Backdrop } from '@/components/ui/Backdrop';
-import { BossEncounter } from '@/components/creatures/BossEncounter';
+import { AreaBackdrop } from '@/components/ui/AreaBackdrop';
+import { BossEncounter, type DuelMove } from '@/components/creatures/BossEncounter';
 import { CompanionSprite } from '@/components/creatures/CompanionSprite';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -33,7 +33,7 @@ import {
   type ChoiceState,
 } from '@/components/quiz';
 import { colors, duration, easing, radius, spacing, typography } from '@/theme';
-import { getPlacementQuiz, questionsForStop, questionsForSkills, placementQuestions } from '@/data';
+import { getPlacementQuiz, getCourse, questionsForStop, questionsForSkills, placementQuestions } from '@/data';
 import { companionById } from '@/data/companions';
 import { scorePlacement, type AnsweredQuestion } from '@/utils/placementScoring';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
@@ -42,6 +42,7 @@ import { sessionClearsStop } from '@/utils/questProgress';
 import { findNode, getQuestMap, questionCountFor } from '@/data/questMap';
 import { isStreakMilestone } from '@/utils/streaks';
 import { choiceCanBeSubmitted, eliminatedChoiceFor } from '@/utils/quizChoices';
+import { bossBattle } from '@/utils/bossBattle';
 import { useOnboarding } from '@/state/OnboardingContext';
 import { useQuest } from '@/state/QuestContext';
 import type { PlacementQuestion } from '@/types';
@@ -73,7 +74,8 @@ export function QuizScreen() {
   const insets = useSafeAreaInsets();
   const questionScroll = useRef<ScrollView>(null);
   const { courseId, setPlacementLevelId, setStartChoice } = useOnboarding();
-  const { recordSession, ability, equippedId } = useQuest();
+  const { recordSession, ability, equippedId, map } = useQuest();
+  const areaKind = map.units[params?.unit ?? 0]?.track.kind ?? 'waves';
   const companion = companionById(equippedId);
 
   const quiz = useMemo(() => getPlacementQuiz(courseId), [courseId]);
@@ -94,6 +96,7 @@ export function QuizScreen() {
   const [requeued, setRequeued] = useState<PlacementQuestion[]>([]);
   const [hasRequeued, setHasRequeued] = useState(false);
   const stop = params?.nodeId ? findNode(getQuestMap(courseId), params.nodeId)?.node : undefined;
+  const isBoss = stop?.kind === 'boss';
   const session = params ? { title: params.title ?? stop?.title ?? 'Practice', xp: stop?.xp ?? params.xp ?? 20, nodeId: params.nodeId } : null;
 
   const questions = useMemo(() => {
@@ -152,6 +155,10 @@ export function QuizScreen() {
   const [checked, setChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [answered, setAnswered] = useState<AnsweredQuestion[]>([]);
+  const [duelMove, setDuelMove] = useState<DuelMove | null>(null);
+  const duelResolving = useRef(false);
+  const [finalStrike, setFinalStrike] = useState(false);
+  const revealFeedback = useRef(false);
 
 
   const [currentCorrectStreak, setCurrentCorrectStreak] = useState(0);
@@ -199,6 +206,10 @@ export function QuizScreen() {
   const isChoiceBased = !!question?.choices;
   const isLast = !endless && index + 1 >= total;
   const progress = total ? (index + (checked ? 1 : 0)) / total : 0;
+  const correctCount = answered.filter(a => a.correct).length;
+  const battle = bossBattle(correctCount, answered.length, total, finalStrike, questions.length);
+  const pendingReview = isLast && Boolean(session) && ability === 'requeue' && !hasRequeued && answered.some(a => !a.correct);
+  const canFinishBoss = isBoss && isLast && battle.canFinish && !pendingReview;
   const canCheck = isChoiceBased ? choiceCanBeSubmitted(question, selectedChoiceId, struckId) : textAnswer.trim().length > 0;
 
   const evaluate = (): boolean => {
@@ -237,7 +248,7 @@ export function QuizScreen() {
    * and a student who fixed it would still see the miss in their weak spots.
    */
   const takeRetry = () => {
-    if (retryUsed || isCorrect || !checked) return;
+    if (retryUsed || isCorrect || !checked || duelResolving.current) return;
     setRetryUsed(true);
     setAnswered((prev) => prev.slice(0, -1));
     checking.current = false;
@@ -255,11 +266,17 @@ export function QuizScreen() {
     haptic(correct ? 'success' : 'retry');
     setIsCorrect(correct);
     setChecked(true);
+    revealFeedback.current = true;
+    if (isBoss) {
+      duelResolving.current = true;
+      const after = bossBattle(correctCount + (correct ? 1 : 0), answered.length + 1, total, false, questions.length);
+      setDuelMove({ id: index * 2, correct, damage: correct ? battle.bossHealth - after.bossHealth : battle.playerHealth - after.playerHealth });
+    }
 
     if (correct) {
       const next = currentCorrectStreak + 1;
       setCurrentCorrectStreak(next);
-      if (isStreakMilestone(next)) {
+      if (isStreakMilestone(next) && !isBoss) {
         setMilestoneStreak(next);
         setOverlayVisible(true);
       }
@@ -338,7 +355,7 @@ export function QuizScreen() {
 
   const canRetry = Boolean(session) && ability === 'retry' && !retryUsed && checked && !isCorrect;
 
-  const onContinue = () => {
+  const advanceQuestion = () => {
     if (advancing.current || !checked || finished.current) return;
 
     // Top up a batch before running out, so the next question is already
@@ -366,6 +383,8 @@ export function QuizScreen() {
           setStruckId(null);
           setHintShown(false);
           checking.current = false;
+          setDuelMove(null);
+          duelResolving.current = false;
           return;
         }
       }
@@ -388,9 +407,24 @@ export function QuizScreen() {
       setStruckId(null);
       setHintShown(false);
       checking.current = false;
+      setDuelMove(null);
+      duelResolving.current = false;
       advancing.current = false;
       Animated.timing(qAnim, { toValue: 1, duration: reduceMotion ? 0 : duration.base, easing: easing.out, useNativeDriver: true }).start();
     });
+  };
+
+  const onContinue = () => {
+    if (advancing.current || !checked || finished.current || duelResolving.current) return;
+    if (canFinishBoss && battle.bossHealth > 0) {
+      duelResolving.current = true;
+      setFinalStrike(true);
+      setDuelMove({ id: index * 2 + 1, correct: true, damage: battle.bossHealth, finisher: true });
+    } else advanceQuestion();
+  };
+  const onDuelMoveComplete = () => {
+    if (duelMove?.finisher) advanceQuestion();
+    else { setDuelMove(null); duelResolving.current = false; }
   };
 
   const choiceState = (choiceId: string): ChoiceState => {
@@ -407,11 +441,11 @@ export function QuizScreen() {
     ? question.choices?.find((c) => c.id === question.correctAnswerId)?.text
     : question?.acceptedAnswers?.[0];
 
-  if (!question) return <SafeAreaView style={styles.root}><Backdrop /><View style={styles.introBody}><Mascot pose="reading" size={130} /><Text style={typography.title}>You’re all caught up.</Text><Text style={[typography.body, styles.introText]}>There are no questions in this practice set. Pick another topic to keep exploring.</Text><AppButton label="Back to practice" onPress={() => navigation.goBack()} /></View></SafeAreaView>;
+  if (!question) return <SafeAreaView style={styles.root}><AreaBackdrop kind={areaKind} opacity={0.3} /><View style={styles.introBody}><Mascot pose="reading" size={130} /><Text style={typography.title}>You’re all caught up.</Text><Text style={[typography.body, styles.introText]}>There are no questions in this practice set. Pick another topic to keep exploring.</Text><AppButton label="Back to practice" onPress={() => navigation.goBack()} /></View></SafeAreaView>;
 
   if (phase === 'study') {
     const notes = questions.filter((item, i, all) => all.findIndex((other) => other.skillTag === item.skillTag) === i).slice(0, 4);
-    return <SafeAreaView style={styles.root} edges={['top', 'bottom']}><Backdrop /><StatusBar style={appTheme.isDark ? "light" : "dark"} />
+    return <SafeAreaView style={styles.root} edges={['top', 'bottom']}><AreaBackdrop kind={areaKind} opacity={0.3} /><StatusBar style={appTheme.isDark ? "light" : "dark"} />
       <ScrollView contentContainerStyle={styles.studyContent}>
         <View style={styles.studyHeading}><Mascot size={82} pose="reading" /><View style={{ flex: 1 }}><Text style={typography.overline}>FIELD NOTES</Text><Text style={typography.title}>{session?.title}</Text></View></View>
         <Text style={[typography.body, { marginBottom: 18 }]}>A few ideas to take with you. Read them, then try the practice questions.</Text>
@@ -426,7 +460,7 @@ export function QuizScreen() {
   if (phase === 'intro') {
     return (
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-        <Backdrop />
+        <AreaBackdrop kind={areaKind} opacity={0.3} />
         <StatusBar style={appTheme.isDark ? "light" : "dark"} />
         <View style={styles.introTop}>
           <Pressable onPress={() => navigation.goBack()} hitSlop={12} accessibilityLabel="Close">
@@ -462,27 +496,22 @@ export function QuizScreen() {
   // --- Questions ---
   return (
     <View style={styles.root}>
-      <Backdrop />
+      <AreaBackdrop kind={areaKind} opacity={0.3} />
       <SafeAreaView style={styles.flex} edges={['top']}>
         <StatusBar style={appTheme.isDark ? "light" : "dark"} />
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <View style={styles.headerWrap}>
-            {session ? (
-              <Text style={styles.sessionTitle} numberOfLines={1}>
-                {session.title}
-              </Text>
-            ) : null}
             <QuizProgressHeader
+              title={getCourse(courseId)?.name ?? 'AP practice'}
+              subtitle={isBoss ? 'Boss duel' : session?.title ?? 'Find your starting point'}
+              courseId={courseId}
               progress={endless ? ((index % REVIEW_BATCH) + 1) / REVIEW_BATCH : progress}
               counter={endless ? `${answered.length} done` : `${index + 1} / ${total}`}
               currentCorrectStreak={currentCorrectStreak}
-              // Closing an endless review banks it rather than throwing it
-              // away. There is no last question to reach, so the X *is* the
-              // finish button — discarding twenty answers because a student
-              // stopped when they meant to would be the app losing their work.
               onClose={() => (endless ? finish(answered) : navigation.goBack())}
             />
           </View>
+          {isBoss ? <View style={styles.encounterWrap}><BossEncounter nodeId={stop.id} correct={correctCount} attempted={answered.length} total={total} damageTotal={questions.length} reviewPending={pendingReview} move={duelMove} finalStrike={finalStrike} onMoveComplete={onDuelMoveComplete} /></View> : null}
 
           <ScrollView
             ref={questionScroll}
@@ -490,13 +519,13 @@ export function QuizScreen() {
             contentContainerStyle={styles.scroll}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
+            onContentSizeChange={() => { if (checked && revealFeedback.current) { revealFeedback.current = false; questionScroll.current?.scrollToEnd({ animated: !reduceMotion }); } }}
           >
             <Animated.View
               style={{
                 opacity: qAnim,
               }}
             >
-              {stop?.kind === 'boss' ? <BossEncounter nodeId={stop.id} correct={answered.filter(a => a.correct).length} total={total}/> : null}
               <QuestionCard question={question}>
                 {isChoiceBased ? (
                   question.choices!.map((choice, i) => (
@@ -530,62 +559,22 @@ export function QuizScreen() {
                 )}
               </QuestionCard>
             </Animated.View>
+            {hintShown && !checked ? <GlassSurface variant="thick" style={styles.hint}><Text style={typography.overline}>{companion?.name ?? 'Your companion'}’s hint</Text><Text style={styles.hintText}>{question.explanation}</Text></GlassSurface> : null}
+            {checked ? <QuizFeedbackPanel correct={isCorrect} explanation={question.explanation} answer={correctAnswerText} /> : null}
           </ScrollView>
-
-          {checked ? (
-            <QuizFeedbackPanel
-              correct={isCorrect}
-              explanation={question.explanation}
-              answer={correctAnswerText}
-              continueLabel={isLast ? 'Finish' : 'Continue'}
-              onContinue={onContinue}
-              retry={
-                canRetry ? { label: `${companion?.name ?? 'Retry'} — try again`, onPress: takeRetry } : undefined
-              }
-            />
-          ) : (
-            <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, spacing.lg) + spacing.sm }]}>
-              {/* What the equipped companion can do on this question, if
-                  anything. Absent entirely when there is nothing to offer, so
-                  nobody sees a control that does not apply to them. */}
-              {companionAction ? (
-                <View style={styles.companionBar}>
-                  <CompanionSprite id={companion!.id} tint={companion!.tint} size={34} radius={12} />
-                  <View style={styles.companionText}>
-                    <Text style={styles.companionName}>{companion!.name}</Text>
-                    <Text style={styles.companionNote} numberOfLines={1}>
-                      {companionAction.spent ? 'Used this session' : companion!.ability}
-                    </Text>
-                  </View>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={companionAction.label}
-                    disabled={companionAction.spent}
-                    onPress={companionAction.onPress}
-                    style={({ pressed }) => [
-                      styles.companionBtn,
-                      companionAction.spent && styles.companionBtnSpent,
-                      pressed && styles.companionBtnPressed,
-                    ]}
-                  >
-                    <Text
-                      style={[styles.companionBtnText, companionAction.spent && styles.companionBtnTextSpent]}
-                    >
-                      {companionAction.spent ? 'SPENT' : companionAction.label.toUpperCase()}
-                    </Text>
-                  </Pressable>
-                </View>
-              ) : null}
-
-              {hintShown ? (
-                <View style={styles.hint}>
-                  <Text style={styles.hintText}>{question.explanation}</Text>
-                </View>
-              ) : null}
-
-              <AppButton label="Check answer" disabled={!canCheck} hapticFeedback={false} onPress={onCheck} />
-            </View>
-          )}
+          <View style={[styles.actionDock, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+            <GlassSurface variant="thick" style={styles.actionGlass}>
+              {!checked && companionAction ? <View style={styles.assistRow}>
+                <CompanionSprite id={companion!.id} size={26} />
+                <Text style={styles.assistText}>{companionAction.spent ? `${companion!.name} has helped this round` : `${companion!.name} can help`}</Text>
+                <Pressable accessibilityRole="button" accessibilityLabel={companionAction.label} disabled={companionAction.spent} onPress={companionAction.onPress} style={styles.assistButton}><Text style={[styles.assistLabel, companionAction.spent && { opacity: 0.45 }]}>{companionAction.spent ? 'Used' : companionAction.label}</Text></Pressable>
+              </View> : null}
+              {checked ? <View style={styles.actionRow}>
+                {canRetry && !duelMove ? <AppButton label="Try again" tone="secondary" size="md" style={styles.retryButton} onPress={takeRetry} /> : null}
+                <AppButton label={duelMove ? duelMove.finisher ? 'Final strike…' : 'Resolving…' : pendingReview ? 'One more round' : canFinishBoss && battle.bossHealth > 0 ? 'Final strike' : isLast ? isBoss ? battle.canFinish ? 'Claim victory' : 'Finish battle' : 'Finish' : 'Next question'} disabled={duelMove !== null} style={styles.mainAction} onPress={onContinue} />
+              </View> : <AppButton label={isBoss ? 'Attack' : 'Check answer'} icon={isBoss ? 'swords' : undefined} disabled={!canCheck} hapticFeedback={false} onPress={onCheck} />}
+            </GlassSurface>
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
 
@@ -679,14 +668,24 @@ const createStyles = ({ colors, palette, typography, stroke, glass, card }: AppT
   skip: { alignSelf: 'center', paddingVertical: spacing.md, marginTop: spacing.xs },
   skipText: { ...typography.bodyStrong, color: colors.textSecondary },
 
-  headerWrap: { paddingHorizontal: spacing.xl, paddingTop: spacing.sm, width: '100%', maxWidth: 620, alignSelf: 'center' },
+  headerWrap: { paddingHorizontal: 16, paddingTop: 8, width: '100%', maxWidth: 620, alignSelf: 'center' },
+  encounterWrap: { width: '100%', maxWidth: 620, alignSelf: 'center' },
+  actionDock: { paddingHorizontal: 16, paddingTop: 8, width: '100%', maxWidth: 620, alignSelf: 'center' },
+  actionGlass: { padding: 10, borderRadius: 30 },
+  actionRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  mainAction: { flex: 1, minWidth: 0 },
+  retryButton: { flex: 0.7 },
+  assistRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 5, marginBottom: 6 },
+  assistText: { ...typography.caption, fontSize: 11, flex: 1 },
+  assistButton: { minHeight: 36, paddingHorizontal: 9, justifyContent: 'center', borderRadius: 18 },
+  assistLabel: { ...typography.bodyStrong, fontSize: 12 },
   sessionTitle: { ...typography.overline, color: colors.textMuted, marginBottom: spacing.xs, paddingLeft: spacing.xxxl },
-  scroll: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.huge, width: '100%', maxWidth: 620, alignSelf: 'center' },
+  scroll: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 18, width: '100%', maxWidth: 620, alignSelf: 'center' },
 
   input: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: colors.border,
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.lg,

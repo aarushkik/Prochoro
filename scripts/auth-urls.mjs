@@ -30,8 +30,12 @@ Add all of these:
 
   ${scheme}://auth/callback                 ← production / dev build
   ${scheme}://auth/recovery                 ← password reset
+  https://prochoro.net/app/auth/callback/  ← published web app
+  https://prochoro.net/app/auth/recovery/  ← published web reset
   http://localhost:8082/auth/callback       ← local web preview
   http://localhost:8082/auth/recovery       ← local web reset
+  http://localhost:8085/auth/callback       ← current local preview
+  http://localhost:8085/auth/recovery       ← current local reset
   exp://${lan}:8081/--/auth/callback        ← Expo Go on this machine
   exp://${lan}:8081/--/auth/recovery        ← Expo Go password reset
 

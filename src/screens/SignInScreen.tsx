@@ -8,9 +8,8 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mascot } from '@/components/Mascot';
 import { AppButton, TopBackButton, Wordmark } from '@/components/ui';
-import { Glyph } from '@/components/icons';
 import { links, openLink } from '@/lib/links';
-import { colors, fonts, palette } from '@/theme';
+import { fonts } from '@/theme';
 import { useAuth } from '@/state/AuthContext';
 import { ProviderButton } from '@/components/ui/ProviderButton';
 import { AppleSignInButton } from '@/components/ui/AppleSignInButton';
@@ -78,16 +77,11 @@ export function SignInScreen() {
           <ScrollView ref={scroll} contentContainerStyle={[styles.scroll, welcome && styles.welcomeScroll]} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
             {welcome ? (
               <>
-                <View style={styles.brand}><Wordmark size={30} variant={appTheme.isDark ? 'light' : 'brand'} /><View style={styles.edition}><Text style={styles.editionText}>AP STUDY, REIMAGINED</Text></View></View>
+                <View style={styles.brand}><Wordmark size={28} /></View>
                 <View style={styles.welcomeBody}>
-                  <Mascot pose="reading" size={Math.min(width - 96, height < 720 ? 220 : 270)} shadow={false} />
-                  <Text accessibilityRole="header" style={styles.headline}>AP practice,{'\n'}one stop at a time.</Text>
-                  <Text style={styles.tagline}>Five-minute stops on a map of your course.{'\n'}Sign in to start yours.</Text>
-                  <View style={styles.features}>
-                    <Feature icon="book" label="8 AP courses" />
-                    <View style={styles.featureDot} />
-                    <Feature icon="sparkle" label="Your pace" />
-                  </View>
+                  <Mascot pose="reading" size={Math.min(width - 96, height < 700 ? 112 : 156)} shadow={false} />
+                  <Text accessibilityRole="header" style={styles.headline}>AP practice,{'\n'}at your pace.</Text>
+                  <Text style={styles.tagline}>Eight subjects. Short lessons, thoughtful{'\n'}questions, and a few cute rivals.</Text>
                 </View>
                 <View style={styles.actions}>
                   {/* Apple first: guideline 4.8 wants it at least as prominent as the others. */}
@@ -108,21 +102,15 @@ export function SignInScreen() {
               <>
                 <View style={styles.formTop}>
                   <TopBackButton color={colors.textSecondary} onPress={() => recovering ? cancelRecovery() : changeMode('welcome')} />
-                  <Wordmark size={25} variant="light" />
+                  <Wordmark size={25} />
                   <View style={{ width: 44 }} />
                 </View>
                 <View style={styles.formHero}>
-                  <Mascot size={100} pose={recovering || resetting ? 'thinking' : 'reading'} shadow={false} />
-                  <Text accessibilityRole="header" style={styles.formTitle}>{recovering ? 'A fresh start.' : resetting ? 'Forgot your password?' : signingUp ? 'Your quest, saved.' : 'Welcome back, explorer.'}</Text>
-                  <Text style={styles.tagline}>{recovering ? 'Choose a new password for your account.' : resetting ? 'We’ll email you a link to reset it.' : signingUp ? 'Create an account to sync your progress across devices.' : 'Your next discovery is waiting for you.'}</Text>
+                  <Mascot size={80} pose={recovering || resetting ? 'thinking' : signingUp ? 'wave' : 'reading'} shadow={false} />
+                  <Text accessibilityRole="header" style={styles.formTitle}>{recovering ? 'Set a new password.' : resetting ? 'Forgot your password?' : signingUp ? 'Create your account.' : 'Welcome back.'}</Text>
+                  <Text style={styles.tagline}>{recovering ? 'Choose a new password for your account.' : resetting ? 'We’ll email you a link to reset it.' : signingUp ? 'Save your progress and study across devices.' : 'Sign in to pick up where you left off.'}</Text>
                 </View>
                 <View style={styles.form}>
-                  {!recovering && !resetting && <>
-                    <AppleSignInButton disabled={busy} onPress={() => signIn('apple')} />
-                    <ProviderButton provider="google" busy={pending === 'google'} disabled={busy} onPress={() => signIn('google')} />
-                    <ProviderButton provider="azure" busy={pending === 'azure'} disabled={busy} onPress={() => signIn('azure')} />
-                    <Text style={styles.or}>OR USE EMAIL</Text>
-                  </>}
                   {error || localError ? <Message text={localError ?? error!} error /> : null}
                   {note ? <Message text={note} /> : null}
                   {!recovering && <Field label="Email" value={email} onChangeText={setEmail} placeholder="you@example.com" keyboardType="email-address" textContentType="emailAddress" autoComplete="email" editable={!busy} returnKeyType={resetting ? 'go' : 'next'} onSubmitEditing={resetting ? submit : () => passwordInput.current?.focus()} />}
@@ -148,13 +136,6 @@ export function SignInScreen() {
   );
 }
 
-function Feature({ icon, label }: { icon: React.ComponentProps<typeof Glyph>['name']; label: string }) {
-  const appTheme = useAppTheme();
-  const { colors, palette, typography, chunky } = appTheme;
-  const styles = useThemedStyles(createStyles);
-
-  return <View style={styles.feature}><Glyph name={icon} size={15} color={colors.textSecondary} /><Text style={styles.featureText}>{label}</Text></View>;
-}
 function Message({ text, error = false }: { text: string; error?: boolean }) {
   const appTheme = useAppTheme();
   const { colors, palette, typography, chunky } = appTheme;
@@ -176,13 +157,13 @@ function Field({ label, inputRef, ...input }: { label: string; inputRef?: React.
 
 const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background }, flex: { flex: 1 },
-  scroll: { flexGrow: 1, width: '100%', maxWidth: 520, alignSelf: 'center', paddingHorizontal: 24, paddingTop: 16, paddingBottom: 12 },
+  scroll: { flexGrow: 1, width: '100%', maxWidth: 460, alignSelf: 'center', paddingHorizontal: 24, paddingTop: 24, paddingBottom: 12 },
   welcomeScroll: { justifyContent: 'space-between' },
   brand: { alignItems: 'center', gap: 8 },
   edition: { borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
   editionText: { fontFamily: fonts.bodyBlack, fontSize: 9, letterSpacing: 2.1, color: colors.textMuted },
-  welcomeBody: { alignItems: 'center', paddingTop: 10, paddingBottom: 22 },
-  headline: { fontFamily: fonts.displayHeavy, color: colors.textPrimary, fontSize: 34, lineHeight: 37, letterSpacing: -0.9, textAlign: 'center', marginTop: -4 },
+  welcomeBody: { alignItems: 'center', paddingTop: 20, paddingBottom: 26 },
+  headline: { fontFamily: fonts.displayBold, color: colors.textPrimary, fontSize: 30, lineHeight: 35, letterSpacing: -0.7, textAlign: 'center', marginTop: 12 },
   tagline: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.textSecondary, textAlign: 'center', maxWidth: 340, marginTop: 12 },
   features: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 13, marginTop: 20 },
   feature: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -195,7 +176,7 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   pressed: { opacity: 0.65 },
   formTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: -8 },
   formHero: { alignItems: 'center', paddingTop: 18, paddingBottom: 26 },
-  formTitle: { fontFamily: fonts.displayHeavy, color: colors.textPrimary, fontSize: 29, lineHeight: 34, textAlign: 'center', marginTop: 8 },
+  formTitle: { fontFamily: fonts.displayBold, color: colors.textPrimary, fontSize: 27, lineHeight: 33, textAlign: 'center', marginTop: 12 },
   form: { paddingBottom: 16 },
   or: { fontFamily: fonts.bodyBlack, color: colors.textMuted, fontSize: 10, letterSpacing: 1.6, textAlign: 'center', marginVertical: 14 },
   field: { marginBottom: 16 },

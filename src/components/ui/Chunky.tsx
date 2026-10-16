@@ -89,8 +89,7 @@ export function ChunkyCard({
   if (!onPress) {
     return (
       <View style={[c.wrap, style]}>
-        <View style={c.lip} />
-        {face}
+          {face}
       </View>
     );
   }
@@ -105,7 +104,6 @@ export function ChunkyCard({
       onPressOut={() => to(0)}
       style={[c.wrap, style]}
     >
-      <View style={c.lip} />
       {face}
     </Pressable>
   );
@@ -128,7 +126,6 @@ export function StatChip({ value, label, color, style }: StatChipProps) {
   const c = chunky({ depth: depth.chip, radius: chunkyRadius.chip });
   return (
     <View style={[c.wrap, styles.flex, style]}>
-      <View style={c.lip} />
       <View style={[c.face, styles.chipFace]}>
         <Text style={[typography.stat, styles.chipValue, { color: color ?? colors.ink }]} numberOfLines={1}>
           {value}
@@ -162,7 +159,6 @@ export function PrizeChip({ title, subtitle, onNight = false, style }: PrizeChip
   });
   return (
     <View style={[c.wrap, styles.flex, style]}>
-      <View style={c.lip} />
       <View style={[c.face, styles.prizeFace, onNight && { backgroundColor: colors.nightRaised }]}>
         <Text style={[styles.prizeTitle, onNight && { color: colors.gold }]} numberOfLines={1}>
           {title}

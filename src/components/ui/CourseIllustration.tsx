@@ -17,7 +17,7 @@ export function CourseIllustration({ courseId, size = 52 }: { courseId: string; 
   const row = Math.floor(index / 4);
   return (
     <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ width: size, height: size, overflow: 'hidden' }}>
-      <Image source={courseSheet} resizeMode="stretch" tintColor={theme.isDark ? '#FFFFFF' : '#111111'} fadeDuration={0} accessible={false} style={{ position: 'absolute', width: size * 4, height: size * 2, left: -column * size, top: -row * size }} />
+      <Image source={courseSheet} resizeMode="stretch" tintColor={theme.colors.ink} fadeDuration={0} accessible={false} style={{ position: 'absolute', width: size * 4, height: size * 2, left: -column * size, top: -row * size }} />
     </View>
   );
 }

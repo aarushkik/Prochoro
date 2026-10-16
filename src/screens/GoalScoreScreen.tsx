@@ -36,7 +36,7 @@ export function GoalScoreScreen() {
         onBack={() => navigation.goBack()}
         step={3}
         total={5}
-        question="What score are you chasing?"
+        question="Your target score?"
         subtitle="We’ll aim your quest at this target."
         mascotPose="excited"
       />
@@ -45,7 +45,7 @@ export function GoalScoreScreen() {
         {scoreGoals.map((goal) => (
           <ChoiceCard
             key={goal.id}
-            icon={<ScoreGoalIcon id={goal.id} color={colors.primary} size={28} />}
+            icon={<ScoreGoalIcon id={goal.id} size={44} />}
             label={goal.label}
             description={goal.description}
             selected={selected === goal.id}

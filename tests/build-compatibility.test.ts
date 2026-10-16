@@ -10,7 +10,7 @@ test('every installed Metro asset pipeline reads bundled PNG dimensions', async 
   const manifests = new Set(roots.map(root => require.resolve('metro/package.json', { paths: [root] })));
   for (const manifest of manifests) {
     const { getAssetData } = require(path.join(path.dirname(manifest), 'src/Assets.js'));
-    const asset = await getAssetData(path.resolve('assets/studyplat-icon.png'), 'assets/studyplat-icon.png', [], 'ios', '/assets');
+    const asset = await getAssetData(path.resolve('assets/prochoro-icon.png'), 'assets/prochoro-icon.png', [], 'ios', '/assets');
     assert.equal(asset.width, 1024);
     assert.equal(asset.height, 1024);
     assert.equal(asset.type, 'png');

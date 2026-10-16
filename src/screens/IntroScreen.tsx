@@ -31,7 +31,7 @@ export function IntroScreen() {
 
       <View style={styles.center}>
         <SpeechBubble
-          text="Hi, I’m Stu. Answer five quick questions and I’ll draw your map."
+          text="Hi! Let’s build a study path that fits you."
           tail="bottom"
           style={styles.bubble}
         />

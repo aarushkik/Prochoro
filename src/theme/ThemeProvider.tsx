@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { useColorScheme } from 'react-native';
 import { deviceStorage } from '@/lib/storage';
 import { createSaveQueue } from '@/lib/saveQueue';
-import { colors as lightColors, darkColors, palette, type ThemeColors } from './colors';
+import { colors as lightColors, darkColors, palette, darkPalette, type ThemeColors } from './colors';
 import { makeTypography } from './typography';
 import { chunky as makeChunky, type ChunkyOptions } from './chunky';
 import { stroke } from './stroke';
@@ -16,7 +16,7 @@ function makeTheme(mode: 'light' | 'dark', solid: boolean) {
   const base = mode === 'dark' ? darkGlass : lightGlass;
   const glass = solid ? solidGlass(base, colors) : base;
   return {
-    mode, isDark: mode === 'dark', colors, palette, stroke,
+    mode, isDark: mode === 'dark', colors, palette: mode === 'dark' ? darkPalette : palette, stroke,
     /** True under Reduce Transparency: glass tokens are opaque. */
     solid,
     typography: makeTypography(colors),

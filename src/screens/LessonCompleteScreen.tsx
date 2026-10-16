@@ -69,7 +69,10 @@ export function LessonCompleteScreen() {
           <Animated.View style={{ opacity: pop }}>
             {boss ? (
               <View style={styles.bossArt}>
-                <BossSprite nodeId={bossNodeId} size={200} />
+                <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10 }}>
+                  <Mascot size={118} pose={cleared ? 'bossWin' : 'bossLose'} />
+                  <BossSprite nodeId={bossNodeId} size={130} />
+                </View>
                 {cleared ? (
                   <View
                     style={[
@@ -95,7 +98,7 @@ export function LessonCompleteScreen() {
               {cleared === false
                 ? "Keep building."
                 : boss
-                  ? "Check passed!"
+                  ? "Duel won!"
                   : verdict.headline}
             </Text>
             <Text style={[typography.body, styles.sub]} numberOfLines={2}>

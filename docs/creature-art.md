@@ -1,37 +1,25 @@
-# StudyPlat illustrated creatures
+# Prochoro creatures
 
-Updated 9 September 2026. The boss and companion artwork is now generated raster illustration, replacing the earlier SVG character drawings. The owner's original Stu artwork and app icon are preserved.
+Updated 16 October 2026. The illustrated field guide has 12 pets and 60 distinct boss rivals. Each uses hollow monochrome line art with transparent interiors, so the page background shows through the character rather than becoming a gray or white silhouette.
 
-## Art direction and provenance
+## Pets
 
-The built-in `image_gen` tool produced the artwork, using the owner's icon as the initial style reference and the finished Mira illustration to keep the set consistent. The direction is painted cartoon adventure art: expressive eyes, navy ink contours, warm shading, tactile texture, and turquoise, ivory and gold accents. Each character has its own pose and equipment.
+Ellie, Buddy, Penny, Benny, Stella, Bruno, Toby, Daisy, Oakley, Remy, Wally and Leo are twelve distinct drawings on `src/assets/characters/prochoro/companions.png`. Their existing saved IDs, unlocks, equipment and abilities remain stable. Names changed; earned progress did not.
 
-The shipped art uses warm ivory portrait backgrounds. It does not claim to have transparent alpha. An initial Mira draft with a simulated checkerboard was rejected and corrected through image generation. Boss sheets were revised through image generation to leave clear margins between characters.
+`CompanionSprite` uses explicit bounds in `src/data/companionFrames.json`, preserving full accessories and aspect ratio. The same art appears in the HUD, profile, roster and session ability controls.
 
-All final prompts, layout correction prompts, source output paths, and project asset paths are recorded in [character-art-prompts.json](character-art-prompts.json). Original generated PNG outputs remain at the recorded source paths. Production JPEGs are in `src/assets/characters/`.
+## Boss rivals
 
-## Companions
+Ten atlases under `src/assets/characters/prochoro/bosses/` contain six different portraits each. Shore, library, lab, field, workshop, ocean, discovery, garden, insect and summit rivals use grumpy expressions and study accessories. Each course path contains all 60 bosses; the courses share the art catalog. There are not 480 different character drawings.
 
-Twelve separate 768-pixel portraits are bundled under `src/assets/characters/companions/`: Mira the book-carrying moon moth, Ember the fox, Pilot the aviator kingfisher, Quill the hedgehog, Cobalt the arctic fox, Marrow the fossil ram, Tessel the clockwork pangolin, Nix the axolotl, Fen the turtle, Slate the raccoon, Vesper the bat, and Orrin the mountain goat.
+`BossSprite` clips explicit, non-overlapping bounds from `src/data/bossFrames.json`. Node IDs remain unchanged. The same portrait follows a boss through its map stop, details, encounter, rematch, result and field guide. Atlas bounds are measured without altering pixels. Artwork was generated with the built-in image tool; the latest fill/gutter correction prompts are in [prochoro-art-prompts.json](prochoro-art-prompts.json).
 
-`CompanionSprite.tsx` displays these images in the roster, HUD, Profile and quiz ability control. The roster portraits are larger to show the new detail. Existing companion IDs, unlocks, equipped choice and abilities are unchanged.
+## Platypus expressions
 
-## Guardians
+Three transparent sheets hold 27 separate expressions and activities. Correct answers, missed answers, streak changes, wins and losses choose an appropriate drawing. Expressions change with the event; characters do not float up and down at rest.
 
-Ten illustrated atlases under `src/assets/characters/bosses/` each contain six individually designed guardians. These provide sixty illustrations across ten families: tideclaws, archive golems, furnace salamanders, dune scarabs, clockwork owls, coral krakens, fossil rams, lotus frogs, storm moths and summit dragons. Ranks vary in anatomy, expression, pose, materials and costume; they are no longer a base vector drawing with interchangeable equipment.
+## Duel behavior
 
-`BossSprite.tsx` uses native Image rendering and a clipped portrait window. `characterFrames.json` records a separate frame around each illustration. Frames were calculated by reading image bounds and stay entirely within their own atlas cells. Pixel art was not drawn or altered by that calculation. JPEG encoding is the only production format conversion.
+Questions remain the source of progress. Checking a correct answer immediately damages the boss; a missed answer triggers a counterattack and reduces player health. A brief horizontal hit/recoil reacts to the result. The glass arena stays visible while questions and explanations scroll below it. Completing the question set with at least 60% correct unlocks a final strike against any remaining boss HP. Repeated presses during a move are ignored. Reduce Motion skips the transform and resolves immediately.
 
-The same guardian appears in its map node, gate card, next-fight preview, details, quiz encounter, rematch, result and field-guide entry. All stored stop IDs and boss names remain stable. Courses intentionally share the inhabitants of the same landscape.
-
-## Packaging and behavior
-
-All 22 image assets are statically imported by `characterArt.ts`, work offline, and total approximately 6.2 MB. Boss atlases retain 1536 × 1024 resolution; companion images are sized for mobile use. There is no runtime image-generation service, extra package, or animation loop.
-
-Creatures remain stationary. Existing press feedback and brief answer-seal highlights respect motion preferences. Scoring, authentication and local/cloud save behavior are unchanged by this art replacement.
-
-## Verification
-
-`npm run check` passes all 22 tests. Art checks verify all 22 files are real, distinct JPEG assets with static bundle references; every boss frame remains inside its own cell; and the complete pack stays below 8 MB. Existing tests still cover stable boss IDs across every course, progress, storage and database behavior.
-
-The browser roster and all ten boss family selectors were checked with the new images, including successful image loading and phone-size portrait framing. Native device performance and App Store submission requirements remain in [release readiness](release-readiness.md).
+A disposable local play-through verified one miss, six correct answers, a single +60 XP reward and advancement to the next stop. This is browser acceptance with in-memory sample data; native and authenticated cross-device acceptance remain separate release checks. A failed 0/7 run, Benny retry and Remy extra review round were also checked. Review rounds preserve previously dealt damage and cannot claim victory before completion.

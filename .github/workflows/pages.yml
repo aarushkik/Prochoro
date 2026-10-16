@@ -16,7 +16,13 @@ on:
       - 'src/**'
       - 'assets/**'
       - 'app.json'
+      - 'App.tsx'
+      - 'index.ts'
+      - 'package.json'
       - 'package-lock.json'
+      - 'babel.config.js'
+      - 'metro.config.js'
+      - 'tsconfig.json'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 permissions:
@@ -54,6 +60,10 @@ jobs:
           # Single-page output: every unknown path has to fall back to the app
           # shell, or a refresh on any screen but the first 404s.
           cp site/app/index.html site/app/404.html
+          # OAuth and recovery return to actual files on the static host.
+          mkdir -p site/app/auth/callback site/app/auth/recovery
+          cp site/app/index.html site/app/auth/callback/index.html
+          cp site/app/index.html site/app/auth/recovery/index.html
           # Pages runs Jekyll by default, which ignores directories starting
           # with an underscore — including _expo, which holds the JS bundle.
           touch site/.nojekyll

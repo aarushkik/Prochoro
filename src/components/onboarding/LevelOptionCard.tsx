@@ -2,7 +2,7 @@ import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvid
 import React from 'react';
 import { SelectRow } from '@/components/ui/SelectRow';
 import { colors } from '@/theme';
-import { LevelBars } from './LevelBars';
+import { ActivityIllustration } from '@/components/ui/ActivityIllustration';
 
 interface LevelOptionCardProps {
   label: string;
@@ -21,7 +21,8 @@ export function LevelOptionCard({ label, bars, hint, selected, onPress }: LevelO
 
   return (
     <SelectRow
-      leading={<LevelBars filled={bars} color={selected ? colors.primary : colors.ink} />}
+      leading={<ActivityIllustration id={bars <= 1 ? 'beginner' : bars === 2 ? 'builder' : bars === 3 ? 'ap_ready' : 'advanced_review'} size={44} />}
+      bareLeading
       title={label}
       subtitle={hint}
       selected={selected}

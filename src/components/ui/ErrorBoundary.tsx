@@ -1,95 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, palette, stroke } from '@/theme';
+import { useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
+import { Mascot } from '@/components/Mascot';
+import { AppButton } from './AppButton';
 
-interface Props {
-  children: React.ReactNode;
-}
+interface Props { children: React.ReactNode }
+interface State { error: Error | null }
 
-interface State {
-  error: Error | null;
-}
-
-/**
- * Catches a render crash and shows it.
- *
- * Without this, any exception thrown while rendering unmounts the whole tree
- * and leaves a blank screen — no message, nothing to tap, and on a device no
- * console to read either. "The app is blank" is then the only bug report you
- * get, which is close to useless.
- *
- * It deliberately shows the real error text rather than a friendly apology.
- * This is a small app shipped by one person; the fastest path from a user
- * saying "it broke" to a fix is them being able to read what broke.
- */
 export class ErrorBoundary extends React.Component<Props, State> {
   state: State = { error: null };
-
-  static getDerivedStateFromError(error: Error): State {
-    return { error };
-  }
-
+  static getDerivedStateFromError(error: Error): State { return { error }; }
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    // Kept as a console error so it still lands in `npx expo start` output and
-    // in any crash reporter added later.
     console.error('[Prochoro] render crash:', error, info.componentStack);
   }
-
   render() {
-    const { error } = this.state;
-    if (!error) return this.props.children;
-
-    return (
-      <View style={styles.root}>
-        <ScrollView contentContainerStyle={styles.scroll}>
-          <Text style={styles.title}>Something broke</Text>
-          <Text style={styles.body}>
-            Prochoro hit an error it could not recover from. The details below are what to send if
-            you report it.
-          </Text>
-
-          <View style={styles.box}>
-            <Text style={styles.mono} selectable>
-              {error.message || String(error)}
-            </Text>
-          </View>
-
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => this.setState({ error: null })}
-            style={({ pressed }) => [styles.retry, pressed && styles.retryPressed]}
-          >
-            <Text style={styles.retryText}>Try again</Text>
-          </Pressable>
-        </ScrollView>
-      </View>
-    );
+    return this.state.error
+      ? <ErrorFallback error={this.state.error} onRetry={() => this.setState({ error: null })} />
+      : this.props.children;
   }
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: palette.night },
-  scroll: { flexGrow: 1, justifyContent: 'center', padding: 28, gap: 14 },
-  title: { fontFamily: fonts.displayHeavy, fontSize: 28, lineHeight: 30, color: colors.white },
-  body: { fontFamily: fonts.bodySemibold, fontSize: 14, lineHeight: 20, color: '#D1D1D1' },
-  box: {
-    backgroundColor: 'rgba(0,0,0,0.28)',
-    borderWidth: stroke.surface,
-    borderColor: palette.ember,
-    borderRadius: 18,
-    padding: 14,
-  },
-  mono: { fontFamily: fonts.body, fontSize: 12.5, lineHeight: 18, color: '#E6E6E6' },
-  retry: {
-    alignSelf: 'flex-start',
-    marginTop: 6,
-    backgroundColor: colors.primary,
-    borderWidth: stroke.control,
-    borderColor: colors.ink,
-    borderRadius: 22,
-    paddingHorizontal: 22,
-    paddingVertical: 13,
-  },
-  retryPressed: { transform: [{ translateY: 2 }] },
-  retryText: { fontFamily: fonts.bodyBlack, fontSize: 15, color: colors.ink },
+function ErrorFallback({ error, onRetry }: { error: Error; onRetry: () => void }) {
+  const styles = useThemedStyles(createStyles);
+  const [details, setDetails] = useState(false);
+  return <View style={styles.root}><ScrollView contentContainerStyle={styles.scroll}>
+    <Mascot pose="worried" size={120} />
+    <Text style={styles.title}>Let’s try that again.</Text>
+    <Text style={styles.body}>This screen couldn’t open. Your previously saved progress is safe.</Text>
+    <View style={styles.actions}><AppButton label="Try again" onPress={onRetry} /></View>
+    <Pressable accessibilityRole="button" accessibilityState={{ expanded: details }} onPress={() => setDetails(!details)} style={styles.details}><Text style={styles.detailLabel}>{details ? 'Hide details' : 'Show details for support'}</Text></Pressable>
+    {details ? <Text selectable style={styles.message}>{error.message || String(error)}</Text> : null}
+  </ScrollView></View>;
+}
+const createStyles = ({ colors, typography }: AppTheme) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.background },
+  scroll: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 28, gap: 16, width: '100%', maxWidth: 500, alignSelf: 'center' },
+  title: { ...typography.title, textAlign: 'center' },
+  body: { ...typography.body, textAlign: 'center' },
+  actions: { alignSelf: 'stretch', marginTop: 8 },
+  details: { minHeight: 44, justifyContent: 'center' },
+  detailLabel: { ...typography.caption, textDecorationLine: 'underline' },
+  message: { ...typography.caption, color: colors.ink, alignSelf: 'stretch', borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 16 },
 });

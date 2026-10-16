@@ -52,8 +52,7 @@ export function SelectRow({
   // meant the *static* light palette: every leading tile stayed pale cream in
   // dark mode, and the experience-level bars — drawn in the theme's near-white
   // ink — disappeared into it.
-  const accent = accentProp ?? colors.primary;
-  const tint = tintProp ?? colors.primaryTint;
+  const accent = colors.primary;
   const styles = useThemedStyles(createStyles);
 
   const press = useRef(new Animated.Value(0)).current;
@@ -83,7 +82,6 @@ export function SelectRow({
       onPressOut={() => to(0)}
       style={[c.wrap, styles.wrap]}
     >
-      <View style={c.lip} />
       <Animated.View
         style={[
           c.face,
@@ -95,7 +93,6 @@ export function SelectRow({
         <View
           style={[
             styles.tile,
-            !bareLeading && { backgroundColor: tint, borderWidth: 1, borderColor: colors.overlaySoft },
           ]}
         >
           {leading}
@@ -113,7 +110,7 @@ export function SelectRow({
         </View>
 
         <View style={[styles.check, selected && { backgroundColor: accent }]}>
-          {selected ? <Glyph name="check" size={15} color={colors.white} strokeWidth={3.4} /> : null}
+          {selected ? <Glyph name="check" size={14} color={colors.textOnPrimary} strokeWidth={2.3} /> : null}
         </View>
       </Animated.View>
     </Pressable>
@@ -142,9 +139,9 @@ const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => Styl
   // Always ringed, filled only when chosen. An empty circle that changes
   // only its border colour is easy to miss at a glance down a list of eight.
   check: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: stroke.control,
     borderColor: colors.overlayStrong,
     backgroundColor: 'transparent',

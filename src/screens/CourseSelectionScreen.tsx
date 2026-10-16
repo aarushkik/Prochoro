@@ -35,7 +35,7 @@ export function CourseSelectionScreen() {
         onBack={() => navigation.goBack()}
         step={1}
         total={5}
-        question="Which AP are we taking on?"
+        question="Choose your AP subject."
         subtitle="Choose one course for this quest."
         mascotPose="neutral"
       />

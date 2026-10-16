@@ -32,8 +32,8 @@ export function AchievementPreviewScreen() {
         onBack={() => navigation.goBack()}
         step={5}
         total={5}
-        question="Your AP quest ahead"
-        subtitle="Here’s the path Stu will build with you."
+        question="Your study path."
+        subtitle="From the foundations to exam day."
         mascotPose="excited"
       />
 

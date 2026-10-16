@@ -40,10 +40,10 @@ export function AppleSignInButton({ disabled = false, onPress }: AppleSignInButt
   if (!available) return null;
 
   return (
-    <View style={[styles.wrap, disabled && styles.disabled]} pointerEvents={disabled ? 'none' : 'auto'}>
+    <View style={[styles.wrap, { borderColor: theme.colors.border }, disabled && styles.disabled]} pointerEvents={disabled ? 'none' : 'auto'}>
       <AppleAuthentication.AppleAuthenticationButton
         buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-        buttonStyle={theme.isDark ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+        buttonStyle={theme.isDark ? AppleAuthentication.AppleAuthenticationButtonStyle.BLACK : AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
         cornerRadius={RADIUS}
         style={styles.button}
         accessibilityState={{ disabled }}
@@ -54,7 +54,7 @@ export function AppleSignInButton({ disabled = false, onPress }: AppleSignInButt
 }
 
 const styles = StyleSheet.create({
-  wrap: { marginBottom: 10 },
+  wrap: { marginBottom: 10, borderWidth: 1, borderRadius: RADIUS, overflow: 'hidden' },
   button: { width: '100%', height: HEIGHT },
   disabled: { opacity: 0.5 },
 });

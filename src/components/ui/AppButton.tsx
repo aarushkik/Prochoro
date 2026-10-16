@@ -1,7 +1,6 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import React, { useEffect, useRef } from 'react';
 import { ActivityIndicator, Animated, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Glyph, type GlyphName } from '@/components/icons';
 import { glassCard, spacing, spring } from '@/theme';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
@@ -28,19 +27,7 @@ interface AppButtonProps {
   style?: StyleProp<ViewStyle>;
 }
 
-/**
- * The StudyPlat button: a capsule of glass.
- *
- * Filled tones are coloured glass — the colour itself, a sheen pooling along
- * the top and a rim lit from above. No coloured glow underneath: a halo in a
- * button's own colour is decoration, and it made every screen look like a
- * template. Secondary is clear glass, the same material as the cards it
- * sits among; ghost has no surface at all.
- *
- * Pressing gives a little under the finger and springs back. The old chunky
- * button sank onto a lip; glass has no lip to sink onto, so it scales instead,
- * clamped so the release spring's overshoot never grows it past its own size.
- */
+/** Monochrome capsule button with a restrained press response. */
 export function AppButton({
   label,
   onPress,
@@ -88,14 +75,6 @@ export function AppButton({
       style={[styles.wrap, style]}
     >
       <Animated.View style={[styles.face, scheme.face, { paddingVertical: pad, transform: [{ scale }] }]}>
-        {scheme.sheen ? (
-          <LinearGradient
-            pointerEvents="none"
-            colors={[scheme.sheen, appTheme.glass.sheenClear]}
-            locations={[0, 0.6]}
-            style={[StyleSheet.absoluteFill, styles.under]}
-          />
-        ) : null}
 
         {loading ? (
           <ActivityIndicator color={scheme.text} />
@@ -112,32 +91,19 @@ export function AppButton({
   );
 }
 
-type Scheme = { face: ViewStyle; text: string; sheen?: string };
+type Scheme = { face: ViewStyle; text: string };
 
-/** Coloured glass: the fill, a white rim lit from above, a quiet drop. */
-function tinted(fill: string, solid: boolean): ViewStyle {
+const makeSchemes = ({ colors, glass }: AppTheme): Record<ButtonTone | 'disabled', Scheme> => {
+  const primary = { face: { backgroundColor: colors.primary, borderWidth: 1, borderColor: colors.primary }, text: colors.textOnPrimary };
   return {
-    backgroundColor: fill,
-    borderWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.55)',
-    borderLeftColor: 'rgba(255,255,255,0.22)',
-    borderRightColor: 'rgba(255,255,255,0.22)',
-    borderBottomColor: 'rgba(0,0,0,0.10)',
-    boxShadow: solid ? 'none' : '0 4px 12px rgba(18,48,60,0.16), 0 1px 2px rgba(18,48,60,0.10)',
-  };
-}
-
-const makeSchemes = ({ colors, glass, solid }: AppTheme): Record<ButtonTone | 'disabled', Scheme> => {
-  const sheen = solid ? undefined : 'rgba(255,255,255,0.32)';
-  return {
-    primary: { face: tinted(colors.primary, solid), text: colors.textOnPrimary, sheen },
-    gold: { face: tinted(colors.gold, solid), text: colors.textOnPrimary, sheen },
-    success: { face: tinted('#111111', solid), text: colors.white, sheen },
-    danger: { face: tinted('#555555', solid), text: colors.white, sheen },
-    secondary: { face: glassCard(glass), text: colors.ink, sheen: solid ? undefined : glass.sheen },
+    primary,
+    gold: primary,
+    success: primary,
+    danger: primary,
+    secondary: { face: glassCard(glass), text: colors.ink },
     ghost: { face: { backgroundColor: 'transparent', borderWidth: 1, borderColor: 'transparent' }, text: colors.textSecondary },
     disabled: {
-      face: { backgroundColor: colors.overlaySoft, borderWidth: 1, borderColor: colors.overlaySoft },
+      face: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.disabledEdge },
       text: colors.textFaint,
     },
   };
@@ -159,7 +125,6 @@ const createStyles = () => StyleSheet.create({
     // fill and the label. See GlassSurface.
     zIndex: 0,
   },
-  under: { zIndex: -1 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   label: { textAlign: 'center', flexShrink: 1, textTransform: 'none', letterSpacing: 0.2 },
 });

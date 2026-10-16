@@ -1,6 +1,6 @@
 /** Moments in the study journey, each with its own authored platypus drawing. */
 export type MascotPose =
-  | 'neutral' | 'thinking' | 'excited' | 'worried' | 'celebrate' | 'proud' | 'sleepy' | 'sad'
+  | 'neutral' | 'thinking' | 'excited' | 'surprised' | 'worried' | 'celebrate' | 'proud' | 'sleepy' | 'sad'
   | 'reading' | 'meditate' | 'wave' | 'point' | 'map' | 'idea'
   | 'thumbsup' | 'wince' | 'trophy'
   | 'streakOn' | 'streakLost' | 'streakFreeze'
@@ -25,7 +25,7 @@ export const MASCOT_SIZES: Record<MascotSize, number> = {
 };
 export const MASCOT_ASPECT = 1;
 
-/** 26 purpose-drawn poses across three transparent, monochrome atlases. */
+/** 27 purpose-drawn poses across three transparent, monochrome atlases. */
 export const MASCOT_SHEETS = {
   expressions: require('../../assets/mascot/prochoro/expressions.png'),
   activities: require('../../assets/mascot/prochoro/activities.png'),
@@ -37,6 +37,7 @@ export const MASCOT_FRAMES: Record<MascotPose, { sheet: keyof typeof MASCOT_SHEE
   excited: { sheet: 'expressions', index: 1 },
   sad: { sheet: 'expressions', index: 2 },
   thinking: { sheet: 'expressions', index: 3 },
+  surprised: { sheet: 'expressions', index: 4 },
   worried: { sheet: 'expressions', index: 6 },
   proud: { sheet: 'expressions', index: 5 },
   sleepy: { sheet: 'expressions', index: 7 },

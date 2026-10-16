@@ -1,27 +1,6 @@
-/**
- * Liquid Glass tokens.
- *
- * Glass is for the layer that floats *over* content — the HUD, the tab bar,
- * the track banner, the floating button, sheets and dialogs — never for the
- * content itself. Cards on the map stay chunky and opaque; glass is how the
- * controls above them get out of the way.
- *
- * On iOS 26 the system draws the real material and none of this is used
- * except `thickNative`. Everywhere else (the web, older iOS) the material is
- * built from four layers, each with a token here:
- *
- * 1. A backdrop blur with boosted saturation, so colour from the map bleeds
- *    through instead of going grey.
- * 2. A translucent `tint` in the page's own hue — cream in light, deep teal in
- *    dark — strong enough to keep text legible over a busy map.
- * 3. A `sheen`: light pooling along the top, fading out by the middle.
- * 4. A `rim`: a one-point edge that is brightest on top and nearly gone at the
- *    bottom, the specular highlight that makes the surface read as a solid
- *    object rather than a blurred rectangle.
- *
- * `regular` is for bars and controls; `thick` for sheets and dialogs that
- * carry sentences, where legibility beats see-through.
- */
+/** Neutral glass for floating controls and sheets. Native iOS draws the system
+ * material; other platforms use monochrome blur, a fine rim and a soft shadow.
+ * Content backgrounds remain pure white or pure black. */
 export interface GlassTokens {
   tint: string;
   thick: string;
@@ -45,61 +24,52 @@ export interface GlassTokens {
   sheenClear: string;
   scrim: string;
   shadow: string;
-  /**
-   * Content cards. Translucent over the aurora backdrop rather than blurred:
-   * the backdrop is already soft, so a blur under a card would change nothing
-   * you could see and cost a backdrop pass per card.
-   */
+  /** Content cards use a quiet translucent version of the page background. */
   card: string;
   cardSelected: string;
   cardShadow: string;
-  /**
-   * The contour lines on the page behind every screen (see `CONTOURS`).
-   * Glass needs something behind it to read as glass; on a map app, that
-   * something is the map's own paper.
-   */
   contour: string;
 }
 
 export const lightGlass: GlassTokens = {
-  tint: 'rgba(255,255,255,0.58)',
-  thick: 'rgba(255,255,255,0.88)',
+  tint: 'rgba(255,255,255,0.72)',
+  thick: 'rgba(255,255,255,0.94)',
   thickNative: 'rgba(255,255,255,0.45)',
   blur: 24,
   blurThick: 32,
-  sheen: 'rgba(255,255,255,0.55)',
-  rim: { top: 'rgba(255,255,255,0.96)', side: 'rgba(255,255,255,0.56)', bottom: 'rgba(0,0,0,0.10)' },
-  lens: 'rgba(0,0,0,0.08)',
-  lensRim: 'rgba(255,255,255,0.75)',
-  edgeFade: ['rgba(246,246,244,0.94)', 'rgba(246,246,244,0.6)', 'rgba(246,246,244,0)'],
+  sheen: 'rgba(255,255,255,0.32)',
+  rim: { top: 'rgba(0,0,0,0.10)', side: 'rgba(0,0,0,0.10)', bottom: 'rgba(0,0,0,0.18)' },
+  lens: 'transparent',
+  lensRim: '#000000',
+  edgeFade: ['rgba(255,255,255,1)', 'rgba(255,255,255,0.8)', 'rgba(255,255,255,0)'],
   sheenClear: 'rgba(255,255,255,0)',
   scrim: 'rgba(0,0,0,0.34)',
-  shadow: '0 10px 30px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.07)',
-  card: 'rgba(255,255,255,0.82)',
-  cardSelected: 'rgba(239,239,237,0.96)',
+  shadow: '0 8px 28px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+  card: 'rgba(255,255,255,0.80)',
+  cardSelected: 'rgba(255,255,255,0.94)',
   // Tight, so a stack of cards does not merge its shadows into a grey band
   // down each side of the list.
-  cardShadow: '0 1px 2px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.045)',
+  cardShadow: '0 2px 10px rgba(0,0,0,0.025)',
   contour: 'rgba(0,0,0,0.055)',
 };
 
 export const darkGlass: GlassTokens = {
-  tint: 'rgba(24,24,24,0.58)',
-  thick: 'rgba(24,24,24,0.88)',
-  thickNative: 'rgba(24,24,24,0.4)',
+  tint: 'rgba(0,0,0,0.72)',
+  thick: 'rgba(0,0,0,0.94)',
+  thickNative: 'rgba(0,0,0,0.55)',
   blur: 20,
   blurThick: 30,
-  sheen: 'rgba(255,255,255,0.09)',
-  rim: { top: 'rgba(255,255,255,0.30)', side: 'rgba(255,255,255,0.10)', bottom: 'rgba(255,255,255,0.04)' },
-  lens: 'rgba(255,255,255,0.13)',
-  lensRim: 'rgba(255,255,255,0.16)',
-  edgeFade: ['rgba(9,9,9,0.94)', 'rgba(9,9,9,0.6)', 'rgba(9,9,9,0)'],
+  sheen: 'rgba(255,255,255,0.025)',
+  rim: { top: 'rgba(255,255,255,0.28)', side: 'rgba(255,255,255,0.16)', bottom: 'rgba(255,255,255,0.10)' },
+  lens: 'transparent',
+  lensRim: '#FFFFFF',
+  edgeFade: ['rgba(0,0,0,1)', 'rgba(0,0,0,0.8)', 'rgba(0,0,0,0)'],
   sheenClear: 'rgba(255,255,255,0)',
   scrim: 'rgba(0,0,0,0.48)',
-  shadow: '0 12px 34px rgba(0,0,0,0.40), 0 1px 3px rgba(0,0,0,0.25)',
-  card: 'rgba(38,38,38,0.62)',
-  cardSelected: 'rgba(53,53,53,0.72)',
-  cardShadow: '0 1px 2px rgba(0,0,0,0.25), 0 4px 14px rgba(0,0,0,0.18)',
+  shadow: '0 8px 28px rgba(0,0,0,0.16)',
+  card: 'rgba(0,0,0,0.80)',
+  cardSelected: 'rgba(0,0,0,0.94)',
+  cardShadow: 'none',
   contour: 'rgba(255,255,255,0.045)',
 };
 
@@ -159,43 +129,18 @@ export function rimOf(color: string) {
   return { borderTopColor: color, borderLeftColor: color, borderRightColor: color, borderBottomColor: color };
 }
 
-/** A selected glass card: tinted and ringed in its accent. */
-export function selectedCard(glass: GlassTokens, accent: string) {
+/** Selection is an ink outline, with no colored fill. */
+export function selectedCard(glass: GlassTokens, _accent?: string) {
   return {
     backgroundColor: glass.cardSelected,
-    ...rimOf(accent),
+    ...rimOf(glass.lensRim),
     boxShadow: glass.cardShadow,
   };
 }
 
-/**
- * The rim for a *coloured* surface — a hero card, a tinted button, the
- * streak card. White light along the top, fading down the sides, a faint dark
- * line underneath: the same lighting as glass, laid over a colour instead of
- * a translucent tint.
- */
-export function litRim(top = 0.45) {
-  return {
-    borderWidth: 1,
-    borderTopColor: `rgba(255,255,255,${top})`,
-    borderLeftColor: `rgba(255,255,255,${top * 0.4})`,
-    borderRightColor: `rgba(255,255,255,${top * 0.4})`,
-    borderBottomColor: 'rgba(0,0,0,0.12)',
-    borderCurve: 'continuous' as const,
-  };
-}
-
-/**
- * A card in a colour wash rather than clear glass — for the one card on a
- * screen that is about something (the equipped companion, a score). The wash
- * is translucent so the map's contour lines still run under it.
- */
-export function tintedCard(glass: GlassTokens, tint: string, ring: string, solid: boolean) {
-  return {
-    backgroundColor: solid ? tint : withAlpha(tint, 0.72),
-    borderWidth: 1,
-    ...rimOf(withAlpha(ring, 0.35)),
-    borderCurve: 'continuous' as const,
-    boxShadow: glass.cardShadow,
-  };
+/** A neutral bordered card, used for companion and progress summaries. */
+export function outlinedCard(glass: GlassTokens) {
+  return { backgroundColor: glass.card, borderWidth: 1,
+    ...rimOf(withAlpha(glass.lensRim, 0.18)),
+    borderCurve: 'continuous' as const, boxShadow: glass.cardShadow };
 }

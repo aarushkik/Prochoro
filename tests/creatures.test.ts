@@ -45,10 +45,43 @@ test("sixty boss portraits use ten distinct monochrome atlases bundled for offli
     ["../src/assets/characters/prochoro/companions.png", 1448, 1086],
     ["../src/assets/characters/prochoro/courses.png", 1774, 887],
     ["../src/assets/characters/prochoro/activities.png", 1774, 887],
+    ["../src/assets/characters/prochoro/utilities.png", 1448, 1086],
   ] as const) {
     const image = readFileSync(new URL(path, import.meta.url));
     assert.equal(image.readUInt32BE(16), width);
     assert.equal(image.readUInt32BE(20), height);
     assert.equal(image[25], 6);
+  }
+});
+
+test('mascot expressions, companions and utility icons have distinct bounded portrait crops', () => {
+  const mascot = JSON.parse(readFileSync(new URL('../src/data/mascotFrames.json', import.meta.url), 'utf8'));
+  const companions = JSON.parse(readFileSync(new URL('../src/data/companionFrames.json', import.meta.url), 'utf8'));
+  const utilities = JSON.parse(readFileSync(new URL('../src/data/utilityFrames.json', import.meta.url), 'utf8'));
+  const bosses = JSON.parse(readFileSync(new URL('../src/data/bossFrames.json', import.meta.url), 'utf8'));
+  for (const [file, data, count] of [
+    ...Object.entries(mascot).map(([name, data]) => [`../src/assets/mascot/prochoro/${name}.png`, data, 9]),
+    ['../src/assets/characters/prochoro/companions.png', companions, 12],
+    ['../src/assets/characters/prochoro/utilities.png', utilities, 12],
+    ...Object.entries(bosses).map(([name, data]) => [`../src/assets/characters/prochoro/bosses/${name}.png`, data, 6]),
+  ] as [string, { width: number; height: number; frames: number[][] }, number][]) {
+    const image = readFileSync(new URL(file, import.meta.url));
+    assert.equal(data.width, image.readUInt32BE(16));
+    assert.equal(data.height, image.readUInt32BE(20));
+    assert.equal(data.frames.length, count);
+    assert.equal(new Set(data.frames.map(frame => frame.join(','))).size, count);
+    for (const [x, y, width, height] of data.frames) {
+      assert.ok(x >= 0 && y >= 0 && width > 0 && height > 0);
+      assert.ok(x + width <= data.width && y + height <= data.height);
+    }
+    if (file.includes('/bosses/')) {
+      data.frames.forEach(([x, y, w, h], i) => {
+        data.frames.slice(0, i).forEach(([otherX, otherY, otherW, otherH]) => {
+          const overlaps = Math.min(x + w, otherX + otherW) > Math.max(x, otherX)
+            && Math.min(y + h, otherY + otherH) > Math.max(y, otherY);
+          assert.equal(overlaps, false, `${file}: boss portraits must not overlap`);
+        });
+      });
+    }
   }
 });

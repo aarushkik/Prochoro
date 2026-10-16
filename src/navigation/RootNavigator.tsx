@@ -113,7 +113,7 @@ export function RootNavigator() {
 
 const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.create({
   holding: { flex: 1, backgroundColor: palette.night, justifyContent: 'center', alignItems: 'center', padding: 24, gap: 16 },
-  title: { fontFamily: fonts.displayHeavy, fontSize: 24, color: palette.cream, textAlign: 'center' },
-  message: { fontFamily: fonts.body, fontSize: 15, lineHeight: 23, color: '#D0D0D0', maxWidth: 380, textAlign: 'center' },
+  title: { fontFamily: fonts.displayHeavy, fontSize: 24, color: colors.ink, textAlign: 'center' },
+  message: { fontFamily: fonts.body, fontSize: 15, lineHeight: 23, color: colors.textSecondary, maxWidth: 380, textAlign: 'center' },
   actions: { width: '100%', maxWidth: 380, gap: 16, marginTop: 12 },
 });

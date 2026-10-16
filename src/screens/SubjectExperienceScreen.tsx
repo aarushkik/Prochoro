@@ -24,7 +24,7 @@ export function SubjectExperienceScreen() {
   const [selected, setSelected] = useState<ExperienceLevelId | null>(experienceLevelId);
 
   const course = getCourse(courseId);
-  const question = `How much ${course?.name ?? 'this course'} is already in your head?`;
+  const question = `How familiar is ${course?.name ?? 'this course'}?`;
 
   const onContinue = () => {
     if (!selected) return;
@@ -40,7 +40,7 @@ export function SubjectExperienceScreen() {
         step={2}
         total={5}
         question={question}
-        subtitle="Be honest — it just helps Stu place you."
+        subtitle="This helps us find your starting point."
         mascotPose="thinking"
       />
 

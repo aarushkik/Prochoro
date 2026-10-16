@@ -7,6 +7,7 @@ import * as Crypto from 'expo-crypto';
 import type { Session, User } from '@supabase/supabase-js';
 import { AUTH_STORAGE_KEY, isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { deviceStorage } from '@/lib/storage';
+import { authConnectionError, authRedirectURL } from '@/lib/authRedirect';
 import { GUEST_MODE_KEY, GUEST_PROFILE_ID, clearProfileCache, flushProfile, prepareProfileExit } from '@/lib/profileCache';
 
 const browserCompletion = WebBrowser.maybeCompleteAuthSession();
@@ -193,6 +194,8 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
 
   const signIn = useCallback(async (provider: AuthProvider) => {
     if (busy.current) return;
+    const connectionProblem = authConnectionError();
+    if (connectionProblem) { setError(connectionProblem); return; }
     if (!isSupabaseConfigured) { setError(unavailable); return; }
     busy.current = true; setError(null); setPending(provider);
     try {
@@ -202,7 +205,7 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
         await signInWithAppleNative();
         return;
       }
-      const redirectTo = Linking.createURL('auth/callback');
+      const redirectTo = authRedirectURL('auth/callback');
       const { data, error: startError } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo, skipBrowserRedirect: true, ...(provider === 'azure' ? { scopes: 'email' } : {}) },
@@ -219,6 +222,8 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
 
   const emailAction = useCallback(async (kind: 'signIn' | 'signUp' | 'reset' | 'update', email: string, password = ''): Promise<string | null> => {
     if (busy.current) return null;
+    const connectionProblem = authConnectionError();
+    if (connectionProblem) { setError(connectionProblem); return null; }
     if (!isSupabaseConfigured) { setError(unavailable); return null; }
     const problem = kind === 'update' ? validateNewPassword(password) : validateEmail(email) ??
       (kind === 'signUp' ? validateNewPassword(password) : kind === 'signIn' && !password ? 'Enter your password.' : null);
@@ -230,11 +235,11 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
         const { error: failure } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (failure) throw failure;
       } else if (kind === 'signUp') {
-        const { data, error: failure } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: Linking.createURL('auth/callback') } });
+        const { data, error: failure } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: authRedirectURL('auth/callback') } });
         if (failure) throw failure;
         if (!data.session) return 'Check your email to confirm your account, then sign in here.';
       } else if (kind === 'reset') {
-        const { error: failure } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: Linking.createURL('auth/recovery') });
+        const { error: failure } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: authRedirectURL('auth/recovery') });
         if (failure) throw failure;
         return 'If an account uses that email, a password reset link is on its way. Open it on this device.';
       } else {
@@ -328,15 +333,15 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
 function isAuthCallback(url: string): boolean {
   try {
     const received = new URL(url);
-    return ['auth/callback', 'auth/recovery'].some((path) => {
-      const expected = new URL(Linking.createURL(path));
+    return (['auth/callback', 'auth/recovery'] as const).some((path) => {
+      const expected = new URL(authRedirectURL(path));
       return received.protocol === expected.protocol && received.host === expected.host && received.pathname === expected.pathname;
     });
   } catch { return false; }
 }
 function isRecoveryURL(url: string): boolean {
   const parsed = new URL(url);
-  return url.split(/[?#]/)[0] === Linking.createURL('auth/recovery') || parsed.searchParams.get('type') === 'recovery' || new URLSearchParams(parsed.hash.slice(1)).get('type') === 'recovery';
+  return url.split(/[?#]/)[0] === authRedirectURL('auth/recovery') || parsed.searchParams.get('type') === 'recovery' || new URLSearchParams(parsed.hash.slice(1)).get('type') === 'recovery';
 }
 // Both the native deep-link event and browser sheet can deliver the same URL.
 let lastCallback: { url: string; result: Promise<void> } | null = null;

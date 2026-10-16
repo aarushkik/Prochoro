@@ -7,13 +7,7 @@ import { colors, type ThemeColors } from './colors';
  * One clear family leaves the hand-drawn characters room to carry personality.
  * Figtree stays legible in both light and dark glass surfaces.
  *
- * The design leans on very heavy weights with open tracking for its small
- * labels (900 at 11–12px, +0.07 to +0.14em). That combination is what makes
- * chip and button text read as part of the sticker style rather than as
- * ordinary UI text, so the tracking values here are deliberate.
- *
- * Both families are loaded in `App.tsx`; text falls back to the system font
- * until they resolve.
+ * Three bundled weights keep the interface light and predictable.
  */
 
 export const fontWeight = {
@@ -29,12 +23,12 @@ export const fontWeight = {
 export const fonts = {
   displaySemibold: 'Figtree_600SemiBold',
   displayBold: 'Figtree_700Bold',
-  displayHeavy: 'Figtree_800ExtraBold',
+  displayHeavy: 'Figtree_700Bold',
   body: 'Figtree_500Medium',
   bodySemibold: 'Figtree_600SemiBold',
   bodyBold: 'Figtree_700Bold',
-  bodyHeavy: 'Figtree_800ExtraBold',
-  bodyBlack: 'Figtree_900Black',
+  bodyHeavy: 'Figtree_600SemiBold',
+  bodyBlack: 'Figtree_700Bold',
   bold: 'Figtree_700Bold',
   semibold: 'Figtree_600SemiBold',
   medium: 'Figtree_500Medium',
@@ -76,7 +70,7 @@ export const makeTypography = (colors: ThemeColors): Record<Variant, TextStyle> 
     fontFamily: fonts.bodyBlack,
     fontSize: 11,
     lineHeight: 14,
-    letterSpacing: 1.5,
+    letterSpacing: 1,
     textTransform: 'uppercase',
     color: colors.textMuted,
   },

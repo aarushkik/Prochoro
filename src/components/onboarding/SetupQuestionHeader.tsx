@@ -1,6 +1,6 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { ProgressBar, TopBackButton } from '@/components/ui';
 import { Mascot } from '@/components/Mascot';
 import type { MascotPose } from '@/components/Mascot';
@@ -35,12 +35,14 @@ export function SetupQuestionHeader({
   const appTheme = useAppTheme();
   const { colors, palette, typography, chunky } = appTheme;
   const styles = useThemedStyles(createStyles);
+  const { width, fontScale } = useWindowDimensions();
+  const compact = width < 360 || fontScale > 1.2;
 
   return (
     <View>
       <View style={styles.topRow}>
         <TopBackButton onPress={onBack} style={styles.back} />
-        <ProgressBar progress={step / total} />
+        <ProgressBar progress={step / total} style={{ flex: 1 }} />
       </View>
 
       <View style={styles.headlineRow}>
@@ -50,10 +52,10 @@ export function SetupQuestionHeader({
               Step {step} of {total}
             </Text>
           </View>
-          <Text style={typography.title}>{question}</Text>
+          <Text style={[typography.title, compact && { fontSize: 24, lineHeight: 29 }]}>{question}</Text>
           {subtitle ? <Text style={[typography.body, styles.subtitle]}>{subtitle}</Text> : null}
         </View>
-        <Mascot size={72} pose={mascotPose} />
+        {!compact ? <Mascot size={64} pose={mascotPose} /> : null}
       </View>
     </View>
   );
@@ -68,10 +70,10 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
     alignSelf: 'flex-start',
     backgroundColor: colors.primaryTint,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: 0,
     paddingVertical: 5,
     marginBottom: spacing.sm,
   },
   chipText: { ...typography.overline, color: colors.primaryDeep },
-  subtitle: { marginTop: spacing.sm },
+  subtitle: { marginTop: spacing.sm, fontSize: 14, lineHeight: 21 },
 });

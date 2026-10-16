@@ -2,6 +2,7 @@ import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvid
 import React from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Glyph } from '@/components/icons';
+import { GlassSurface } from '@/components/ui/GlassSurface';
 import { colors, fonts, palette, radius, spacing, typography } from '@/theme';
 import type { PlacementQuestion, QuestionDifficulty, Stimulus } from '@/types';
 
@@ -35,7 +36,7 @@ export function QuestionCard({ question, children }: QuestionCardProps) {
   const difficulty = DIFFICULTY_LABEL[question.difficulty];
 
   return (
-    <View>
+    <GlassSurface variant="thick" style={styles.card}>
       {/* One kicker line rather than two pills. Two coloured chips above every
           question compete with the answers for the same attention, and the
           difficulty is not something a student can act on mid-question. */}
@@ -46,7 +47,7 @@ export function QuestionCard({ question, children }: QuestionCardProps) {
       <Text style={styles.prompt}>{question.prompt}</Text>
       {question.stimulus ? <StimulusBlock stimulus={question.stimulus} /> : null}
       <View style={styles.answers}>{children}</View>
-    </View>
+    </GlassSurface>
   );
 }
 
@@ -64,9 +65,7 @@ function StimulusBlock({ stimulus }: { stimulus: Stimulus }) {
     return (
       <View style={styles.codeBox}>
         <View style={styles.codeBar}>
-          {['#E6E6E6', '#BDBDBD', '#929292'].map((c) => (
-            <View key={c} style={[styles.codeDot, { backgroundColor: c }]} />
-          ))}
+          <Text style={styles.codeLabel}>CODE</Text>
         </View>
         <Text style={styles.codeText}>{stimulus.content}</Text>
       </View>
@@ -98,6 +97,7 @@ function StimulusBlock({ stimulus }: { stimulus: Stimulus }) {
 }
 
 const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => StyleSheet.create({
+  card: { padding: 20, borderRadius: 28 },
   tags: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
   skillTag: {
     backgroundColor: colors.primaryTint,
@@ -113,15 +113,13 @@ const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => Styl
     fontFamily: fonts.bodyBlack,
     fontSize: 11,
     lineHeight: 17,
-    letterSpacing: 1.6,
+    letterSpacing: 0.7,
     color: colors.primaryDeep,
   },
 
-  // Baloo at 700, not the heavy 800 the titles use: a question is read, not
-  // scanned, and the extra weight at 23px starts to shout.
   prompt: {
-    fontFamily: fonts.displayBold,
-    fontSize: 23,
+    fontFamily: fonts.displaySemibold,
+    fontSize: 21,
     lineHeight: 28,
     color: colors.ink,
     marginTop: 4,
@@ -129,17 +127,19 @@ const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => Styl
   },
   answers: { marginTop: spacing.sm },
 
-  codeBox: { backgroundColor: '#111111', borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.lg },
+  codeBox: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.lg },
   codeBar: {
     flexDirection: 'row',
     gap: 6,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   codeDot: { width: 9, height: 9, borderRadius: 5 },
+  codeLabel: { ...typography.overline, fontSize: 10, color: colors.textSecondary },
   codeText: {
-    color: '#F4F4F4',
+    color: colors.ink,
     fontSize: 14,
     lineHeight: 21,
     padding: spacing.lg,
@@ -147,24 +147,26 @@ const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => Styl
   },
 
   formulaBox: {
-    backgroundColor: '#202020',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: radius.lg,
     paddingVertical: spacing.xxl,
     paddingHorizontal: spacing.lg,
     alignItems: 'center',
     marginBottom: spacing.lg,
   },
-  formulaText: { fontSize: 24, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 },
+  formulaText: { fontSize: 22, fontWeight: '500', color: colors.ink },
 
   paragraphBox: {
     backgroundColor: colors.background,
     borderRadius: radius.lg,
-    borderLeftWidth: 5,
+    borderLeftWidth: 2,
     borderLeftColor: colors.primary,
     padding: spacing.lg,
     marginBottom: spacing.lg,
   },
-  paragraphText: { ...typography.body, color: colors.textPrimary, fontStyle: 'italic' },
+  paragraphText: { ...typography.body, color: colors.textPrimary },
   sourceLine: { ...typography.caption, marginTop: spacing.sm },
 
   mediaBox: {

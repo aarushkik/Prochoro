@@ -13,15 +13,15 @@ export interface BossFamily {
 export const BOSS_FAMILIES: Record<SkylineKind, BossFamily> = {
   waves: {
     kind: "waves",
-    species: "Shore study club",
+    species: "Shore rivals",
     color: "#111111",
     light: "#FFFFFF",
     names: ["Scout", "Shelly", "Sandy", "Finn", "Pearl", "Coach Coral"],
-    lore: "The shore study club collects good questions and checks what you remember before the next stretch of trail.",
+    lore: "The shore rivals test your recall. Break their guard with clear answers before you head up the trail.",
   },
   towers: {
     kind: "towers",
-    species: "Library study club",
+    species: "Library rivals",
     color: "#111111",
     light: "#FFFFFF",
     names: ["Ollie", "Penny", "Robin", "Winnie", "Hazel", "Professor Page"],
@@ -29,7 +29,7 @@ export const BOSS_FAMILIES: Record<SkylineKind, BossFamily> = {
   },
   chimneys: {
     kind: "chimneys",
-    species: "Lab study club",
+    species: "Lab rivals",
     color: "#111111",
     light: "#FFFFFF",
     names: ["Sunny", "Pip", "Rusty", "Ginger", "Ruby", "Professor Spark"],
@@ -37,7 +37,7 @@ export const BOSS_FAMILIES: Record<SkylineKind, BossFamily> = {
   },
   mesa: {
     kind: "mesa",
-    species: "Field study club",
+    species: "Field rivals",
     color: "#111111",
     light: "#FFFFFF",
     names: ["Dusty", "Daisy", "Cliff", "Olive", "Jasper", "Ranger Rose"],
@@ -45,7 +45,7 @@ export const BOSS_FAMILIES: Record<SkylineKind, BossFamily> = {
   },
   gears: {
     kind: "gears",
-    species: "Workshop study club",
+    species: "Workshop rivals",
     color: "#111111",
     light: "#FFFFFF",
     names: ["Chip", "Dot", "Teddy", "Archie", "Eddie", "Coach Build"],
@@ -53,7 +53,7 @@ export const BOSS_FAMILIES: Record<SkylineKind, BossFamily> = {
   },
   islands: {
     kind: "islands",
-    species: "Ocean study club",
+    species: "Ocean rivals",
     color: "#111111",
     light: "#FFFFFF",
     names: ["Bubbles", "Coco", "Skippy", "Marina", "Nori", "Captain Notes"],
@@ -61,7 +61,7 @@ export const BOSS_FAMILIES: Record<SkylineKind, BossFamily> = {
   },
   ridge: {
     kind: "ridge",
-    species: "Discovery study club",
+    species: "Discovery rivals",
     color: "#111111",
     light: "#FFFFFF",
     names: ["Rocky", "Poppy", "Miles", "Amber", "Mason", "Professor Stone"],
@@ -69,7 +69,7 @@ export const BOSS_FAMILIES: Record<SkylineKind, BossFamily> = {
   },
   reeds: {
     kind: "reeds",
-    species: "Garden study club",
+    species: "Garden rivals",
     color: "#111111",
     light: "#FFFFFF",
     names: ["Hoppy", "Lily", "Basil", "Fern", "Clover", "Coach Green"],
@@ -77,7 +77,7 @@ export const BOSS_FAMILIES: Record<SkylineKind, BossFamily> = {
   },
   pylons: {
     kind: "pylons",
-    species: "Ideas study club",
+    species: "Ideas rivals",
     color: "#111111",
     light: "#FFFFFF",
     names: ["Buzz", "Bea", "Ziggy", "June", "Stella", "Professor Bright"],
@@ -85,7 +85,7 @@ export const BOSS_FAMILIES: Record<SkylineKind, BossFamily> = {
   },
   peak: {
     kind: "peak",
-    species: "Summit study club",
+    species: "Summit rivals",
     color: "#111111",
     light: "#FFFFFF",
     names: ["Snowy", "Alfie", "Aspen", "Hugo", "Everest", "Coach Summit"],

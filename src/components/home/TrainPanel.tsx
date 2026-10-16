@@ -9,15 +9,13 @@ import {
   Text,
   View,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { BossSprite } from "@/components/creatures/BossSprite";
 import { useMotionPreference } from "@/hooks/useMotionPreference";
 import { Mascot } from "@/components/Mascot";
 import { Glyph } from "@/components/icons";
 import { ChunkyCard } from "@/components/ui";
 import { ActivityIllustration } from "@/components/ui/ActivityIllustration";
-import { chunky, colors, fonts, litRim, palette, spring } from "@/theme";
-import { Sheen } from "@/components/ui/Sheen";
+import { chunky, colors, fonts, palette, spring } from "@/theme";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQuest } from "@/state/QuestContext";
@@ -52,7 +50,7 @@ const MODES: {
     xp: 40,
   },
   { name: "Mistakes", illustration: "study", count: 6, xp: 30 },
-  { name: "Replay a check", illustration: "bonus", count: 8, xp: 45 },
+  { name: "Boss rematch", illustration: "bonus", count: 8, xp: 45 },
   {
     name: "Mixed review",
     illustration: "lesson",
@@ -110,8 +108,8 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
       if (missed.length === 0) return "Nothing missed yet";
       return `${missed.length} topic${missed.length === 1 ? "" : "s"} missed`;
     }
-    if (name === "Replay a check") {
-      if (rematches.length === 0) return "Pass a check first";
+    if (name === "Boss rematch") {
+      if (rematches.length === 0) return "Win a duel first";
       return `${rematches.length} passed`;
     }
     return name === "Quick practice"
@@ -212,7 +210,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
           // set under a name that promises otherwise, the card goes quiet
           // until the first boss is down.
           const off =
-            (m.name === "Replay a check" && rematches.length === 0) ||
+            (m.name === "Boss rematch" && rematches.length === 0) ||
             (m.name === "Mistakes" && missed.length === 0);
           const lastBoss = rematches[rematches.length - 1];
           const focus =
@@ -224,7 +222,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
                 off
                   ? undefined
                   : () => {
-                      if (m.name === "Replay a check" && lastBoss) {
+                      if (m.name === "Boss rematch" && lastBoss) {
                         const unit = map.units.find((item) =>
                           item.nodes.some((node) => node.id === lastBoss.id),
                         );
@@ -243,7 +241,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
               style={styles.gridItem}
               contentStyle={[styles.modeCard, off && styles.modeCardOff]}
             >
-              {m.name === "Replay a check" ? (
+              {m.name === "Boss rematch" ? (
                 <BossSprite
                   nodeId={
                     lastBoss?.id ??
@@ -262,7 +260,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
                 {modeMeta(m.name)}
                 {off
                   ? ""
-                  : ` · ${m.name === "Replay a check" && lastBoss ? questionCountFor(lastBoss) : focus?.length ? Math.min(m.count, countForSkills(courseId, focus)) : sized(m.count)}Q`}
+                  : ` · ${m.name === "Boss rematch" && lastBoss ? questionCountFor(lastBoss) : focus?.length ? Math.min(m.count, countForSkills(courseId, focus)) : sized(m.count)}Q`}
               </Text>
             </ChunkyCard>
           );
@@ -295,15 +293,7 @@ function Recommended({
 
   const press = useRef(new Animated.Value(0)).current;
   const { reduceMotion } = useMotionPreference();
-  // Built on the shared hero tokens rather than `ink`: this card has to stay
-  // dark in both modes, and `ink` is the token whose whole job is to flip.
-  const c = chunky({
-    depth: 6,
-    radius: 26,
-    shadow: palette.hero.lip,
-    background: palette.hero.to,
-    border: palette.hero.edge,
-  });
+  const c = chunky({ radius: 28 });
   const to = (v: number) => {
     if (reduceMotion) {
       press.setValue(v);
@@ -325,7 +315,6 @@ function Recommended({
       onPress={onStart}
       style={[c.wrap, styles.heroWrap]}
     >
-      <View style={c.lip} />
       <Animated.View
         style={[
           c.face,
@@ -343,19 +332,6 @@ function Recommended({
           },
         ]}
       >
-        {/* The same gradient as the Home hero, so the two cards that make a
-            recommendation look like the same kind of thing. */}
-        <LinearGradient
-          pointerEvents="none"
-          colors={[palette.hero.from, palette.hero.to]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-        {/* A turquoise wash bleeding off the top-right corner. */}
-        <View style={styles.heroGlow} pointerEvents="none" />
-        {/* Tinted glass: light pooling along the top, a rim lit from above. */}
-        <Sheen strength={0.14} />
         <Text style={styles.heroKicker}>RECOMMENDED TODAY</Text>
         <Text style={styles.heroTitle}>Weak-spot drill</Text>
         <Text style={styles.heroBody}>
@@ -363,10 +339,9 @@ function Recommended({
           {focus ? ` on ${focus}` : " across a few topics to find your focus"}.
         </Text>
         <View style={styles.heroCta}>
-          <Sheen strength={0.45} reach={0.6} />
           <Text style={styles.heroCtaText}>Start · 4 min</Text>
           <View style={styles.heroArrow}>
-            <Glyph name="arrow-right" size={16} color={palette.hero.to} strokeWidth={2.8} />
+            <Glyph name="arrow-right" size={16} color={colors.textOnPrimary} strokeWidth={2} />
           </View>
         </View>
         <Text style={styles.heroXp}>{xp} XP earned so far</Text>
@@ -397,7 +372,7 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   headArt: { width: 104, height: 104, marginBottom: -8 },
 
   heroWrap: { marginTop: 12 },
-  hero: { padding: 18, overflow: "hidden", ...litRim(0.3), boxShadow: "0 14px 32px rgba(9,45,57,0.22)" },
+  hero: { padding: 20, overflow: "hidden" },
   heroGlow: {
     position: "absolute",
     right: -78,
@@ -434,26 +409,24 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
     alignSelf: "flex-start",
     gap: 12,
     marginTop: 16,
-    backgroundColor: palette.turquoiseLight,
+    backgroundColor: colors.primary,
     borderRadius: 23,
     minHeight: 46,
     paddingLeft: 18,
     paddingRight: 9,
     overflow: "hidden",
-    ...litRim(0.7),
   },
   heroArrow: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.55)",
     alignItems: "center",
     justifyContent: "center",
   },
   heroCtaText: {
     fontFamily: fonts.bodyHeavy,
     fontSize: 14.5,
-    color: palette.hero.to,
+    color: colors.textOnPrimary,
   },
   heroXp: {
     fontFamily: fonts.bodySemibold,

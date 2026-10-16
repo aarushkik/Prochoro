@@ -164,7 +164,7 @@ function TrailSegmentImpl({ unit, width, mode, nextPlace, stateOf, onSelect, onR
       style={{
         width,
         height,
-        backgroundColor: colors.background,
+        backgroundColor: 'transparent',
         borderTopWidth: 1,
         borderTopColor: colors.border,
         overflow: 'hidden',
@@ -202,7 +202,7 @@ function TrailSegmentImpl({ unit, width, mode, nextPlace, stateOf, onSelect, onR
                         {
                           left: half + x - 4.5,
                           top: top + size + 30 + k * 15,
-                          backgroundColor: done || current ? track.dark : palette.sandDeep,
+                          backgroundColor: done || current ? colors.ink : colors.border,
                         },
                       ]}
                     />
@@ -254,7 +254,7 @@ function Plaque({ unit, mode, cleared }: { unit: QuestUnit; mode: TrackMode; cle
 
   const stamp =
     mode === 'cleared'
-      ? { text: 'CLEARED', bg: track.deep, fg: colors.white, tilt: true }
+      ? { text: 'CLEARED', bg: colors.background, fg: colors.ink, tilt: false }
       : mode === 'open'
         ? { text: `${cleared}/${unit.nodes.length}`, bg: colors.current, fg: palette.orangeDark, tilt: false }
         : mode === 'next'
@@ -295,7 +295,7 @@ function Pips({ track, count }: { track: QuestUnit['track']; count: number }) {
   return (
     <View style={styles.pipRow}>
       {Array.from({ length: count }, (_, i) => (
-        <View key={i} style={[styles.pip, { backgroundColor: track.deep }]} />
+        <View key={i} style={[styles.pip, { backgroundColor: colors.ink }]} />
       ))}
     </View>
   );
@@ -349,15 +349,14 @@ function ReviewDock({ unit, onPress }: { unit: QuestUnit; onPress: () => void })
 
   return (
     <View style={styles.reviewWrap}>
-      <View style={[styles.reviewLip, { backgroundColor: unit.track.dark }]} />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Endless review of ${unit.track.place}`}
         onPress={onPress}
-        style={[styles.reviewFace, { backgroundColor: unit.track.deep }]}
+        style={styles.reviewFace}
       >
         <View style={styles.reviewIcon}>
-          <Glyph name="refresh" size={22} color={unit.track.deep} strokeWidth={2.8} />
+          <Glyph name="refresh" size={22} color={colors.ink} strokeWidth={1.8} />
         </View>
         <View style={styles.reviewBody}>
           <Text style={styles.reviewKicker}>ENDLESS REVIEW</Text>
@@ -368,7 +367,7 @@ function ReviewDock({ unit, onPress }: { unit: QuestUnit; onPress: () => void })
             Keeps going until you stop
           </Text>
         </View>
-        <Glyph name="chevron-right" size={20} color={colors.white} strokeWidth={2.8} />
+        <Glyph name="chevron-right" size={20} color={colors.ink} strokeWidth={1.8} />
       </Pressable>
     </View>
   );
@@ -396,9 +395,8 @@ function GateBossCard({
       onPress={onPress}
       style={styles.bossWrap}
     >
-      <View style={styles.bossLip} />
       <View style={styles.bossFace}>
-        <BossSprite nodeId={node.id} size={82} ink="light" />
+        <BossSprite nodeId={node.id} size={82} />
         <View style={styles.bossBody}>
           <Text style={styles.bossKicker}>TRACK {unit.track.n} BOSS</Text>
           <Text style={styles.bossTitle} numberOfLines={2}>
@@ -419,6 +417,7 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
   reviewWrap: { position: 'relative', marginHorizontal: 16, marginTop: 16, marginBottom: 6 },
   reviewLip: { position: 'absolute', left: 0, right: 0, top: 6, bottom: -6, borderRadius: 22 },
   reviewFace: {
+    ...card,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -437,9 +436,9 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     justifyContent: 'center',
   },
   reviewBody: { flex: 1, minWidth: 0 },
-  reviewKicker: { fontFamily: fonts.bodyBlack, fontSize: 9, letterSpacing: 1.4, color: 'rgba(255,255,255,0.75)' },
-  reviewTitle: { fontFamily: fonts.displayHeavy, fontSize: 17, lineHeight: 19, color: colors.white, marginTop: 1 },
-  reviewNote: { fontFamily: fonts.bodySemibold, fontSize: 11.5, color: 'rgba(255,255,255,0.8)' },
+  reviewKicker: { fontFamily: fonts.bodyBlack, fontSize: 9, letterSpacing: 1, color: colors.textSecondary },
+  reviewTitle: { fontFamily: fonts.displayHeavy, fontSize: 17, lineHeight: 21, color: colors.ink, marginTop: 1 },
+  reviewNote: { fontFamily: fonts.bodySemibold, fontSize: 11.5, color: colors.textSecondary },
 
   slot: { position: 'absolute', alignItems: 'center' },
   dot: { position: 'absolute', width: 9, height: 9, borderRadius: 5, opacity: 0.65 },
@@ -481,7 +480,7 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: colors.overlaySoft,
+    backgroundColor: 'transparent',
     borderWidth: stroke.surface,
     borderColor: colors.overlayStrong,
     borderStyle: 'dashed',
@@ -507,11 +506,11 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     backgroundColor: colors.nightRaised,
   },
   bossFace: {
+    ...card,
     height: 94,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    backgroundColor: '#111111',
     borderWidth: stroke.control,
     borderColor: colors.border,
     borderRadius: 30,
@@ -534,8 +533,8 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     fontFamily: fonts.displayHeavy,
     fontSize: 19,
     lineHeight: 21,
-    color: colors.white,
+    color: colors.ink,
     marginTop: 1,
   },
-  bossNote: { fontFamily: fonts.bodySemibold, fontSize: 12, color: '#D1D1D1', marginTop: 2 },
+  bossNote: { fontFamily: fonts.bodySemibold, fontSize: 12, color: colors.textSecondary, marginTop: 2 },
 });

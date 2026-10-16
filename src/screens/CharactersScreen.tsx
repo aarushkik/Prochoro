@@ -20,7 +20,7 @@ import { Glyph } from "@/components/icons";
 import { ChunkyCard, TopBackButton } from "@/components/ui";
 import { unlockLabel, type CompanionStatus } from "@/data/companions";
 import { useQuest } from "@/state/QuestContext";
-import { colors, fonts, palette, tintedCard, withAlpha } from "@/theme";
+import { colors, fonts, palette, outlinedCard, withAlpha } from "@/theme";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import type { RootStackParamList } from "@/navigation/types";
 
@@ -123,7 +123,7 @@ export function CharactersScreen() {
           <Text style={styles.title}>The field guide</Text>
           <Text style={styles.subtitle}>
             {page === "bosses"
-              ? `${defeated} of ${bossCount.length} checks passed`
+              ? `${defeated} of ${bossCount.length} bosses defeated`
               : `${owned.length} of ${companions.length} ready to explore`}
           </Text>
         </View>
@@ -240,7 +240,7 @@ const createStyles = ({ colors, palette, typography, card, glass, solid }: AppTh
     paddingLeft: 16,
     paddingVertical: 16,
     paddingRight: 2,
-    ...tintedCard(glass, colors.primaryTint, colors.primary, solid),
+    ...outlinedCard(glass),
     borderRadius: 24,
   },
   heroText: { flex: 1, minWidth: 0 },
@@ -324,7 +324,9 @@ const createStyles = ({ colors, palette, typography, card, glass, solid }: AppTh
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: colors.primaryLight,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.ink,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -347,11 +349,13 @@ const createStyles = ({ colors, palette, typography, card, glass, solid }: AppTh
     alignSelf: "flex-start",
     marginTop: "auto",
     borderRadius: 10,
-    backgroundColor: colors.overlaySoft,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 9,
     paddingVertical: 7,
   },
-  tagOn: { backgroundColor: colors.primaryLight },
+  tagOn: { borderColor: colors.ink },
   tagText: { fontFamily: fonts.bodyHeavy, fontSize: 10.5, color: colors.ink },
   unlock: { marginTop: "auto" },
   progressTrack: {

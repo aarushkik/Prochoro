@@ -8,6 +8,10 @@
     "userInterfaceStyle": "automatic",
     "scheme": "studyplat",
     "ios": {
+      "icon": {
+        "light": "./assets/prochoro-icon.png",
+        "dark": "./assets/prochoro-icon-dark.png"
+      },
       "supportsTablet": true,
       "bundleIdentifier": "com.aarushkik.studyplat",
       "infoPlist": {
@@ -57,7 +61,11 @@
         {
           "image": "./src/assets/mascot/prochoro/mark.png",
           "imageWidth": 160,
-          "backgroundColor": "#FFFFFF"
+          "backgroundColor": "#FFFFFF",
+          "dark": {
+            "image": "./src/assets/mascot/prochoro/mark-dark.png",
+            "backgroundColor": "#000000"
+          }
         }
       ]
     ],
@@ -67,7 +75,7 @@
       }
     },
     "experiments": {
-      "baseUrl": "/StudyPlat/app"
+      "baseUrl": "/app"
     }
   }
 }
