@@ -21,8 +21,9 @@ Use `npm run web` for a browser preview. Google/Microsoft callbacks on native re
 - Google, Microsoft, and email/password use Supabase. Apple OAuth is implemented behind `EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED`; enable it only after configuring and testing the provider.
 - Devices that studied as a guest in an earlier version keep that quest; the first sign-in on the device imports it into a compatible account course. If the account has a different course, its quest opens and the guest quest is not merged. Deleting the account erases it.
 - Local saves are immediate. Account changes use a persistent outbox with idempotent mutation IDs and an atomic PostgreSQL merge; retries do not duplicate rewards. Returning to the foreground refreshes account progress.
-- Map stops require a complete attempt with at least 60% correct. Lesson stops start with field notes. Practice, topic review, boss rematches, placement, and endless mode use the course question banks.
-- There are eight courses, 120 original practice questions per course, and 180 map stops per course. Questions recur across stops. This is original practice material, not official exam content or a validated predictor of exam scores.
+- Home offers one next action: Play Level N. Completing a full attempt with at least 60% correct opens the next level. Lessons begin with a worked example; results offer the next level or a retry. The optional level list is grouped by official AP unit.
+- Options lets students select an owned pet with one tap. Rewards are separate from level numbers; XP no longer creates a second rank system.
+- There are eight courses, 822 original practice items across 320 reasoning families, and 180 saved levels per course. Each official AP unit has a designated final boss. Questions recur across levels, with answer order shuffled per attempt. This is original practice, not official exam content or a validated predictor of exam scores. See [question-bank scope and sources](docs/question-bank.md).
 
 ## Original creatures
 
@@ -31,7 +32,7 @@ The field guide contains twelve illustrated companion portraits and sixty indivi
 ## Validation
 
 ```sh
-npm run check         # TypeScript and 41 tests, including real PostgreSQL via PGlite
+npm run check         # TypeScript and 47 tests, including real PostgreSQL via PGlite
 npm run release:check # Credentials, providers, icon, public URLs; intentionally fails on unresolved gates
 npm run export:ios   # Production Hermes bundle; not a signed native archive
 npm run export:web

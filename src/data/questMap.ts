@@ -5,18 +5,20 @@ import type { BossTier, QuestMap, QuestNode, QuestNodeKindId, QuestUnit } from '
 import type { CourseCategory, PlacementLevelId } from '@/types';
 import { apCourses } from './apCourses';
 import { COURSE_UNITS, DEFAULT_UNITS, type UnitSpec } from './courseUnits';
-import { getPlacementQuiz } from './placementQuestions';
+import { getPlacementQuiz, questionsForStop } from './placementQuestions';
+import { bossUnitIndex, gameAreaOrder, officialUnitForArea } from './courseFrameworks';
 
 /**
  * Builds the quest map for a course.
  *
  * Every course is ten *areas*, and every area is six stages. A stage is always
- * the same three beats — learn it, work it, then fight for it — so a unit ends
+ * the same three beats — learn it, work it, then fight for it — so an area ends
  * up with six lessons, six support stops, and six bosses. The trail *shape* is
  * identical everywhere; only the subject topics and the landscape change, which
  * is why the map can cover eight courses without eight hand-built layouts.
  *
- * Difficulty ramps on two axes at once: across the ten areas, and again across
+ * Practice ordering follows official AP units while preserving saved IDs. The game
+ * difficulty label ramps on two axes: across the ten areas, and again across
  * the six stages inside each one. The last boss of area 10 is the hardest thing
  * on the map by a wide margin.
  */
@@ -28,8 +30,8 @@ const SUPPORT_CYCLE: QuestNodeKindId[] = ['drill', 'study', 'drill', 'bonus', 's
 
 /**
  * The six checks at the end of an area, easiest first. The sixth opens the
- * next area. Named for what each one is — the bosses are a friendly study
- * club checking what you remember, not enemies to defeat.
+ * next area. The sixth boss in each official unit’s final area is that unit’s boss.
+ * Smaller boss battles remain along the route.
  */
 export const BOSS_TIERS = ['Warm-up', 'Quick check', 'Challenge', 'Deep dive', 'Big review', 'Final check'] as const;
 
@@ -62,9 +64,7 @@ export function questionCountFor(node: QuestNode): number {
   const requested = node.kind === 'boss' ? 6 + (node.tier ?? 1) : node.kind === 'bonus' ? 4 : node.kind === 'drill' ? 6 : 5;
   const match = node.id.match(/^(.*)-u(\d+)-s\d+-/);
   if (!match) return requested;
-  const available = getPlacementQuiz(match[1]).questions.filter((question) => question.unit !== undefined && question.unit < Number(match[2])).length;
-  return Math.min(requested, available);
-
+  return questionsForStop(match[1], Number(match[2]) - 1, requested, node.id).length;
 }
 
 function buildStage(
@@ -117,10 +117,13 @@ function buildStage(
   };
 
   const isFinal = stage === STAGES_PER_UNIT;
+  const unitBoss = bossUnitIndex(courseId, idBase + '-boss') !== null;
   const boss: QuestNode = {
     id: `${idBase}-boss`,
     kind: 'boss',
     tier,
+    apUnit: officialUnitForArea(courseId, unitIndex) ?? undefined,
+    unitBoss,
     title: bossForNode(`${idBase}-boss`)?.name ?? `${BOSS_TIERS[stage - 1]} of ${area}`,
     summary: isFinal
       ? `The area boss — questions from ${spec.title} and earlier study units. Get 60% correct to open the next area.`
@@ -171,7 +174,8 @@ export function getQuestMap(courseId: string | null): QuestMap {
     buildUnit(course.id, course.category, course.accent, spec, route[i % route.length], i),
   );
 
-  return { courseId: course.id, units, order: units.flatMap((u) => u.nodes.map((n) => n.id)) };
+  // Reorder the path into official AP units without changing any saved stop ID.
+  return { courseId: course.id, units, order: gameAreaOrder(course.id).flatMap(index => units[index]?.nodes.map(node => node.id) ?? []) };
 }
 
 /** Stops in one area — a lesson, a support stop and a boss per stage. */

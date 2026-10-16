@@ -43,6 +43,8 @@ import { findNode, getQuestMap, questionCountFor } from '@/data/questMap';
 import { isStreakMilestone } from '@/utils/streaks';
 import { choiceCanBeSubmitted, eliminatedChoiceFor } from '@/utils/quizChoices';
 import { bossBattle } from '@/utils/bossBattle';
+import { shuffleQuizChoices } from '@/utils/shuffleQuizChoices';
+import { levelNumber } from '@/utils/learningLevels';
 import { useOnboarding } from '@/state/OnboardingContext';
 import { useQuest } from '@/state/QuestContext';
 import type { PlacementQuestion } from '@/types';
@@ -145,6 +147,7 @@ export function QuizScreen() {
   // Remy appends what was missed rather than replacing the run, so the
   // counter stays honest: "5 / 7" after a re-ask really is seven questions.
   const run = useMemo(() => [...questions, ...extra, ...requeued], [questions, extra, requeued]);
+  const displayedRun = useMemo(() => shuffleQuizChoices(run, routeKey), [run, routeKey]);
   const total = run.length;
 
   const [phase, setPhase] = useState<'intro' | 'study' | 'quiz'>(stop?.kind === 'lesson' ? 'study' : session ? 'quiz' : 'intro');
@@ -202,7 +205,7 @@ export function QuizScreen() {
     if (endless) finish(answered);
     else setConfirmExit(() => () => navigation.dispatch(data.action));
   });
-  const question = run[Math.min(index, total - 1)];
+  const question = displayedRun[Math.min(index, total - 1)];
   const isChoiceBased = !!question?.choices;
   const isLast = !endless && index + 1 >= total;
   const progress = total ? (index + (checked ? 1 : 0)) / total : 0;
@@ -312,7 +315,7 @@ export function QuizScreen() {
         routeKey,
       );
       const cleared = stop ? sessionClearsStop(all.map((a) => ({ skillTag: a.question.skillTag, correct: a.correct })), questionCountFor(stop)) : undefined;
-      setExitAction(() => () => navigation.replace('LessonComplete', { title: session.title, correct, total: all.length, xp: accepted ? earned : 0, cleared, bossNodeId: stop?.kind === 'boss' ? stop.id : undefined }));
+      setExitAction(() => () => navigation.replace('LessonComplete', { title: session.title, correct, total: all.length, xp: accepted ? earned : 0, cleared, nodeId: stop?.id, level: levelNumber(map, stop?.id) ?? undefined, bossNodeId: stop?.kind === 'boss' ? stop.id : undefined }));
       return;
     }
 
@@ -444,14 +447,14 @@ export function QuizScreen() {
   if (!question) return <SafeAreaView style={styles.root}><AreaBackdrop kind={areaKind} opacity={0.3} /><View style={styles.introBody}><Mascot pose="reading" size={130} /><Text style={typography.title}>You’re all caught up.</Text><Text style={[typography.body, styles.introText]}>There are no questions in this practice set. Pick another topic to keep exploring.</Text><AppButton label="Back to practice" onPress={() => navigation.goBack()} /></View></SafeAreaView>;
 
   if (phase === 'study') {
-    const notes = questions.filter((item, i, all) => all.findIndex((other) => other.skillTag === item.skillTag) === i).slice(0, 4);
+    const example = questions[0];
     return <SafeAreaView style={styles.root} edges={['top', 'bottom']}><AreaBackdrop kind={areaKind} opacity={0.3} /><StatusBar style={appTheme.isDark ? "light" : "dark"} />
       <ScrollView contentContainerStyle={styles.studyContent}>
-        <View style={styles.studyHeading}><Mascot size={82} pose="reading" /><View style={{ flex: 1 }}><Text style={typography.overline}>FIELD NOTES</Text><Text style={typography.title}>{session?.title}</Text></View></View>
-        <Text style={[typography.body, { marginBottom: 18 }]}>A few ideas to take with you. Read them, then try the practice questions.</Text>
-        {notes.map((item) => <View key={item.id} style={styles.studyCard}><Text style={typography.heading}>{item.skillTag}</Text><Text style={[typography.body, { color: colors.ink, marginTop: 8 }]}>{item.explanation}</Text></View>)}
+        <View style={styles.studyHeading}><Mascot size={82} pose="reading" /><View style={{ flex: 1 }}><Text style={typography.overline}>QUICK LESSON</Text><Text style={typography.title}>{session?.title}</Text></View></View>
+        <Text style={[typography.body, { marginBottom: 18 }]}>See how one example works. Then try the questions.</Text>
+        <QuestionCard question={example}><Text style={typography.label}>{'Answer: ' + (example.choices?.find(choice => choice.id === example.correctAnswerId)?.text ?? example.acceptedAnswers?.[0])}</Text><Text style={[typography.body, { marginTop: 12 }]}>{example.explanation}</Text></QuestionCard>
         <AppButton label={`Try ${questions.length} questions`} icon="arrow-right" onPress={() => setPhase('quiz')} />
-        <Pressable accessibilityRole="button" onPress={() => navigation.goBack()} style={styles.skip}><Text style={styles.skipText}>Back to the map</Text></Pressable>
+        <Pressable accessibilityRole="button" onPress={() => navigation.goBack()} style={styles.skip}><Text style={styles.skipText}>Back to Home</Text></Pressable>
       </ScrollView>
     </SafeAreaView>;
   }
@@ -502,8 +505,8 @@ export function QuizScreen() {
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <View style={styles.headerWrap}>
             <QuizProgressHeader
-              title={getCourse(courseId)?.name ?? 'AP practice'}
-              subtitle={isBoss ? 'Boss duel' : session?.title ?? 'Find your starting point'}
+              title={stop ? 'Level ' + levelNumber(map, stop.id) : getCourse(courseId)?.name ?? 'AP practice'}
+              subtitle={isBoss ? 'Boss battle · ' + stop.title : session?.title ?? 'Find your starting point'}
               courseId={courseId}
               progress={endless ? ((index % REVIEW_BATCH) + 1) / REVIEW_BATCH : progress}
               counter={endless ? `${answered.length} done` : `${index + 1} / ${total}`}

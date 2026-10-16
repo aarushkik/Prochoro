@@ -3,7 +3,7 @@
  *
  * A reusable engine consumes these — each AP subject supplies its own set of
  * `PlacementQuestion`s (see `data/placementQuestions.ts`). All content is
- * original placeholder material, never real exam questions.
+ * original practice aligned to public course frameworks, never official exam items.
  */
 
 /** How much a correct answer signals about readiness. Drives scoring weight. */
@@ -51,6 +51,10 @@ export interface PlacementQuestion {
    * drawn from the whole course.
    */
   unit?: number;
+  /** Zero-based official College Board unit; game area IDs stay compatible. */
+  frameworkUnit?: number;
+  /** Public reference for an original practice item, not a claim of official authorship. */
+  examSource?: { url: string; pattern: string };
 }
 
 /** The full placement quiz for one subject. */

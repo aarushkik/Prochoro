@@ -18,6 +18,8 @@ import { Mascot } from "@/components/Mascot";
 import { colors, radius, spacing, typography } from "@/theme";
 import { SaveStatusNotice } from "@/components/account/SaveStatusNotice";
 import { useMotionPreference } from "@/hooks/useMotionPreference";
+import { findNode, questionCountFor } from '@/data/questMap';
+import { levelNumber } from '@/utils/learningLevels';
 import { useQuest } from "@/state/QuestContext";
 import type { RootStackParamList } from "@/navigation/types";
 
@@ -36,10 +38,18 @@ export function LessonCompleteScreen() {
 
   const navigation = useNavigation<Nav>();
   const { params } = useRoute<Route>();
-  const { streakDays } = useQuest();
+  const { streakDays, map, currentNodeId } = useQuest();
 
   const { reduceMotion } = useMotionPreference();
-  const { title, correct, total, xp, cleared, bossNodeId } = params;
+  const { title, correct, total, xp, cleared, bossNodeId, nodeId, level } = params;
+  const next = currentNodeId ? findNode(map, currentNodeId) : undefined;
+  const replay = nodeId ? findNode(map, nodeId) : undefined;
+  const destination = cleared === false ? replay : next;
+  const playNext = () => {
+    if (!destination || cleared === undefined) { navigation.reset({ index: 0, routes: [{ name: "Home" }] }); return; }
+    const item = destination.node;
+    navigation.reset({ index: 1, routes: [{ name: "Home" }, { name: "Quiz", params: { nodeId: item.id, unit: destination.unit.index, title: item.title, xp: item.xp, count: questionCountFor(item), boss: item.kind === "boss" } }] });
+  };
   const boss = bossNodeId ? bossForNode(bossNodeId) : null;
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
   const verdict = VERDICTS.find((v) => accuracy >= v.min)!;
@@ -96,13 +106,13 @@ export function LessonCompleteScreen() {
           <Animated.View style={[styles.copy, { opacity: pop }]}>
             <Text style={[typography.display, styles.headline]}>
               {cleared === false
-                ? "Keep building."
+                ? "Try again."
                 : boss
-                  ? "Duel won!"
+                  ? "Boss beaten!"
                   : verdict.headline}
             </Text>
             <Text style={[typography.body, styles.sub]} numberOfLines={2}>
-              {title}
+              {level ? "Level " + level + (cleared ? " cleared" : " · " + title) : title}
             </Text>
 
             <View style={styles.statsWrap}>
@@ -132,9 +142,9 @@ export function LessonCompleteScreen() {
 
             <Text style={[typography.body, styles.note]}>
               {cleared === false
-                ? "Get at least 60% correct to clear this stop. Your practice XP is saved, and you can try again whenever you’re ready."
+                ? "You kept your practice XP. Read the explanations and try this level again."
                 : boss
-                  ? "This encounter is recorded in your field guide. Revisit its topics to keep them fresh."
+                  ? "You beat the boss. Your next level is ready."
                   : verdict.note}
             </Text>
             <SaveStatusNotice />
@@ -143,13 +153,12 @@ export function LessonCompleteScreen() {
 
         <View style={styles.footer}>
           <AppButton
-            label="Back to the map"
+            label={cleared === false && replay ? "Try Level " + levelNumber(map, nodeId) + " again" : cleared && next ? "Play Level " + levelNumber(map, currentNodeId) : "Done"}
             icon="map"
             emphasis
-            onPress={() =>
-              navigation.reset({ index: 0, routes: [{ name: "Home" }] })
-            }
+            onPress={playNext}
           />
+          {destination && cleared !== undefined ? <AppButton label="Home" tone="secondary" style={{ marginTop: 8 }} onPress={() => navigation.reset({ index: 0, routes: [{ name: "Home" }] })} /> : null}
         </View>
       </SafeAreaView>
     </View>

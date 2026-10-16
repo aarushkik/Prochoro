@@ -277,14 +277,14 @@ export const COURSE_UNITS: Record<string, UnitSpec[]> = {
       topics: ['2D array creation', 'Row-major traversal', 'Column-major traversal', 'Nested enhanced for', '2D array algorithms', 'Grid problems'],
     },
     {
-      title: 'Inheritance',
-      blurb: 'Building on what already works.',
-      topics: ['Superclasses and subclasses', 'Writing subclasses', 'Overriding methods', 'super keyword', 'Polymorphism', 'The Object class'],
+      title: 'Text Files and Data',
+      blurb: 'Read, check, and process data.',
+      topics: ['Reading text files', 'Parsing records', 'Input validation', 'Data privacy', 'Processing data', 'Testing file algorithms'],
     },
     {
-      title: 'Recursion',
-      blurb: 'Methods that call themselves.',
-      topics: ['Recursive thinking', 'Base cases', 'Tracing recursion', 'Recursion with strings', 'Recursive searching', 'Recursive sorting'],
+      title: 'Algorithms and Recursion',
+      blurb: 'Use data to solve a problem.',
+      topics: ['Searching collections', 'Sorting collections', 'Recursive methods', 'Base cases', 'Recursive searching', 'Recursive sorting'],
     },
   ],
   'ap-chem': [

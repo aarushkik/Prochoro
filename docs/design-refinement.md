@@ -20,9 +20,9 @@ See [art manifest](art-manifest.md), [creature art](creature-art.md), and [lates
 
 ## Area artwork and quiz
 
-Ten new, transparent doodle landscapes give each area its own setting: tide pools, a library city, a lab outpost, a canyon, a workshop, islands, a fossil ridge, wetlands, a signal marsh and the summit. They are generated raster artwork, not assembled from runtime shapes. The map changes its background with the active area; the field guide and questions use the matching scene. Black strokes become white in dark mode. Background detail stays quieter than reading text and characters. Exact prompts and source paths are in [prochoro-area-prompts.json](prochoro-area-prompts.json).
+Ten new, transparent doodle landscapes give each area its own setting: tide pools, a library city, a lab outpost, a canyon, a workshop, islands, a fossil ridge, wetlands, a signal marsh and the summit. They are generated raster artwork, not assembled from runtime shapes. The Play screen changes its background with the active area; the field guide and questions use the matching scene. Black strokes become white in dark mode. Background detail stays quieter than reading text and characters. Exact prompts and source paths are in [prochoro-area-prompts.json](prochoro-area-prompts.json).
 
-The quiz has a compact glass course toolbar, a frosted question card, inline explanations and a glass action dock. Questions scroll independently of the battle arena. Health bars keep a fixed height in column layouts; onboarding explicitly stretches its horizontal bar.
+The quiz has a compact glass course toolbar, a frosted question card, inline explanations and a glass action dock. Questions scroll independently of the battle arena. Data tables keep their columns in a compact panel and can scroll horizontally; long reading passages and code stay within the phone layout. Health bars keep a fixed height in column layouts; onboarding explicitly stretches its horizontal bar.
 
 ## Boss interaction
 
@@ -42,3 +42,11 @@ Open http://localhost:8086/ for the review menu, `/phone` for 390 × 844, or `/s
 Reviewed: sign-in/email forms, setup choices, home, practice, progress, profile, companions, all ten boss families, lesson sheet, quiz feedback, boss duel and session results, with light/dark and narrow layout checks. A sample boss play-through finished 6/7 correct and banked one +60 XP reward. One deliberate miss and rapid double presses did not skip questions or duplicate XP. A 0/7 run left the boss uncleared. Benny’s retry restored player HP and recorded only the replacement answer; Remy’s extra review question preserved boss damage and completed an honest 7/8 attempt. Native glass, Apple sign-in, VoiceOver and device performance still require a signed iOS build.
 
 Screenshots in `docs/design-previews/` are local design-review evidence, not App Store screenshots.
+
+## Simpler play and options
+
+Home now leads with a single Play Level N button and the exact number of answers needed. The full numbered list stays behind See all levels. Official AP units group the list and Progress; decorative game areas are not presented as extra AP units. Each official unit ends with a dedicated unit boss. XP is a reward total, not a competing rank.
+
+Options puts one-tap pet selection first, followed by appearance. Selected pets show a checked radio state and join the next round. Locked pets sit behind More pets to unlock. Remy and Daisy use simple counts of earned levels instead of hidden track groups; previous owners remain eligible. Account and rewards are secondary drawers. Level results offer the next level directly or retry the failed level. Lessons show a complete worked example, including any data or passage, before practice.
+
+All eight banks now use original applied practice with source references, worked explanations, and shuffled choices. See [question-bank scope and sources](question-bank.md) for counts, official unit mapping, and review limits.

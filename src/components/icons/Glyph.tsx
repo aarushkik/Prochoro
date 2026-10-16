@@ -4,7 +4,7 @@ import { useAppTheme } from '@/theme/ThemeProvider';
 import { UtilityIllustration, type UtilityIllustrationId } from '@/components/ui/UtilityIllustration';
 import { ActivityIllustration } from '@/components/ui/ActivityIllustration';
 
-export type GlyphName = 'check' | 'close' | 'chevron-left' | 'chevron-right' | 'chevron-down' | 'arrow-right' | 'plus' | 'lock' | 'info' | 'refresh' | 'play' | 'flame' | 'gem' | 'heart' | 'star' | 'crown' | 'trophy' | 'medal' | 'sparkle' | 'target' | 'book' | 'bolt' | 'page' | 'chest' | 'flag' | 'swords' | 'shield' | 'map' | 'compass' | 'chart' | 'avatar' | 'layers' | 'rocket' | 'quill' | 'brain' | 'clock' | 'calendar' | 'bulb';
+export type GlyphName = 'check' | 'close' | 'chevron-left' | 'chevron-right' | 'chevron-down' | 'chevron-up' | 'settings' | 'arrow-right' | 'plus' | 'lock' | 'info' | 'refresh' | 'play' | 'flame' | 'gem' | 'heart' | 'star' | 'crown' | 'trophy' | 'medal' | 'sparkle' | 'target' | 'book' | 'bolt' | 'page' | 'chest' | 'flag' | 'swords' | 'shield' | 'map' | 'compass' | 'chart' | 'avatar' | 'layers' | 'rocket' | 'quill' | 'brain' | 'clock' | 'calendar' | 'bulb';
 interface GlyphProps { name: GlyphName; size?: number; color?: string; strokeWidth?: number }
 const utility: Partial<Record<GlyphName, UtilityIllustrationId>> = {
   flame: 'streak', gem: 'gems', star: 'xp', sparkle: 'xp', crown: 'score5', trophy: 'score5', medal: 'score4',
@@ -31,6 +31,8 @@ function control(name: GlyphName): React.ReactNode {
     case 'chevron-left': return <Path d="m15 5-7 7 7 7" />;
     case 'chevron-right': return <Path d="m9 5 7 7-7 7" />;
     case 'chevron-down': return <Path d="m5 9 7 7 7-7" />;
+    case 'chevron-up': return <Path d="m5 15 7-7 7 7" />;
+    case 'settings': return <><Path d="M4 6h16M4 12h16M4 18h16"/><Circle cx="8" cy="6" r="2"/><Circle cx="16" cy="12" r="2"/><Circle cx="10" cy="18" r="2"/></>;
     case 'arrow-right': return <Path d="M4 12h15m-6-6 6 6-6 6" />;
     case 'plus': return <Path d="M12 5v14M5 12h14" />;
     case 'lock': return <><Path d="M8 10V7a4 4 0 0 1 8 0v3" /><Rect x={5} y={10} width={14} height={11} rx={3} /><Path d="M12 14v3" /></>;

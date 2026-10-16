@@ -12,6 +12,8 @@ import { useOnboarding } from '@/state/OnboardingContext';
 import { drillSize } from '@/data';
 import { weakSpots, weakSpotMeta } from '@/data/weakSpots';
 import type { RootStackParamList } from '@/navigation/types';
+import { frameworkFor, officialUnitForArea, unitBossId } from '@/data/courseFrameworks';
+import { learningLevels, levelNumber } from '@/utils/learningLevels';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 import type { QuestNode } from '@/types/quest';
@@ -48,30 +50,35 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
 
   const { tracks, mastery, bossesBeaten, bossTotal, nextBoss } = useMemo(() => {
     const cleared = new Set(completed);
-    const rows = map.units.map((unit) => {
-      const done = unit.nodes.filter((n) => cleared.has(n.id)).length;
-      return {
-        unit,
-        done,
-        pct: Math.round((done / unit.nodes.length) * 100),
-      };
+    const framework = frameworkFor(courseId);
+    const rows = framework.units.map((unit, index) => {
+      const nodes = unit.areas.flatMap(area => map.units[area].nodes);
+      const done = nodes.filter(node => cleared.has(node.id)).length;
+      return { id: 'unit-' + index, title: 'Unit ' + (index + 1), name: unit.title.startsWith('Unit ') ? 'Reading and writing' : unit.title, area: unit.areas[0], done, total: nodes.length, bossId: unitBossId(map.courseId, index)!, pct: Math.round(done / nodes.length * 100) };
     });
-    const bosses = map.units.flatMap((u) => u.nodes.filter((n) => n.kind === 'boss'));
+    const review = map.units.filter(unit => officialUnitForArea(map.courseId, unit.index) === null);
+    if (review.length) {
+      const nodes = review.flatMap(unit => unit.nodes); const done = nodes.filter(node => cleared.has(node.id)).length;
+      rows.push({ id: 'review', title: 'Extra review', name: 'Mixed practice after the main units', area: review[0].index, done, total: nodes.length, bossId: nodes.find(node => node.kind === 'boss')!.id, pct: Math.round(done / nodes.length * 100) });
+    }
+    const nodes = map.units.flatMap(unit => unit.nodes);
+    const bosses = framework.units.map((_, index) => nodes.find(node => node.id === unitBossId(map.courseId, index))!);
+    const orderedBosses = map.order.map(id => nodes.find(node => node.id === id)!).filter(node => node.kind === 'boss');
     return {
       tracks: rows,
-      mastery: Math.round((cleared.size / map.order.length) * 100),
+      mastery: learningLevels(map, completed).cleared,
       bossesBeaten: bosses.filter((b) => earned.includes(b.id)).length,
       bossTotal: bosses.length,
-      nextBoss: bosses.find((b) => stateOf(b.id) !== 'complete'),
+      nextBoss: orderedBosses.find((b) => stateOf(b.id) !== 'complete'),
     };
-  }, [map, completed, earned, stateOf]);
+  }, [map, completed, earned, stateOf, courseId]);
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: topInset + 4 }]} scrollIndicatorInsets={{ top: topInset }} showsVerticalScrollIndicator={false}>
       <View style={styles.head}>
         <View style={styles.headText}>
           <Text style={styles.title}>Progress</Text>
-          <Text style={styles.subtitle}>Every track, measured.</Text>
+          <Text style={styles.subtitle}>See what you’ve finished.</Text>
         </View>
         <Mascot pose="progress" size={132} />
       </View>
@@ -79,40 +86,35 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
       <ChunkyCard style={styles.masteryWrap} contentStyle={styles.mastery}>
         <View style={styles.masteryTop}>
           <View>
-            <Text style={styles.overline}>PATH EXPLORED</Text>
+            <Text style={styles.overline}>LEVELS CLEARED</Text>
             <Text style={styles.big}>
               {mastery}
-              <Text style={styles.bigUnit}>%</Text>
+              <Text style={styles.bigUnit}>{' / ' + map.order.length}</Text>
             </Text>
           </View>
           <View style={styles.delta}>
-            <Text style={styles.deltaText}>{bossesBeaten} of {bossTotal} bosses</Text>
+            <Text style={styles.deltaText}>{bossesBeaten} of {bossTotal} unit bosses</Text>
           </View>
         </View>
 
         <View style={styles.bars}>
           {[{ value: sessions, label: 'Sessions' }, { value: perfectSessions, label: 'Perfect sets' }, { value: bestStreak, label: 'Best streak' }].map((stat) => <View key={stat.label} style={styles.barCol}><Text style={styles.bigUnit}>{stat.value}</Text><Text style={styles.barLabel}>{stat.label}</Text></View>)}
         </View>
-        <Text style={styles.weekNote}>{streakDays > 0 ? `${streakDays}-day streak. Keep a little practice in your day.` : 'Finish a practice session to start your streak.'} Path progress includes your placement head start.</Text>
+        <Text style={styles.weekNote}>{streakDays > 0 ? `${streakDays}-day streak. Keep a little practice in your day.` : 'Finish a practice session to start your streak.'} Levels opened by your starting check are included.</Text>
       </ChunkyCard>
 
-      <Text style={styles.section}>TRACK BY TRACK</Text>
+      <Text style={styles.section}>YOUR AP UNITS</Text>
       <View style={styles.tight}>
-        {tracks.map(({ unit, pct }, i) => (
+        {tracks.map(row => (
           <ChunkyCard
-            key={unit.id}
-            onPress={() => onJumpToTrack(i)}
-            accessibilityLabel={`Go to ${unit.track.place} on the map`}
+            key={row.id}
+            onPress={() => onJumpToTrack(row.area)}
+            accessibilityLabel={'See ' + row.title + ', ' + row.name + '. ' + row.done + ' of ' + row.total + ' levels cleared'}
             contentStyle={styles.trackRow}
           >
-            <BossSprite nodeId={unit.nodes.find((node) => node.kind === 'boss')?.id} size={36} />
-            <Text style={styles.trackName} numberOfLines={1}>
-              {unit.track.place}
-            </Text>
-            <View style={styles.miniTrack}>
-              <View style={[styles.miniFill, { width: `${pct}%`, backgroundColor: colors.ink }]} />
-            </View>
-            <Text style={styles.trackPct}>{pct}%</Text>
+            <BossSprite nodeId={row.bossId} size={36} />
+            <View style={{ flex: 1, gap: 4 }}><Text style={styles.trackName}>{row.title}</Text><Text style={styles.weakMeta}>{row.name}</Text><View style={[styles.miniTrack, { width: '100%' }]}><View style={[styles.miniFill, { width: `${row.pct}%`, backgroundColor: colors.ink }]} /></View></View>
+            <Text style={[styles.trackPct, { width: 48 }]}>{row.done + '/' + row.total}</Text>
           </ChunkyCard>
         ))}
       </View>
@@ -127,14 +129,14 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
                 {nextBoss.title}
               </Text>
               <Text style={styles.bossMeta}>
-                {nextBoss.minutes} min · {nextBoss.xp} XP
+                {stateOf(nextBoss.id) === 'locked' ? 'Level ' + levelNumber(map, nextBoss.id) + ' · Finish earlier levels first' : 'Level ' + levelNumber(map, nextBoss.id) + ' · Ready to play'}
               </Text>
             </View>
           </ChunkyCard>
         </>
       ) : null}
 
-      <Text style={[styles.section, styles.sectionWarn]}>NEEDS WORK</Text>
+      <Text style={[styles.section, styles.sectionWarn]}>PRACTISE THESE NEXT</Text>
       <View style={styles.stack}>
         {weak.map((w) => (
           <ChunkyCard key={w.name} contentStyle={styles.weakCard}>
@@ -161,7 +163,7 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
               }
               style={({ pressed }) => [styles.drill, pressed && styles.drillPressed]}
             >
-              <Text style={styles.drillText}>DRILL THIS · {drillSize(courseId, w.count)} QUESTIONS</Text>
+              <Text style={styles.drillText}>PRACTISE · {drillSize(courseId, w.count)} QUESTIONS</Text>
             </Pressable>
           </ChunkyCard>
         ))}

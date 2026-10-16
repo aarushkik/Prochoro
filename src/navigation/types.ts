@@ -38,10 +38,10 @@ export type RootStackParamList = {
       }
     | undefined;
   PlacementResult: undefined;
-  LessonComplete: { title: string; correct: number; total: number; xp: number; cleared?: boolean; bossNodeId?: string };
+  LessonComplete: { title: string; correct: number; total: number; xp: number; cleared?: boolean; bossNodeId?: string; nodeId?: string; level?: number };
   Home: undefined;
   /** The companion roster, reached from the HUD avatar and from Profile. */
-  Characters: undefined;
+  Characters: { page?: 'companions' | 'bosses' } | undefined;
 };
 
 // Enables typed navigation with the untyped `useNavigation()` hook.

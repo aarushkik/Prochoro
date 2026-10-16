@@ -15,20 +15,13 @@ import { AreaBackdrop } from '../src/components/ui/AreaBackdrop';
 import { AREA_ART } from '../src/data/areaArt';
 import { AppButton } from '../src/components/ui/AppButton';
 import { AppearanceControls } from '../src/components/account/AppearanceControls';
-import { NextQuestCard } from '../src/components/home/NextQuestCard';
-import { TrailSegment } from '../src/components/home/TrailSegment';
-import { TrainPanel } from '../src/components/home/TrainPanel';
-import { BattlesPanel } from '../src/components/home/BattlesPanel';
 import { ProfileContent } from '../src/components/home/ProfileContent';
-import { QuestTabBar, type QuestTab } from '../src/components/home/QuestTabBar';
-import { QuestHud } from '../src/components/home/QuestHud';
-import { LessonSheet } from '../src/components/home/LessonSheet';
-import { CompanionSprite } from '../src/components/creatures/CompanionSprite';
 import { Mascot } from '../src/components/Mascot';
 import { MASCOT_SHEETS } from '../src/components/Mascot/Mascot.types';
 import { BOSS_ART } from '../src/data/characterArt';
 import { getCourse } from '../src/data';
 import { questionCountFor } from '../src/data/questMap';
+import { HomeContent } from '../src/screens/HomeScreen';
 import { IntroScreen } from '../src/screens/IntroScreen';
 import { CourseSelectionScreen } from '../src/screens/CourseSelectionScreen';
 import { SubjectExperienceScreen } from '../src/screens/SubjectExperienceScreen';
@@ -54,6 +47,13 @@ function Seed() {
 }
 function Menu() {
   const theme = useAppTheme(); const nav = useNavigation<any>(); const quest = useQuest();
+  const setup = useOnboarding();
+  const [sample, setSample] = useState<{ course: string; title: string; focus: string } | null>(null);
+  useEffect(() => {
+    if (!sample || setup.courseId !== sample.course) return;
+    nav.navigate('Quiz', { title: sample.title, focus: [sample.focus], count: 3, xp: 10 }); setSample(null);
+  }, [sample, setup.courseId]);
+  const openSample = (course: string, title: string, focus: string) => { setup.hydrate({ courseId: course }); setSample({ course, title, focus }); };
   const boss = quest.map.units[0].nodes.find(n => n.kind === 'boss')!;
   const lesson = quest.map.units[0].nodes.find(n => n.kind === 'lesson')!;
   const start = (node: QuestNode) => nav.navigate('Quiz', { nodeId: node.id, unit: 0, title: node.title, count: questionCountFor(node), xp: node.xp, boss: node.kind === 'boss' });
@@ -67,6 +67,9 @@ function Menu() {
     <AppButton label="Retry duel · Benny" tone="secondary" onPress={() => { quest.equip('quill'); start(boss); }} />
     <AppButton label="Review duel · Remy" tone="secondary" onPress={() => { quest.hydrate({ completedStops: quest.map.units.slice(0, 4).flatMap(u => u.nodes.map(n => n.id)), equippedId: 'slate' }); start(boss); }} />
     <AppButton label="Lesson and questions" tone="secondary" onPress={() => start(lesson)} />
+    <AppButton label="Data question preview" tone="secondary" onPress={() => openSample('ap-biology', 'Data practice', 'Osmosis')} />
+    <AppButton label="Code question preview" tone="secondary" onPress={() => openSample('ap-csa', 'Code practice', 'String methods')} />
+    <AppButton label="Reading question preview" tone="secondary" onPress={() => openSample('ap-eng-lang', 'Reading practice', 'Rhetorical situation')} />
     <AppButton label="Subjects" tone="secondary" onPress={() => nav.navigate('CourseSelection')} />
     <AppButton label="Pets and bosses" tone="secondary" onPress={() => nav.navigate('Characters')} />
     <AppButton label="Session results" tone="secondary" onPress={() => nav.navigate('LessonComplete', { title: boss.title, correct: 6, total: 8, xp: 45, cleared: true, bossNodeId: boss.id })} />
@@ -82,25 +85,7 @@ function Artwork() {
   </ScrollView>;
 }
 function PreviewHome() {
-  const theme = useAppTheme(); const nav = useNavigation<any>(); const quest = useQuest(); const setup = useOnboarding();
-  const [tab, setTab] = useState<QuestTab>('map'); const [selected, setSelected] = useState<QuestNode | null>(null); const [hudHeight, setHudHeight] = useState(70);
-  const [area, setArea] = useState(0);
-  const areaOffsets = useRef<Record<number, number>>({});
-  const width = Math.min(useWindowDimensions().width, 620);
-  const current = quest.map.units.flatMap(u => u.nodes).find(n => n.id === quest.currentNodeId) ?? null;
-  const unit = selected ? quest.map.units.find(u => u.nodes.some(n => n.id === selected.id)) : undefined;
-  const start = () => { if (!selected || quest.stateOf(selected.id) === 'locked') return; const node = selected; setSelected(null); nav.navigate('Quiz', { nodeId: node.id, title: node.title, unit: unit?.index, count: questionCountFor(node), xp: node.xp, boss: node.kind === 'boss' }); };
-  return <View style={{ flex: 1, width, alignSelf: 'center', backgroundColor: theme.colors.background }}>
-    <AreaBackdrop kind={quest.map.units[area]?.track.kind} />
-    {tab === 'map' ? <ScrollView onScroll={e => { const y = e.nativeEvent.contentOffset.y + hudHeight; const index = Object.entries(areaOffsets.current).filter(([,top]) => top <= y).map(([id]) => Number(id)).at(-1) ?? 0; setArea(index); }} scrollEventThrottle={32} contentContainerStyle={{ paddingTop: hudHeight, paddingBottom: 120 }}>
-      <NextQuestCard node={current} course={getCourse(setup.courseId)?.name ?? 'AP Biology'} courseId={setup.courseId} todayCount={quest.todayCount} dailyGoal={quest.dailyGoal} onContinue={() => setSelected(current)} active />
-      {quest.map.units.map((u, i) => <View key={u.id} onLayout={e => { areaOffsets.current[i] = e.nativeEvent.layout.y; }}><TrailSegment unit={u} width={width} mode={i === 0 ? 'open' : 'locked'} stateOf={quest.stateOf} onSelect={setSelected} animated={false} nextPlace={quest.map.units[i + 1]?.track.place} /></View>)}
-    </ScrollView> : tab === 'practice' ? <TrainPanel topInset={hudHeight} /> : tab === 'progress' ? <BattlesPanel topInset={hudHeight} onSelect={setSelected} onJumpToTrack={() => setTab('map')} /> :
-    <ProfileContent topInset={hudHeight} account={{ user: { user_metadata: { name: 'Your study space' } }, signOut: async () => {}, deleteAccount: async () => false, deleting: false, error: null }} connection={{ offline: false, error: null, notice: null, retry: () => {} }} />}
-    <QuestHud streakDays={quest.streakDays} gems={quest.gems} xp={quest.xp} equippedId={quest.equippedId} onOpenCharacters={() => nav.navigate('Characters')} onLayout={e => setHudHeight(e.nativeEvent.layout.height)} />
-    <QuestTabBar active={tab} onChange={setTab} />
-    <LessonSheet node={selected} state={selected ? quest.stateOf(selected.id) : 'locked'} unitTitle={unit?.title ?? ''} onStart={start} onClose={() => setSelected(null)} />
-  </View>;
+  return <HomeContent renderOptions={topInset => <ProfileContent topInset={topInset} account={{ user: { user_metadata: { name: 'Your study space' } }, signOut: async () => {}, deleteAccount: async () => false, deleting: false, error: null }} connection={{ offline: false, error: null, notice: null, retry: () => {} }} />} />;
 }
 function PreviewRoot() {
   const theme = useAppTheme(); const appearance = useAppearancePreference();

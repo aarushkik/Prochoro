@@ -10,12 +10,14 @@ Updated 16 October 2026. The monochrome design overhaul is implemented. App Stor
 - Required sign-in, Google/Microsoft/email, native Apple implementation behind its existing disabled release flag, local offline persistence and account synchronization remain. Native scheme, bundle identifiers and stored progress IDs did not change.
 - The repository now has the custom Pages domain `prochoro.net`. Web assets export under `/app`; OAuth/recovery use actual static directories at `/app/auth/callback/` and `/app/auth/recovery/`. Policy links use the new domain. Public authentication requires HTTPS; loopback development remains supported.
 
+- Simplified Play Level N flow, official AP-unit progress, one-tap pet selection in Options, and direct next-level/retry actions. XP is a reward total rather than a second level rank. Every official AP unit has a final boss; choice order shuffles per attempt while grading stays tied to semantic IDs.
+
 ## Verified in this pass
 
-- `npm run check`: TypeScript and all 41 tests pass. Checks include actual PostgreSQL migrations/RLS/synchronization/deletion, duplicate XP prevention, storage recovery, theme contrast, bounded non-overlapping boss portraits, and published callback URLs.
-- Production web and iOS Hermes exports succeed. These are JavaScript/assets exports, not signed native app archives. Web bundle is about 1.73 MB; iOS Hermes about 3.76 MB. Only three Figtree weights are bundled, alongside the current monochrome art.
-- Isolated real-screen review covers setup, home, practice, progress, profile, characters, lesson sheet, quiz feedback, boss duel and results in light/dark, including 390 × 844 and 320 × 568 layouts. Sample progress lives in memory; account/profile synchronization is not mounted.
-- A sample boss attempt finished 6/7 correct and banked one +60 XP reward. One deliberate miss and rapid double presses did not skip questions or duplicate completion. A 0/7 attempt left the boss uncleared; Benny retry and Remy review-round paths also passed browser acceptance.
+- `npm run check`: TypeScript and all 47 tests pass. Checks include actual PostgreSQL migrations/RLS/synchronization/deletion, duplicate XP prevention, storage recovery, theme contrast, bounded non-overlapping boss portraits, and published callback URLs.
+- Production web and iOS Hermes exports succeed. These are JavaScript/assets exports, not signed native app archives. Only three Figtree weights are bundled, alongside the current monochrome art.
+- Isolated real-screen review covers setup, home, practice, progress, profile, characters, lesson sheet, quiz feedback, boss duel and results in light/dark, including 390 × 844 and 320 × 568 layouts. Long passages, Java code, tabular data, and scrolling answer/feedback controls were checked; data tables preserve columns on narrow screens. Sample progress lives in memory; account/profile synchronization is not mounted.
+- A sample boss attempt finished 6/7 correct and banked one +60 XP reward. One deliberate miss and rapid double presses did not skip questions or duplicate completion. A 0/7 attempt left the boss uncleared; Benny retry and Remy review-round paths also passed browser acceptance. The current bank was additionally checked through a complete 6/7 boss win, one +60 XP bank, and a direct transition to Level 4. All four correct-answer positions appeared in the first four questions.
 - Read-only Supabase health check: Auth 200, database 200, Google and Azure enabled. No users, emails, providers, credentials or remote records were changed.
 - Direct browser preview checks report no runtime errors in the inspected home/profile/practice and updated quiz/battle flows. Two MutationObserver errors appeared during iframe-harness reloads; the direct preview did not reproduce them. Native and authenticated acceptance are separate checks.
 
@@ -38,11 +40,11 @@ https://prochoro.net/app/auth/recovery/
 2. Link the owner’s Expo project (`eas init`); `app.json` still has no EAS project ID. Configure the existing public Supabase values in the hosted build environment. Keep private signing secrets server-side.
 3. Confirm App Store Connect app identity and signing for `com.aarushkik.studyplat`. The display name is Prochoro; the existing internal identifier is intentionally stable.
 4. Install a signed preview/TestFlight build and complete native acceptance. This host has Command Line Tools, not a full Xcode installation. Native Apple sign-in, native glass, VoiceOver and device performance have not been certified here.
-5. Complete privacy labels, age rating, review login, academic review and real device screenshots. The current eight courses have 120 original practice questions each, reused across their paths. Structural checks do not certify academic depth, exam alignment or answer accuracy.
+5. Complete privacy labels, age rating, review login, academic review and real device screenshots. The current eight courses have 822 original items across 320 reasoning families, reused across their paths; see [question-bank scope](question-bank.md). Structural checks do not certify academic depth, exam alignment or answer accuracy.
 
 ## Native acceptance
 
-Check small iPhone/iPad layouts, long text/keyboard, study notes, all quiz states, map, pets, Light/Dark/System, larger text, VoiceOver, Reduce Motion/Transparency and native glass. Use disposable accounts for native Apple/Google/Microsoft/email sign-in, recovery, offline/reconnect/two-device progress, account switching and deletion/revocation tests. Destructive account deletion requires explicit authorization. Validate the signed archive and install it through TestFlight before submission.
+Check small iPhone/iPad layouts, long text/keyboard, worked examples, all quiz states, Play, pet options, Light/Dark/System, larger text, VoiceOver, Reduce Motion/Transparency and native glass. Use disposable accounts for native Apple/Google/Microsoft/email sign-in, recovery, offline/reconnect/two-device progress, account switching and deletion/revocation tests. Destructive account deletion requires explicit authorization. Validate the signed archive and install it through TestFlight before submission.
 
 ## Draft listing
 

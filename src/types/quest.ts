@@ -37,6 +37,9 @@ export interface QuestNode {
   stage: number;
   /** Rank of the fight, on boss nodes only. */
   tier?: BossTier;
+  /** Official AP unit, separate from the decorative game area. */
+  apUnit?: number;
+  unitBoss?: boolean;
   /** How hard this stop is meant to feel, 1–10. Drives question count. */
   difficulty: number;
 }

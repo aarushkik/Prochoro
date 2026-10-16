@@ -7,8 +7,8 @@ import type {
 /**
  * The question banks, and the placement quiz built on top of them.
  *
- * Original study scaffolding written against each course's published unit
- * outline — not real exam content. Questions are tagged with the study unit
+ * Original applied practice written against public course frameworks and
+ * sample-exam formats, not official or licensed exam items. Tagged with the study area
  * they belong to so a stop on the map can
  * ask about the topic on its own plaque rather than about the course at large.
  *
@@ -23,6 +23,7 @@ import { apCSAQuestions } from './questions/apCSA';
 import { apChemQuestions } from './questions/apChem';
 import { apPsychQuestions } from './questions/apPsych';
 import { apEngLangQuestions } from './questions/apEngLang';
+import { bossUnitIndex, frameworkFor, gameAreaOrder } from './courseFrameworks';
 
 /** Plain on purpose: say what the check is and what it decides. */
 const quizIntros: Record<string, string> = {
@@ -109,6 +110,14 @@ export function questionsForStop(
   key: string,
 ): PlacementQuestion[] {
   const all = getPlacementQuiz(courseId).questions;
+  const id = getPlacementQuiz(courseId).courseId;
+  const apUnit = bossUnitIndex(id, key);
+  if (apUnit !== null) {
+    const areas = frameworkFor(id).units[apUnit].areas;
+    const order = gameAreaOrder(id);
+    const introduced = order.slice(0, order.indexOf(unit) + 1);
+    return shuffleBy(all.filter(question => question.unit !== undefined && introduced.includes(question.unit) && (question.frameworkUnit === apUnit || (question.frameworkUnit === undefined && areas.includes(question.unit)))), key).slice(0, count);
+  }
   const unitBank = all.filter((q) => q.unit === unit);
   const stage = key.match(/-s(\d+)-(lesson|drill|study|bonus|boss)$/);
   const tags = [...new Set(unitBank.map((question) => question.skillTag))];
@@ -116,7 +125,9 @@ export function questionsForStop(
   const own = focus
     ? [...shuffleBy(unitBank.filter((q) => q.skillTag === focus), key), ...shuffleBy(unitBank.filter((q) => q.skillTag !== focus), key)]
     : shuffleBy(unitBank, key);
-  const rest = shuffleBy(all.filter((q) => q.unit !== undefined && q.unit < unit), key);
+  const order = gameAreaOrder(id);
+  const previous = order.slice(0, order.indexOf(unit));
+  const rest = shuffleBy(all.filter((q) => q.unit !== undefined && previous.includes(q.unit)), key);
   return [...own, ...rest].slice(0, drillSize(courseId, count));
 }
 

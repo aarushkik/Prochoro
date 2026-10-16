@@ -1,4 +1,4 @@
-import { palette } from '@/theme';
+import { palette } from '@/theme/colors';
 import type { QuestMap } from '@/types/quest';
 import type { SkillTally } from '@/state/QuestContext';
 
@@ -79,9 +79,9 @@ const bossesBeaten = (s: CompanionState): number => {
     .length;
 };
 
-const tracksCleared = (s: CompanionState): number => {
+const levelsCleared = (s: CompanionState): number => {
   const done = new Set(s.completed);
-  return s.map.units.filter((u) => u.nodes.every((n) => done.has(n.id))).length;
+  return s.map.order.filter(id => done.has(id)).length;
 };
 
 const mastered = (s: CompanionState): number =>
@@ -154,7 +154,7 @@ export const COMPANIONS: Companion[] = [
     ability: 'Strikes out one wrong option',
     effect: 'eliminate',
     tint: palette.turquoise,
-    unlock: { label: 'Clear 6 tracks', measure: (s) => ({ have: tracksCleared(s), need: 6 }) },
+    unlock: { label: 'Clear 108 levels by playing', measure: (s) => ({ have: levelsCleared(s), need: 108 }) },
   },
   {
     id: 'fen',
@@ -171,7 +171,7 @@ export const COMPANIONS: Companion[] = [
     ability: 'Re-asks anything you get wrong',
     effect: 'requeue',
     tint: palette.turquoise,
-    unlock: { label: 'Clear 4 tracks', measure: (s) => ({ have: tracksCleared(s), need: 4 }) },
+    unlock: { label: 'Clear 72 levels by playing', measure: (s) => ({ have: levelsCleared(s), need: 72 }) },
   },
   {
     id: 'vesper',

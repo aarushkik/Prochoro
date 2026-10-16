@@ -12,10 +12,10 @@ import { ActivityIllustration } from '@/components/ui/ActivityIllustration';
 export type QuestTab = 'map' | 'practice' | 'progress' | 'you';
 
 const TABS: { id: QuestTab; label: string; glyph: GlyphName }[] = [
-  { id: 'map', label: 'Path', glyph: 'map' },
+  { id: 'map', label: 'Play', glyph: 'play' },
   { id: 'practice', label: 'Practice', glyph: 'bolt' },
   { id: 'progress', label: 'Progress', glyph: 'chart' },
-  { id: 'you', label: 'Profile', glyph: 'avatar' },
+  { id: 'you', label: 'Options', glyph: 'settings' },
 ];
 
 /** Bar geometry. The radii are concentric: lens radius + inset = bar radius. */

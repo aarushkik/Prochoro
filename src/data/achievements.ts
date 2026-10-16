@@ -52,7 +52,7 @@ export function achievementsFor(s: AchievementState): Achievement[] {
     {
       id: 'first-steps',
       name: 'First Steps',
-      note: 'Finish five stops on the map',
+      note: 'Clear five levels',
       art: 'wave',
       have: s.completed.length,
       need: 5,
@@ -60,7 +60,7 @@ export function achievementsFor(s: AchievementState): Achievement[] {
     {
       id: 'boss-hunter',
       name: 'Boss Hunter',
-      note: 'Beat three track bosses',
+      note: 'Beat three bosses',
       art: 'trophy',
       have: bossesBeaten,
       need: 3,
@@ -92,7 +92,7 @@ export function achievementsFor(s: AchievementState): Achievement[] {
     {
       id: 'cartographer',
       name: 'Cartographer',
-      note: 'Clear a whole track',
+      note: 'Finish all levels in one area',
       art: 'map',
       have: tracksCleared,
       need: 1,

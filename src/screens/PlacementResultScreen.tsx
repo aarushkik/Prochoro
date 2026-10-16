@@ -59,7 +59,7 @@ export function PlacementResultScreen() {
         </Animated.View>
 
         <Animated.View style={{ opacity: fade, transform: [{ translateY: shift }] }}>
-          <Text style={[typography.title, styles.title]}>Your map is drawn</Text>
+          <Text style={[typography.title, styles.title]}>You’re ready to play</Text>
 
           <View style={styles.levelWrap}>
             <View style={styles.levelCard}>
@@ -67,9 +67,9 @@ export function PlacementResultScreen() {
                 <PlacementIcon id={level.id} size={52} />
               </View>
               <Text style={styles.levelLabel}>Your starting point</Text>
-              <Text style={typography.heading}>{level.title}</Text>
-              <Text style={[typography.bodyStrong, styles.headline]}>{level.headline}</Text>
-              <Text style={[typography.body, styles.desc]}>{level.description}</Text>
+              <Text style={typography.heading}>{"Level " + (headStart + 1)}</Text>
+              <Text style={[typography.bodyStrong, styles.headline]}>Clear one level to open the next.</Text>
+              <Text style={[typography.body, styles.desc]}>Your starting point is based on your setup choices and any placement answers.</Text>
             </View>
           </View>
 
@@ -88,8 +88,8 @@ export function PlacementResultScreen() {
               leading={<Glyph name="map" size={20} color={colors.textSecondary} strokeWidth={2.1} />}
               text={
                 headStart > 0
-                  ? `${headStart} stops opened by placement across ${map.units.length} regions`
-                  : `${map.units.length} regions charted and waiting`
+                  ? `${headStart} levels opened by your starting check`
+                  : "Start at Level 1"
               }
               />
             </View>
@@ -98,7 +98,7 @@ export function PlacementResultScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <AppButton label="Open the map" icon="map" emphasis onPress={startQuest} />
+        <AppButton label="Start playing" icon="play" emphasis onPress={startQuest} />
       </View>
     </ScreenContainer>
   );

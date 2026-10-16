@@ -7,6 +7,7 @@ import { scorePlacement } from '../src/utils/placementScoring';
 import { getPlacementQuiz, placementQuestions, questionsForStop, questionsForSkills } from '../src/data/placementQuestions';
 import { apCourses } from '../src/data/apCourses';
 import { getQuestMap, questionCountFor } from '../src/data/questMap';
+import { gameAreaOrder, officialUnitForArea } from '../src/data/courseFrameworks';
 import { sanitizeOnboarding } from '../src/utils/onboarding';
 const answers = [true, true, true, false, false].map(correct => ({ skillTag: 'Water and bonding', correct }));
 
@@ -70,8 +71,10 @@ for (const course of apCourses) {
       const count = questionCountFor(node);
       const selected = questionsForStop(course.id, unit.index, count, node.id);
       assert.equal(selected.length, count, node.id);
-      assert.ok(selected.every(q => q.unit! <= unit.index), `${node.id} uses an unseen future unit`);
-      assert.ok(selected.some(q => q.unit === unit.index));
+      const areaOrder = gameAreaOrder(course.id);
+      assert.ok(selected.every(q => areaOrder.indexOf(q.unit!) <= areaOrder.indexOf(unit.index)), `${node.id} uses an unseen future area`);
+      if (node.unitBoss) assert.ok(selected.every(q => (q.frameworkUnit ?? officialUnitForArea(course.id, q.unit!)) === node.apUnit));
+      else assert.ok(selected.some(q => q.unit === unit.index));
       assert.equal(sessionClearsStop(selected.map(q => ({ skillTag: q.skillTag, correct: true })), count), true);
     }
     const tag = all[0].skillTag;

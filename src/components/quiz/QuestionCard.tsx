@@ -1,10 +1,11 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import React from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Glyph } from '@/components/icons';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { colors, fonts, palette, radius, spacing, typography } from '@/theme';
-import type { PlacementQuestion, QuestionDifficulty, Stimulus } from '@/types';
+import type { PlacementQuestion, Stimulus } from '@/types';
+import { openLink } from '@/lib/links';
 
 interface QuestionCardProps {
   question: PlacementQuestion;
@@ -12,28 +13,11 @@ interface QuestionCardProps {
   children: React.ReactNode;
 }
 
-/**
- * Human-readable difficulty for the kicker line.
- *
- * Labels only. Each level used to carry a colour and a tint for the pill it
- * once rendered as; the pill became a plain kicker (see below) and the colours
- * went unused — light-only values that would have been wrong in dark mode had
- * anything picked them back up.
- */
-const DIFFICULTY_LABEL: Record<QuestionDifficulty, string> = {
-  foundation: 'Foundation',
-  developing: 'Developing',
-  ap_ready: 'AP level',
-  advanced: 'Challenge',
-};
-
 /** Renders a question's skill kicker, prompt, optional stimulus, and answers. */
 export function QuestionCard({ question, children }: QuestionCardProps) {
   const appTheme = useAppTheme();
   const { colors, palette, typography, chunky } = appTheme;
   const styles = useThemedStyles(createStyles);
-
-  const difficulty = DIFFICULTY_LABEL[question.difficulty];
 
   return (
     <GlassSurface variant="thick" style={styles.card}>
@@ -41,12 +25,13 @@ export function QuestionCard({ question, children }: QuestionCardProps) {
           question compete with the answers for the same attention, and the
           difficulty is not something a student can act on mid-question. */}
       <Text style={styles.kicker}>
-        {question.skillTag.toUpperCase()} · {difficulty.toUpperCase()}
+        {question.skillTag.toUpperCase()}
       </Text>
 
-      <Text style={styles.prompt}>{question.prompt}</Text>
       {question.stimulus ? <StimulusBlock stimulus={question.stimulus} /> : null}
+      <Text style={styles.prompt}>{question.prompt}</Text>
       <View style={styles.answers}>{children}</View>
+      {question.examSource ? <Pressable accessibilityRole="link" accessibilityLabel="View the College Board study reference for this original practice question" onPress={() => openLink(question.examSource!.url)} style={{ minHeight: 44, justifyContent: 'center', marginTop: 8 }}><Text style={[typography.caption, { fontSize: 11, textDecorationLine: 'underline' }]}>Original practice · Study reference</Text></Pressable> : null}
     </GlassSurface>
   );
 }
@@ -87,10 +72,16 @@ function StimulusBlock({ stimulus }: { stimulus: Stimulus }) {
     );
   }
 
-  // chart / image → a labeled frame; real media plugs in here later.
+  if (stimulus.kind === 'chart') return <View style={styles.dataBox}>
+    <Text style={styles.codeLabel}>DATA</Text>
+    <ScrollView horizontal showsHorizontalScrollIndicator accessibilityLabel="Data table. Scroll horizontally if needed." style={{ marginTop: 12 }}><Text style={[styles.codeText, { fontSize: 13, flexShrink: 0 }]}>{stimulus.content}</Text></ScrollView>
+    {stimulus.caption ? <Text style={styles.sourceLine}>{stimulus.caption}</Text> : null}
+  </View>;
+
+  // Legacy image captions remain readable when no image source is supplied.
   return (
     <View style={styles.mediaBox}>
-      <Glyph name={stimulus.kind === 'chart' ? 'chart' : 'page'} size={30} color={colors.textMuted} strokeWidth={2} />
+      <Glyph name="page" size={30} color={colors.textMuted} strokeWidth={2} />
       <Text style={styles.caption}>{stimulus.caption ?? stimulus.content}</Text>
     </View>
   );
@@ -126,6 +117,8 @@ const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => Styl
     marginBottom: spacing.lg,
   },
   answers: { marginTop: spacing.sm },
+
+  dataBox: { padding: 14, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.background, marginVertical: spacing.md },
 
   codeBox: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.lg },
   codeBar: {

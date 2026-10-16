@@ -150,7 +150,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
         <View style={styles.headText}>
           <Text style={styles.title}>Practice</Text>
           <Text style={styles.subtitle}>
-            Off the trail. Nothing here can hurt your streak.
+            Choose a quick round or practise a topic.
           </Text>
         </View>
         <Mascot pose="point" size={104} />
@@ -172,7 +172,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
           .join(" and ")}
         onStart={() =>
           drill(
-            "Weak-spot drill",
+            "Recommended practice",
             12,
             60,
             weak.map((w) => w.name),
@@ -180,7 +180,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
         }
       />
 
-      <Text style={styles.section}>WEAKEST CATEGORIES</Text>
+      <Text style={styles.section}>TOPICS TO PRACTISE</Text>
       <View style={styles.stack}>
         {weak.map((w) => (
           <ChunkyCard
@@ -203,7 +203,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
         ))}
       </View>
 
-      <Text style={styles.section}>OTHER WAYS IN</Text>
+      <Text style={styles.section}>MORE PRACTICE</Text>
       <View style={styles.grid}>
         {MODES.map((m) => {
           // A rematch needs something to rematch. Rather than run a generic
@@ -309,7 +309,7 @@ function Recommended({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Start the weak-spot drill"
+      accessibilityLabel="Start recommended practice"
       onPressIn={() => to(1)}
       onPressOut={() => to(0)}
       onPress={onStart}
@@ -333,7 +333,7 @@ function Recommended({
         ]}
       >
         <Text style={styles.heroKicker}>RECOMMENDED TODAY</Text>
-        <Text style={styles.heroTitle}>Weak-spot drill</Text>
+        <Text style={styles.heroTitle}>Recommended practice</Text>
         <Text style={styles.heroBody}>
           {count} questions
           {focus ? ` on ${focus}` : " across a few topics to find your focus"}.
