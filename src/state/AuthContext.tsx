@@ -10,7 +10,7 @@ import { deviceStorage } from '@/lib/storage';
 import { authConnectionError, authRedirectURL } from '@/lib/authRedirect';
 import { GUEST_MODE_KEY, GUEST_PROFILE_ID, clearProfileCache, flushProfile, prepareProfileExit } from '@/lib/profileCache';
 
-const browserCompletion = WebBrowser.maybeCompleteAuthSession();
+import { AuthFlowError, authErrorMessage as messageFor, authReturnMatches, oncePerAuthReturn, readAuthReturn } from '@/lib/authFlow';
 export type AuthProvider = 'google' | 'azure' | 'apple';
 
 /**
@@ -169,15 +169,21 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
     })();
     const receiveURL = (url: string) => {
       if (!isAuthCallback(url)) return;
+      busy.current = true;
+      if (alive) setEmailPending(true);
       void completeSignIn(url).then(() => {
         if (alive && isRecoveryURL(url)) setRecovering(true);
-      }).catch((reason) => { if (alive) setError(messageFor(reason)); });
+      }).catch((reason) => { if (alive) setError(messageFor(reason)); }).finally(() => {
+        busy.current = false;
+        if (alive) setEmailPending(false);
+        if (Platform.OS === 'web') {
+          try { window.history.replaceState(null, '', new URL('../../', authRedirectURL('auth/callback')).pathname); } catch { /* A restricted browser must still show the result. */ }
+        }
+      });
     };
-    // An OAuth web popup hands its URL to the opening window. It must not
-    // exchange the same PKCE code independently before the opener receives it.
-    if (Platform.OS !== 'web' || browserCompletion.type !== 'success') {
-      void Linking.getInitialURL().then((url) => { if (alive && url) receiveURL(url); });
-    }
+    void Linking.getInitialURL().then((url) => { if (alive && url) receiveURL(url); }).catch(() => {
+      if (alive) setError('We could not read the sign-in return link. Please try again.');
+    });
     const urlListener = Linking.addEventListener('url', ({ url }) => receiveURL(url));
     const refresh = () => {
       if (AppState.currentState === 'active') supabase.auth.startAutoRefresh();
@@ -211,7 +217,13 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
         options: { redirectTo, skipBrowserRedirect: true, ...(provider === 'azure' ? { scopes: 'email' } : {}) },
       });
       if (startError) throw startError;
-      if (!data.url) throw new Error('Sign-in could not start.');
+      if (!data.url) throw new AuthFlowError('Sign-in could not start. Please try again.');
+      if (Platform.OS === 'web') {
+        // Same-tab navigation works after PKCE generation and profile flushing;
+        // it needs neither popup permission nor an opener/storage handshake.
+        window.location.assign(data.url);
+        return;
+      }
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
       if (result.type === 'cancel' || result.type === 'dismiss') return;
       if (result.type !== 'success' || !result.url) throw new Error('Sign-in did not complete.');
@@ -330,63 +342,21 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-function isAuthCallback(url: string): boolean {
-  try {
-    const received = new URL(url);
-    return (['auth/callback', 'auth/recovery'] as const).some((path) => {
-      const expected = new URL(authRedirectURL(path));
-      return received.protocol === expected.protocol && received.host === expected.host && received.pathname === expected.pathname;
-    });
-  } catch { return false; }
-}
-function isRecoveryURL(url: string): boolean {
-  const parsed = new URL(url);
-  return url.split(/[?#]/)[0] === authRedirectURL('auth/recovery') || parsed.searchParams.get('type') === 'recovery' || new URLSearchParams(parsed.hash.slice(1)).get('type') === 'recovery';
-}
-// Both the native deep-link event and browser sheet can deliver the same URL.
-let lastCallback: { url: string; result: Promise<void> } | null = null;
-function completeSignIn(url: string): Promise<void> {
-  if (lastCallback?.url === url) return lastCallback.result;
-  const result = (async () => {
-    if (!isAuthCallback(url)) throw new Error('This sign-in link is not for Prochoro.');
-    const parsed = new URL(url);
-    const fragment = new URLSearchParams(parsed.hash.slice(1));
-    if (parsed.searchParams.get('error') || fragment.get('error')) throw new Error('Sign-in was not authorized. Please try again.');
-    const code = parsed.searchParams.get('code');
-    if (code) {
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (error) throw error;
-      return;
-    }
-    const access_token = fragment.get('access_token');
-    const refresh_token = fragment.get('refresh_token');
-    if (access_token && refresh_token) {
-      const { error } = await supabase.auth.setSession({ access_token, refresh_token });
-      if (error) throw error;
-      return;
-    }
-    throw new Error('This sign-in link has expired. Request a new one and try again.');
-  })();
-  lastCallback = { url, result };
-  return result;
-}
+const returnTargets = () => [authRedirectURL('auth/callback'), authRedirectURL('auth/recovery')];
+function isAuthCallback(url: string): boolean { return authReturnMatches(url, returnTargets()); }
+function isRecoveryURL(url: string): boolean { return readAuthReturn(url, returnTargets()).recovery; }
+const completeSignIn = oncePerAuthReturn(async (url: string) => {
+  const result = readAuthReturn(url, returnTargets());
+  const { error } = result.kind === 'code'
+    ? await supabase.auth.exchangeCodeForSession(result.code)
+    : await supabase.auth.setSession({ access_token: result.access_token, refresh_token: result.refresh_token });
+  if (error) throw error;
+});
 function validateEmail(email: string): string | null {
   if (!email.trim()) return 'Enter your email address.';
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? null : 'Enter a valid email address.';
 }
 function validateNewPassword(password: string): string | null { return password.length < 8 ? 'Use a password with at least 8 characters.' : null; }
-function messageFor(reason: unknown): string {
-  const raw = reason instanceof Error ? reason.message : '';
-  if (/invalid login credentials/i.test(raw)) return 'That email and password don’t match an account.';
-  if (/already registered|already exists/i.test(raw)) return 'There is already an account with that email. Try signing in.';
-  if (/email not confirmed/i.test(raw)) return 'Confirm your email address first. Check your inbox, then sign in again.';
-  if (/rate limit|too many requests/i.test(raw)) return 'Too many attempts. Wait a moment, then try again.';
-  if (/network|fetch|timeout/i.test(raw)) return 'We couldn’t reach the server. Check your connection and try again.';
-  if (/provider|redirect/i.test(raw)) return 'This sign-in method is temporarily unavailable. Try another one, or use email.';
-  if (/function|delete_account/i.test(raw)) return 'Account deletion is temporarily unavailable. Please try again or contact support.';
-  if (/expired|code verifier|flow state/i.test(raw)) return 'This sign-in link has expired. Request a new link on this device.';
-  return 'We couldn’t complete that request. Please try again.';
-}
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used inside AuthProviderComponent');

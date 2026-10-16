@@ -20,7 +20,7 @@ export interface ProfileAccount {
 export interface ProfileConnection { offline: boolean; error: string | null; notice: string | null; retry: () => void }
 
 /** Everyday options first; account and reward detail are clearly named drawers. */
-export function ProfileContent({ topInset = 0, account, connection }: { topInset?: number; account: ProfileAccount; connection: ProfileConnection }) {
+export function ProfileContent({ topInset = 0, account, connection, verification }: { topInset?: number; account: ProfileAccount; connection: ProfileConnection; verification?: React.ReactNode }) {
   const styles = useThemedStyles(createStyles); const quest = useQuest(); const nav = useNavigation();
   const [accountOpen, setAccountOpen] = useState(false); const [rewardsOpen, setRewardsOpen] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -47,6 +47,7 @@ export function ProfileContent({ topInset = 0, account, connection }: { topInset
     {accountOpen ? <GlassSurface variant="thick" style={styles.detail}>
       <Text style={styles.name}>{typeof displayName === 'string' ? displayName : 'Your account'}</Text>
       {account.user?.email ? <Text style={styles.note}>{account.user.email}</Text> : null}
+      {verification}
       <Text style={styles.body}>{progress.cleared + ' levels cleared. Your progress follows this account.'}</Text>
       <AppButton label="Sign out" tone="secondary" onPress={account.signOut} />
       {confirmingDelete ? <View style={styles.deleteBox}><Text style={styles.name}>Delete your account?</Text><Text style={styles.body}>This permanently deletes your account and all saved progress. It cannot be undone.</Text><AppButton label="Keep my account" disabled={account.deleting} onPress={() => setConfirmingDelete(false)} /><AppButton label={account.deleting ? 'Deleting…' : 'Delete my account forever'} tone="secondary" disabled={account.deleting} onPress={() => void account.deleteAccount()} /></View> : <Pressable accessibilityRole="button" onPress={() => setConfirmingDelete(true)} style={styles.link}><Text style={styles.linkText}>Delete account</Text></Pressable>}

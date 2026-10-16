@@ -3,6 +3,9 @@
 Two parts: **wire up Supabase** so sign-in works, then **ship to the App
 Store**. Do them in that order — you cannot test a build you cannot sign into.
 
+For the current production project and optional email verification, follow
+[Prochoro production sign-in](auth-production.md) first.
+
 ## The short version
 
 Fifteen minutes if nothing fights you. Every step is expanded below.
@@ -125,13 +128,13 @@ One setting matters: **Confirm email**.
 - **On** (Supabase's default) — a new account gets a confirmation link by email
   and cannot sign in until it is clicked. The app handles this: sign-up returns
   "Account created. Check your email to confirm it, then sign in."
-- **Off** — sign-up signs you straight in. Much faster while developing.
+- **Off** — sign-up signs you straight in without mandatory email. Supabase
+  implicitly confirms the Auth email; Prochoro uses its own server-validated
+  optional verification record to distinguish actual mailbox proof.
 
-Supabase's built-in mailer is rate-limited to a handful of messages an hour and
-is not meant for production. Turn confirmation **off** while you build, and
-before you ship either turn it back on with your own SMTP configured under
-**Project Settings → Authentication → SMTP Settings**, or leave it off
-deliberately.
+Prochoro deliberately uses optional verification. Leave confirmation off for
+this behavior, deploy the verification function/migration and use a custom
+SMTP sender as described in [production sign-in](auth-production.md).
 
 ## 6. Enable Google
 
@@ -145,9 +148,10 @@ deliberately.
 6. Back in Supabase: **Authentication → Providers → Google** → enable → paste
    both → Save.
 
-> While the consent screen is in **Testing**, only accounts you list under
-> *Test users* can sign in. Publish it before you submit to Apple, or the
-> reviewer will be locked out and reject the build.
+> Move the audience to **In production** before launch and finish any required
+> branding review. Basic identity-only Google sign-in has an exception to some
+> Testing restrictions; Testing alone is not proof of a login failure. See the
+> current [Google production walkthrough](auth-production.md#3-move-google-out-of-testing).
 
 ## 7. Enable Microsoft (Azure)
 
@@ -170,8 +174,8 @@ deliberately.
 npx expo start --clear
 ```
 
-Open on a device or simulator. Both buttons should open a browser sheet, and
-after logging in the sheet should close itself and land you on the intro.
+Open on a device or simulator. On web, both buttons navigate in the current tab. On native, they open a
+browser sheet. Complete sign-in and confirm the app restores your account.
 
 Check it worked: **Supabase → Table Editor → profiles** should now have a row
 whose `id` matches **Authentication → Users**.

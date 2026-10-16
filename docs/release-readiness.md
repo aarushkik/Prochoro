@@ -2,6 +2,13 @@
 
 Updated 16 October 2026. The monochrome design overhaul is implemented. App Store submission is still blocked by owner configuration and native acceptance; the owner has asked to finish the design before iOS setup.
 
+Sign-in follow-up: web OAuth now uses current-tab redirects with visible callback
+errors. Optional email verification has an app panel, server function and
+migration. Supabase Confirm Email is still enabled remotely; the new function
+and migration have not been deployed. Google audience/branding and Microsoft
+credentials still need owner review and complete account tests. Follow
+[production sign-in setup](auth-production.md). The updated check suite has 57 tests.
+
 ## Implemented
 
 - Pure white/light and black/dark page backgrounds with opposite outline artwork. Floating controls and sheets use the shared Liquid Glass material, with blur/solid fallbacks. Old colored scenery, filled illustrations and sticker surfaces are retired.
