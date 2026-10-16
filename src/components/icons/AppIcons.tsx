@@ -1,6 +1,5 @@
 import React from 'react';
-import { Image } from 'react-native';
-import { PLACEMENT_ART } from '@/data/illustrations';
+import { ActivityIllustration } from '@/components/ui/ActivityIllustration';
 import Svg, { Circle, G, Path, Rect, Text as SvgText } from 'react-native-svg';
 import { useAppTheme } from '@/theme/ThemeProvider';
 
@@ -140,8 +139,7 @@ export function ExamIcon({ id, color: colorProp, size = 28 }: IconProps & { id: 
 
 // --- Placement-level glyphs --------------------------------------------------
 
-/** Illustrated achievement art; color is retained for caller compatibility. */
+/** Generated placement illustrations share the map's monochrome ink style. */
 export function PlacementIcon({ id, size = 44 }: IconProps & { id: string }) {
-  const source = PLACEMENT_ART[id];
-  return source ? <Image source={source} style={{ width: size, height: size }} resizeMode="contain" fadeDuration={0} accessible={false} /> : null;
+  return <ActivityIllustration id={id} size={size} />;
 }

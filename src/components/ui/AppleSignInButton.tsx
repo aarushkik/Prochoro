@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { appleSignInAvailable } from '@/state/AuthContext';
+import { useAppTheme } from '@/theme/ThemeProvider';
 
 interface AppleSignInButtonProps {
   disabled?: boolean;
@@ -27,6 +28,7 @@ const RADIUS = HEIGHT / 2;
  * that would fail.
  */
 export function AppleSignInButton({ disabled = false, onPress }: AppleSignInButtonProps) {
+  const theme = useAppTheme();
   const [available, setAvailable] = useState(false);
 
   useEffect(() => {
@@ -41,7 +43,7 @@ export function AppleSignInButton({ disabled = false, onPress }: AppleSignInButt
     <View style={[styles.wrap, disabled && styles.disabled]} pointerEvents={disabled ? 'none' : 'auto'}>
       <AppleAuthentication.AppleAuthenticationButton
         buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-        buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+        buttonStyle={theme.isDark ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
         cornerRadius={RADIUS}
         style={styles.button}
         accessibilityState={{ disabled }}

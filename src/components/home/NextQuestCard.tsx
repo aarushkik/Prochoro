@@ -69,13 +69,13 @@ export function NextQuestCard({
           </Text>
         </View>
         {!compact ? <View style={styles.mascot} pointerEvents="none" aria-hidden>
-          {node?.kind === 'boss' ? <BossSprite nodeId={node.id} size={106}/> : <Mascot pose={node?.kind === 'drill' ? 'reading' : node ? 'map' : 'trophy'} size={106} animated={active} shadow={false} />}
+          {node?.kind === 'boss' ? <BossSprite nodeId={node.id} size={106} ink="light"/> : <Mascot pose={node?.kind === 'drill' ? 'reading' : node ? 'map' : 'trophy'} size={106} animated={active} shadow={false} ink="light" />}
         </View> : null}
         </View>
         <View style={styles.cta}>
           <Sheen strength={0.45} reach={0.6} />
           <Text style={styles.ctaText}>{node ? 'Continue' : 'Open practice'}</Text>
-          <View style={styles.arrow}><Glyph name="arrow-right" size={18} color={colors.textOnPrimary} strokeWidth={2.8} /></View>
+          <View style={styles.arrow}><Glyph name="arrow-right" size={18} color="#111111" strokeWidth={2.8} /></View>
         </View>
       </Pressable>
 
@@ -105,16 +105,16 @@ const createStyles = ({ colors, palette, typography, card }: AppTheme) => StyleS
   eyebrow: { fontFamily: fonts.bodyBlack, fontSize: 10, letterSpacing: 1.4, color: colors.textSecondary, textTransform: 'uppercase' },
   heading: { fontFamily: fonts.displayHeavy, fontSize: 25, lineHeight: 29, color: colors.ink, marginTop: 3, maxWidth: 280 },
   compass: { width: 58, height: 58, alignItems: 'center', justifyContent: 'center' },
-  card: { backgroundColor: colors.nightRaised, borderRadius: 30, ...litRim(0.3), padding: 18, overflow: 'hidden', boxShadow: '0 14px 32px rgba(9,45,57,0.22)' },
+  card: { backgroundColor: '#111111', borderRadius: 30, ...litRim(0.3), padding: 18, overflow: 'hidden', boxShadow: '0 14px 32px rgba(0,0,0,0.18)' },
   pressed: { opacity: 0.96, transform: [{ scale: 0.98 }] },
   cardTop: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   cardBody: { flex: 1, minWidth: 0, paddingVertical: 4 },
   kicker: { fontFamily: fonts.bodyBlack, fontSize: 10, letterSpacing: 1.5, color: palette.turquoiseLight },
-  title: { fontFamily: fonts.displayHeavy, fontSize: 25, lineHeight: 28, color: colors.textOnInk, marginTop: 7 },
+  title: { fontFamily: fonts.displayHeavy, fontSize: 25, lineHeight: 28, color: '#FFFFFF', marginTop: 7 },
   meta: { fontFamily: fonts.bodySemibold, fontSize: 12, lineHeight: 18, color: palette.hero.body, marginTop: 10 },
-  cta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: palette.turquoiseLight, borderRadius: 24, paddingVertical: 10, paddingLeft: 18, paddingRight: 10, marginTop: 17, minHeight: 48, overflow: 'hidden', ...litRim(0.7) },
-  ctaText: { flexShrink: 1, fontFamily: fonts.bodyHeavy, fontSize: 15, color: colors.textOnPrimary },
-  arrow: { width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.55)', alignItems: 'center', justifyContent: 'center' },
+  cta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 24, paddingVertical: 10, paddingLeft: 18, paddingRight: 10, marginTop: 17, minHeight: 48, overflow: 'hidden', ...litRim(0.7) },
+  ctaText: { flexShrink: 1, fontFamily: fonts.bodyHeavy, fontSize: 15, color: '#111111' },
+  arrow: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#EAEAEA', alignItems: 'center', justifyContent: 'center' },
   mascot: { width: 102, alignItems: 'center' },
   goal: { ...card, marginTop: 14, padding: 13, borderRadius: 18, gap: 12 },
   goalHeading: { flexDirection: 'row', alignItems: 'center', gap: 9 },

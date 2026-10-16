@@ -1,8 +1,8 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import { CompanionSprite } from '@/components/creatures/CompanionSprite';
 import React, { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { MASCOT_ART } from '@/components/Mascot';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Mascot } from '@/components/Mascot';
 import { AppearanceControls } from '@/components/account/AppearanceControls';
 import { links, openLink } from '@/lib/links';
 import { ChunkyCard } from '@/components/ui';
@@ -78,7 +78,7 @@ export function ProfilePanel({ topInset = 0 }: { topInset?: number }) {
         <View style={styles.bannerRow}>
           <View style={styles.avatarWrap}>
             <View style={styles.avatar}>
-              <Image source={MASCOT_ART.proud} style={styles.avatarArt} resizeMode="contain" />
+              <Mascot pose="proud" size={86} />
             </View>
           </View>
           <View style={styles.bannerBody}>
@@ -108,7 +108,7 @@ export function ProfilePanel({ topInset = 0 }: { topInset?: number }) {
         <View style={styles.streakWrap}>
           <View style={styles.streak}>
             <Sheen strength={0.35} />
-            <Image source={MASCOT_ART.streakOn} style={styles.streakArt} resizeMode="contain" />
+            <Mascot pose="streakOn" size={96} ink="dark" />
             <View style={styles.streakBody}>
               <Text style={styles.streakTitle}>{streakDays}-day streak</Text>
               <Text style={styles.streakNote}>One practice session a day keeps it going</Text>
@@ -157,11 +157,7 @@ export function ProfilePanel({ topInset = 0 }: { topInset?: number }) {
             const pct = Math.min(100, Math.round((a.have / a.need) * 100));
             return (
               <ChunkyCard key={a.id} contentStyle={styles.achieve}>
-                <Image
-                  source={MASCOT_ART[a.art]}
-                  style={[styles.achieveArt, !earned && styles.achieveArtLocked]}
-                  resizeMode="contain"
-                />
+                <View style={!earned && styles.achieveArtLocked}><Mascot pose={a.art} size={64} /></View>
                 <View style={styles.achieveBody}>
                   <Text style={styles.achieveName}>{a.name}</Text>
                   <Text style={styles.achieveNote} numberOfLines={1}>

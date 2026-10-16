@@ -4,10 +4,8 @@ import { colors, type ThemeColors } from './colors';
 /**
  * Type scale.
  *
- * Two families, matching the design build. **Baloo 2** — rounded, heavy,
- * slightly condensed — carries every heading, button and label. **Figtree**
- * handles body copy and anything long enough to need reading rather than
- * scanning.
+ * One clear family leaves the hand-drawn characters room to carry personality.
+ * Figtree stays legible in both light and dark glass surfaces.
  *
  * The design leans on very heavy weights with open tracking for its small
  * labels (900 at 11–12px, +0.07 to +0.14em). That combination is what makes
@@ -29,17 +27,16 @@ export const fontWeight = {
 
 /** Family names must match the keys passed to `useFonts`. */
 export const fonts = {
-  displaySemibold: 'Baloo2_600SemiBold',
-  displayBold: 'Baloo2_700Bold',
-  displayHeavy: 'Baloo2_800ExtraBold',
+  displaySemibold: 'Figtree_600SemiBold',
+  displayBold: 'Figtree_700Bold',
+  displayHeavy: 'Figtree_800ExtraBold',
   body: 'Figtree_500Medium',
   bodySemibold: 'Figtree_600SemiBold',
   bodyBold: 'Figtree_700Bold',
   bodyHeavy: 'Figtree_800ExtraBold',
   bodyBlack: 'Figtree_900Black',
-  /** Kept so existing callers of `fonts.bold` keep resolving to the display face. */
-  bold: 'Baloo2_700Bold',
-  semibold: 'Baloo2_600SemiBold',
+  bold: 'Figtree_700Bold',
+  semibold: 'Figtree_600SemiBold',
   medium: 'Figtree_500Medium',
 } as const;
 
@@ -61,9 +58,9 @@ type Variant =
   | 'place';
 
 export const makeTypography = (colors: ThemeColors): Record<Variant, TextStyle> => ({
-  hero: { fontFamily: fonts.displayHeavy, fontSize: 40, lineHeight: 46, letterSpacing: -0.4, color: colors.textPrimary },
-  display: { fontFamily: fonts.displayHeavy, fontSize: 32, lineHeight: 38, letterSpacing: -0.3, color: colors.textPrimary },
-  title: { fontFamily: fonts.displayBold, fontSize: 26, lineHeight: 32, letterSpacing: -0.2, color: colors.textPrimary },
+  hero: { fontFamily: fonts.displayHeavy, fontSize: 40, lineHeight: 46, letterSpacing: -1.3, color: colors.textPrimary },
+  display: { fontFamily: fonts.displayHeavy, fontSize: 32, lineHeight: 38, letterSpacing: -0.9, color: colors.textPrimary },
+  title: { fontFamily: fonts.displayBold, fontSize: 26, lineHeight: 32, letterSpacing: -0.6, color: colors.textPrimary },
   heading: { fontFamily: fonts.displayBold, fontSize: 21, lineHeight: 27, color: colors.textPrimary },
   subtitle: { fontFamily: fonts.displaySemibold, fontSize: 17, lineHeight: 23, color: colors.textPrimary },
 
@@ -87,8 +84,7 @@ export const makeTypography = (colors: ThemeColors): Record<Variant, TextStyle> 
   numeral: { fontFamily: fonts.displayHeavy, fontSize: 17, lineHeight: 21, color: colors.textPrimary },
   /** The big numbers on summary and progress screens. */
   stat: { fontFamily: fonts.displayHeavy, fontSize: 30, lineHeight: 34, letterSpacing: -0.3, color: colors.textPrimary },
-  /** Buttons: heavy, uppercase, generously tracked. */
-  button: { fontFamily: fonts.bodyBlack, fontSize: 15, lineHeight: 19, letterSpacing: 1.0, textTransform: 'uppercase' },
+  button: { fontFamily: fonts.bodyBold, fontSize: 15, lineHeight: 20, letterSpacing: 0.1 },
   /** A track's place name on the path header. */
   place: { fontFamily: fonts.displayHeavy, fontSize: 22, lineHeight: 27, letterSpacing: -0.2, color: colors.textPrimary },
 });

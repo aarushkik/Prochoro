@@ -64,7 +64,7 @@ function StimulusBlock({ stimulus }: { stimulus: Stimulus }) {
     return (
       <View style={styles.codeBox}>
         <View style={styles.codeBar}>
-          {['#FF5A6A', '#FFB02E', '#37C98B'].map((c) => (
+          {['#E6E6E6', '#BDBDBD', '#929292'].map((c) => (
             <View key={c} style={[styles.codeDot, { backgroundColor: c }]} />
           ))}
         </View>
@@ -129,7 +129,7 @@ const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => Styl
   },
   answers: { marginTop: spacing.sm },
 
-  codeBox: { backgroundColor: '#2A2140', borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.lg },
+  codeBox: { backgroundColor: '#111111', borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.lg },
   codeBar: {
     flexDirection: 'row',
     gap: 6,
@@ -139,7 +139,7 @@ const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => Styl
   },
   codeDot: { width: 9, height: 9, borderRadius: 5 },
   codeText: {
-    color: '#F3EEFF',
+    color: '#F4F4F4',
     fontSize: 14,
     lineHeight: 21,
     padding: spacing.lg,
@@ -147,14 +147,14 @@ const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => Styl
   },
 
   formulaBox: {
-    backgroundColor: '#2F2A40',
+    backgroundColor: '#202020',
     borderRadius: radius.lg,
     paddingVertical: spacing.xxl,
     paddingHorizontal: spacing.lg,
     alignItems: 'center',
     marginBottom: spacing.lg,
   },
-  formulaText: { fontSize: 24, fontWeight: '700', color: '#FFF3E6', letterSpacing: 0.5 },
+  formulaText: { fontSize: 24, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 },
 
   paragraphBox: {
     backgroundColor: colors.background,

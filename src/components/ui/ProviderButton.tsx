@@ -48,17 +48,17 @@ function MicrosoftMark() {
   );
 }
 
-const createStyles = ({ palette, solid }: AppTheme) => StyleSheet.create({
+const createStyles = ({ palette, colors, solid }: AppTheme) => StyleSheet.create({
   button: {
     backgroundColor: solid ? palette.white : 'rgba(255,255,255,0.97)',
     borderWidth: 1,
-    borderTopColor: palette.white,
-    borderLeftColor: 'rgba(255,255,255,0.6)',
-    borderRightColor: 'rgba(255,255,255,0.6)',
-    borderBottomColor: 'rgba(0,0,0,0.08)',
+    borderTopColor: colors.border,
+    borderLeftColor: colors.border,
+    borderRightColor: colors.border,
+    borderBottomColor: colors.border,
     borderRadius: 28,
     borderCurve: 'continuous',
-    boxShadow: solid ? 'none' : '0 8px 24px rgba(0,0,0,0.28)',
+    boxShadow: solid ? 'none' : '0 5px 18px rgba(0,0,0,0.08)',
     paddingHorizontal: 16,
     paddingVertical: 14,
     minHeight: 56,

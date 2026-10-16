@@ -7,6 +7,7 @@ import { Glyph, type GlyphName } from '@/components/icons';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
 import { useHaptics } from '@/hooks/useHaptics';
 import { GlassSurface } from '@/components/ui/GlassSurface';
+import { ActivityIllustration } from '@/components/ui/ActivityIllustration';
 
 export type QuestTab = 'map' | 'practice' | 'progress' | 'you';
 
@@ -87,7 +88,11 @@ export function QuestTabBar({ active, onChange }: { active: QuestTab; onChange: 
             style={({ pressed }) => [styles.tab, pressed && !on && styles.tabPressed]}
           >
             <Tile on={on}>
-              <Glyph name={tab.glyph} size={22} color={tone} strokeWidth={on ? 2.4 : 2.1} />
+              {tab.id === 'practice' ? (
+                <ActivityIllustration id="drill" size={22} />
+              ) : (
+                <Glyph name={tab.glyph} size={22} color={tone} strokeWidth={on ? 2.4 : 2.1} />
+              )}
               <Text style={[styles.label, { color: tone }]}>{tab.label}</Text>
             </Tile>
           </Pressable>
@@ -129,7 +134,7 @@ function Tile({ on, children }: { on: boolean; children: React.ReactNode }) {
   );
 }
 
-const createStyles = ({ glass }: AppTheme) => StyleSheet.create({
+const createStyles = ({ colors }: AppTheme) => StyleSheet.create({
   dock: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 14, paddingTop: 8 },
   bar: {
     flexDirection: 'row',
@@ -146,9 +151,9 @@ const createStyles = ({ glass }: AppTheme) => StyleSheet.create({
     bottom: INSET,
     borderRadius: LENS_RADIUS,
     borderCurve: 'continuous',
-    backgroundColor: glass.lens,
-    borderWidth: 1,
-    borderColor: glass.lensRim,
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: colors.ink,
   },
   // Rounded to the lens so a keyboard focus ring matches the shape the tab
   // takes when it is selected, rather than a square around it.

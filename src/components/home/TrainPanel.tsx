@@ -12,9 +12,10 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { BossSprite } from "@/components/creatures/BossSprite";
 import { useMotionPreference } from "@/hooks/useMotionPreference";
-import { MASCOT_ART } from "@/components/Mascot";
+import { Mascot } from "@/components/Mascot";
 import { Glyph } from "@/components/icons";
-import { ChunkyCard, PropBadge } from "@/components/ui";
+import { ChunkyCard } from "@/components/ui";
+import { ActivityIllustration } from "@/components/ui/ActivityIllustration";
 import { chunky, colors, fonts, litRim, palette, spring } from "@/theme";
 import { Sheen } from "@/components/ui/Sheen";
 import { useNavigation } from "@react-navigation/native";
@@ -23,7 +24,6 @@ import { useQuest } from "@/state/QuestContext";
 import { useOnboarding } from "@/state/OnboardingContext";
 import { drillSize, countForSkills } from "@/data";
 import { questionCountFor } from "@/data/questMap";
-import type { PropName } from "@/data/props";
 import { weakSpots, weakSpotMeta } from "@/data/weakSpots";
 import type { RootStackParamList } from "@/navigation/types";
 
@@ -39,34 +39,23 @@ type Nav = NativeStackNavigationProp<RootStackParamList, "Home">;
  * is what stops people practising.
  */
 
-/**
- * The four modes, and the object each one carries.
- *
- * The emblems were flat colour swatches — four rounded squares that said
- * nothing and looked like art that had not arrived. They carry props now,
- * chosen for the mode: a lantern lights a quick set and a chest holds
- * missed topics. Rematches use the actual guardian portrait.
- */
 const MODES: {
   name: string;
-  emblem: PropName;
-  tile: string;
+  illustration: 'lesson' | 'drill' | 'study' | 'bonus';
   count: number;
   xp: number;
 }[] = [
   {
     name: "Quick practice",
-    emblem: "lantern",
-    tile: "#FBE6C7",
+    illustration: "drill",
     count: 8,
     xp: 40,
   },
-  { name: "Mistakes", emblem: "chest", tile: "#D6F2F6", count: 6, xp: 30 },
-  { name: "Replay a check", emblem: "banner", tile: "#E8DFF7", count: 8, xp: 45 },
+  { name: "Mistakes", illustration: "study", count: 6, xp: 30 },
+  { name: "Replay a check", illustration: "bonus", count: 8, xp: 45 },
   {
     name: "Mixed review",
-    emblem: "bookstack",
-    tile: "#DEEFE1",
+    illustration: "lesson",
     count: 5,
     xp: 35,
   },
@@ -166,11 +155,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
             Off the trail. Nothing here can hurt your streak.
           </Text>
         </View>
-        <Image
-          source={MASCOT_ART.point}
-          style={styles.headArt}
-          resizeMode="contain"
-        />
+        <Mascot pose="point" size={104} />
       </View>
 
       <Recommended
@@ -268,7 +253,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
                   dim={off}
                 />
               ) : (
-                <PropBadge name={m.emblem} tint={m.tile} size={44} dim={off} />
+                <ActivityIllustration id={m.illustration} size={44} dim={off} />
               )}
               <Text style={[styles.modeName, off && styles.modeDim]}>
                 {m.name}

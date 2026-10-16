@@ -111,7 +111,7 @@ export const COMPANIONS: Companion[] = [
     name: 'Penny',
     ability: 'Doubles the gems a session pays',
     effect: 'gems',
-    tint: '#3E9E63',
+    tint: palette.turquoise,
     unlock: null,
   },
   {
@@ -128,7 +128,7 @@ export const COMPANIONS: Companion[] = [
     // Was "Freezes a boss timer once" — there is no boss timer to freeze.
     ability: 'Doubles XP for a flawless session',
     effect: 'xpPerfect',
-    tint: '#81A9CF',
+    tint: palette.turquoise,
     unlock: { label: '14-day streak', measure: (s) => ({ have: s.bestStreak, need: 14 }) },
   },
   {
@@ -137,7 +137,7 @@ export const COMPANIONS: Companion[] = [
     // Was "Skips one boss phase" — bosses do not have phases in this build.
     ability: '+50% XP from boss stops',
     effect: 'xpBoss',
-    tint: '#D1B89A',
+    tint: palette.turquoise,
     unlock: { label: 'Beat 5 bosses', measure: (s) => ({ have: bossesBeaten(s), need: 5 }) },
   },
   {
@@ -145,7 +145,7 @@ export const COMPANIONS: Companion[] = [
     name: 'Toby',
     ability: '+20% XP on practice drills',
     effect: 'xpDrill',
-    tint: '#D7B360',
+    tint: palette.turquoise,
     unlock: { label: 'Master 3 categories', measure: (s) => ({ have: mastered(s), need: 3 }) },
   },
   {
@@ -153,7 +153,7 @@ export const COMPANIONS: Companion[] = [
     name: 'Daisy',
     ability: 'Strikes out one wrong option',
     effect: 'eliminate',
-    tint: '#8CBDBC',
+    tint: palette.turquoise,
     unlock: { label: 'Clear 6 tracks', measure: (s) => ({ have: tracksCleared(s), need: 6 }) },
   },
   {
@@ -162,7 +162,7 @@ export const COMPANIONS: Companion[] = [
     ability: 'Shields two streak days',
     effect: 'shield',
     shieldDays: 2,
-    tint: '#95B773',
+    tint: palette.turquoise,
     unlock: { label: '30-day streak', measure: (s) => ({ have: s.bestStreak, need: 30 }) },
   },
   {
@@ -170,7 +170,7 @@ export const COMPANIONS: Companion[] = [
     name: 'Remy',
     ability: 'Re-asks anything you get wrong',
     effect: 'requeue',
-    tint: '#96A0B5',
+    tint: palette.turquoise,
     unlock: { label: 'Clear 4 tracks', measure: (s) => ({ have: tracksCleared(s), need: 4 }) },
   },
   {
@@ -178,7 +178,7 @@ export const COMPANIONS: Companion[] = [
     name: 'Wally',
     ability: 'Doubles the gems a session pays',
     effect: 'gems',
-    tint: '#BB99C8',
+    tint: palette.turquoise,
     unlock: { label: 'Finish 50 sessions', measure: (s) => ({ have: s.sessions, need: 50 }) },
   },
   {
@@ -187,7 +187,7 @@ export const COMPANIONS: Companion[] = [
     // Was "Starts every boss one phase down" — see Bruno.
     ability: '+50% XP from boss stops',
     effect: 'xpBoss',
-    tint: '#DAA164',
+    tint: palette.turquoise,
     unlock: { label: 'Beat 15 bosses', measure: (s) => ({ have: bossesBeaten(s), need: 15 }) },
   },
 ];

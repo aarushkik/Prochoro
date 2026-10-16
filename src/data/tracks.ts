@@ -47,16 +47,16 @@ export interface TrackTheme {
  * reused across courses so no course has to invent colour.
  */
 const P = {
-  turquoise: { sky: '#D6F2F6', deep: '#05B1C9', dark: '#037D91' },
-  green: { sky: '#DEEFE1', deep: '#3E9E63', dark: '#2A6E45' },
-  amber: { sky: '#FBE6C7', deep: '#F5A02B', dark: '#C77812' },
-  violet: { sky: '#E8DFF7', deep: '#6B4AA0', dark: '#4A3070' },
-  blue: { sky: '#DEE7F8', deep: '#3F63B5', dark: '#2B457F' },
-  ember: { sky: '#FBE1DA', deep: '#D9552F', dark: '#A93B1C' },
-  khaki: { sky: '#EAE5D6', deep: '#8A7A4E', dark: '#615436' },
-  teal: { sky: '#DCF0E4', deep: '#2E9C86', dark: '#1E6D5D' },
-  magenta: { sky: '#F5E2EE', deep: '#B04A87', dark: '#7C3160' },
-  slate: { sky: '#DCE9F2', deep: '#2C5A73', dark: '#1B3D50' },
+  turquoise: { sky: '#FFFFFF', deep: '#111111', dark: '#000000' },
+  green: { sky: '#FFFFFF', deep: '#111111', dark: '#000000' },
+  amber: { sky: '#FFFFFF', deep: '#111111', dark: '#000000' },
+  violet: { sky: '#FFFFFF', deep: '#111111', dark: '#000000' },
+  blue: { sky: '#FFFFFF', deep: '#111111', dark: '#000000' },
+  ember: { sky: '#FFFFFF', deep: '#111111', dark: '#000000' },
+  khaki: { sky: '#FFFFFF', deep: '#111111', dark: '#000000' },
+  teal: { sky: '#FFFFFF', deep: '#111111', dark: '#000000' },
+  magenta: { sky: '#FFFFFF', deep: '#111111', dark: '#000000' },
+  slate: { sky: '#FFFFFF', deep: '#111111', dark: '#000000' },
 } as const;
 
 type PaletteName = keyof typeof P;

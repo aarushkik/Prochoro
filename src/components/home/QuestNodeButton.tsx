@@ -1,9 +1,9 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import { Glyph } from '@/components/icons';
 import { BossSprite } from '@/components/creatures/BossSprite';
-import { ACTIVITY_ART } from '@/data/illustrations';
+import { ActivityIllustration } from '@/components/ui/ActivityIllustration';
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, glossRound, spring, typography } from '@/theme';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
 import type { TrackTheme } from '@/data/tracks';
@@ -174,7 +174,7 @@ function Emblem({ node, state, size }: {node:QuestNode;state:QuestNodeState;trac
 
   if (node.kind === 'boss') return <BossSprite nodeId={node.id} size={size * 0.96} dim={state === 'locked'} />;
   if (state === 'complete') return <Glyph name="check" size={size * 0.4} color={colors.white} strokeWidth={2.6} />;
-  return <Image source={ACTIVITY_ART[node.kind]} style={{ width: size * 0.65, height: size * 0.65, opacity: state === 'locked' ? 0.62 : 1 }} resizeMode="contain" accessibilityIgnoresInvertColors />;
+  return <ActivityIllustration id={node.kind} size={size * 0.65} ink="dark" dim={state === 'locked'} />;
 }
 
 const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => StyleSheet.create({

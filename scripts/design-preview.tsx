@@ -15,6 +15,7 @@ import { TrailSegment } from '../src/components/home/TrailSegment';
 import { QuestTabBar, type QuestTab } from '../src/components/home/QuestTabBar';
 import { CompanionSprite } from '../src/components/creatures/CompanionSprite';
 import { BossSprite } from '../src/components/creatures/BossSprite';
+import { bossForNode } from '../src/data/bosses';
 import { apCourses } from '../src/data/apCourses';
 import { getQuestMap } from '../src/data/questMap';
 import { COMPANIONS } from '../src/data/companions';
@@ -30,11 +31,11 @@ function Preview() {
  return <View style={{flex:1,backgroundColor:theme.colors.background}}><Backdrop/><View style={{width,flex:1,alignSelf:'center'}}>
  <ScrollView key={tab} contentContainerStyle={{paddingBottom:108}}>
  <View style={{padding:18,gap:8}}><Text style={{fontFamily:fonts.bodyBold,fontSize:12,color:theme.colors.textSecondary}}>DESIGN PREVIEW · SAMPLE DATA</Text>
- <Text style={heading}>{tab==='map'?'Your study trail':tab==='practice'?'Find your next subject':tab==='progress'?'Meet the study clubs':'Make it yours'}</Text></View>
+ <Text style={heading}>{tab==='map'?'Your study trail':tab==='practice'?'Find your next subject':tab==='progress'?'Meet the boss rivals':'Make it yours'}</Text></View>
  {tab==='map'?<><NextQuestCard node={node} course={apCourses.find(c=>c.id===courseId)!.name} courseId={courseId} todayCount={1} dailyGoal={3} onContinue={()=>{}} active={false}/>
  {map.units.map((unit,i)=><TrailSegment key={unit.id} unit={unit} width={width} mode={i===0?'next':'locked'} stateOf={()=>'locked'} onSelect={()=>{}} animated={false}/>)}</>:null}
  {tab==='practice'?<View style={{paddingHorizontal:18}}>{apCourses.map(course=><CourseCard key={course.id} course={course} selected={course.id===courseId} onPress={()=>setCourseId(course.id)}/>)}</View>:null}
- {tab==='progress'?<View style={{padding:18,gap:16}}>{map.units.map(unit=><View key={unit.id} style={[theme.card,{padding:16,borderRadius:24}]}><Text style={[heading,{fontSize:20}]}>{unit.track.place}</Text><View style={{flexDirection:'row',flexWrap:'wrap'}}>{unit.nodes.filter(n=>n.kind==='boss').map(n=><BossSprite key={n.id} nodeId={n.id} size={84}/>)}</View></View>)}</View>:null}
+ {tab==='progress'?<View style={{padding:18,gap:16}}>{map.units.map(unit=><View key={unit.id} style={[theme.card,{padding:16,borderRadius:24}]}><Text style={[heading,{fontSize:20}]}>{unit.track.place}</Text><View style={{flexDirection:'row',flexWrap:'wrap',rowGap:12,marginTop:8}}>{unit.nodes.filter(n=>n.kind==='boss').map(n=><View key={n.id} style={{width:'33.33%',alignItems:'center'}}><BossSprite nodeId={n.id} size={84}/><Text style={{fontFamily:fonts.bodyBold,color:theme.colors.textSecondary,fontSize:11,textAlign:'center'}}>{bossForNode(n.id)?.name}</Text></View>)}</View></View>)}</View>:null}
  {tab==='you'?<View style={{padding:18,gap:18}}><GlassSurface variant="thick" style={{padding:18,gap:12}}><Text style={[heading,{fontSize:21}]}>Appearance</Text><View style={{flexDirection:'row',gap:12}}>{(['light','dark','system'] as const).map(mode=><Pressable key={mode} accessibilityRole="button" accessibilityLabel={`${mode} appearance`} onPress={()=>appearance.setPreference(mode)} style={{padding:12,borderRadius:18,backgroundColor:theme.colors.primaryTint}}><Text style={{fontFamily:fonts.bodyBold,color:theme.colors.ink}}>{mode}</Text></Pressable>)}</View></GlassSurface><Text style={heading}>Study buddies</Text><View style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{COMPANIONS.map(c=><View key={c.id} style={[theme.card,{width:140,padding:12,borderRadius:24,alignItems:'center'}]}><CompanionSprite id={c.id} size={104}/><Text style={{fontFamily:fonts.displayHeavy,color:theme.colors.ink,fontSize:18}}>{c.name}</Text></View>)}</View></View>:null}
  </ScrollView><QuestTabBar active={tab} onChange={setTab}/></View></View>;
 }

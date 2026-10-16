@@ -1,24 +1,33 @@
-import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
-import { MASCOT_ART, MASCOT_ASPECT, MASCOT_SIZES, type MascotProps } from './Mascot.types';
+import React, { memo } from 'react';
+import { Image, View } from 'react-native';
+import { useAppTheme } from '@/theme/ThemeProvider';
+import { MASCOT_ASPECT, MASCOT_FRAMES, MASCOT_SHEETS, MASCOT_SIZES, type MascotProps } from './Mascot.types';
 
-/** Stu holds a purposeful drawn pose. No ambient bobbing or floating. */
-export function Mascot({ pose = 'neutral', size = 'medium', shadow = true }: MascotProps) {
+/** Author-drawn moments cropped from transparent atlases; ink follows the surface. */
+export const Mascot = memo(function Mascot({ pose = 'neutral', size = 'medium', ink }: MascotProps) {
+  const theme = useAppTheme();
   const width = typeof size === 'number' ? size : MASCOT_SIZES[size];
-  const height = width * MASCOT_ASPECT;
-  return <View style={{ width, height }} accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-    {shadow && <View style={[styles.shadow, { width: width * 0.3, height: width * 0.035, borderRadius: width, left: width * 0.35, bottom: height * 0.035 }]} />}
-    <Image source={MASCOT_ART[pose]} style={{ width, height }} resizeMode="contain" />
-  </View>;
-}
-/**
- * A soft pool of shade rather than a hard pill: the edge is blurred out so it
- * reads as light failing to reach the ground, not as a grey bar under Stu.
- */
-const styles = StyleSheet.create({
-  shadow: {
-    position: 'absolute',
-    backgroundColor: 'rgba(18,48,60,0.06)',
-    boxShadow: '0 0 10px 4px rgba(18,48,60,0.07)',
-  },
+  const frame = MASCOT_FRAMES[pose];
+  const column = frame.index % 3;
+  const row = Math.floor(frame.index / 3);
+  const tintColor = ink === 'light' || (!ink && theme.isDark) ? '#FFFFFF' : '#111111';
+  return (
+    <View
+      pointerEvents="none"
+      accessible={false}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      style={{ width, height: width * MASCOT_ASPECT, overflow: 'hidden', flexShrink: 0 }}
+    >
+      <Image
+        testID={`mascot-art-${pose}`}
+        source={MASCOT_SHEETS[frame.sheet]}
+        resizeMode="stretch"
+        tintColor={tintColor}
+        fadeDuration={0}
+        accessible={false}
+        style={{ position: 'absolute', width: width * 3, height: width * 3, left: -column * width, top: -row * width }}
+      />
+    </View>
+  );
 });

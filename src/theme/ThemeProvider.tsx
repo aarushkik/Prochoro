@@ -12,7 +12,7 @@ import { resolveAppearance, type AppearancePreference } from './appearance';
 export type { AppearancePreference } from './appearance';
 
 function makeTheme(mode: 'light' | 'dark', solid: boolean) {
-  const colors: ThemeColors = mode === 'dark' ? darkColors : { ...lightColors, border: '#CBDBDA', background: '#F5F6F0' };
+  const colors: ThemeColors = mode === 'dark' ? darkColors : lightColors;
   const base = mode === 'dark' ? darkGlass : lightGlass;
   const glass = solid ? solidGlass(base, colors) : base;
   return {

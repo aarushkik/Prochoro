@@ -1,4 +1,4 @@
-# StudyPlat
+# Prochoro
 
 A React Native / Expo AP study app featuring Stu, a turquoise platypus, and an illustrated quest map. The visual theme uses turquoise, cream, dark outlines, Baloo 2 headings, and Figtree body text. Motion responds to taps, answers, and progress; mascots do not bob or drift.
 

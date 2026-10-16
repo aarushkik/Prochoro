@@ -59,12 +59,9 @@ export function BossEncounter({
           {Array.from({ length: target }, (_, i) => (
             <View
               key={i}
-              style={[
-                styles.seal,
-                i < opened && { backgroundColor: boss.color },
-              ]}
+              style={[styles.seal, i < opened && styles.sealOpen]}
             >
-              <Text style={styles.mark}>{i < opened ? "✓" : "·"}</Text>
+              <Text style={[styles.mark, i < opened && styles.markOpen]}>{i < opened ? "✓" : "·"}</Text>
             </View>
           ))}
         </View>
@@ -119,11 +116,13 @@ const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => Styl
     borderWidth: 1.5,
     borderRadius: 6,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: 'transparent',
     alignItems: "center",
     justifyContent: "center",
   },
-  mark: { fontSize: 12, color: colors.textOnPrimary, fontWeight: "800" },
+  sealOpen: { borderColor: colors.ink, borderWidth: 2 },
+  mark: { fontSize: 12, color: colors.textMuted, fontWeight: "800" },
+  markOpen: { color: colors.ink },
   note: {
     fontFamily: fonts.body,
     fontSize: 11,

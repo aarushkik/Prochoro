@@ -2,8 +2,8 @@ import React, { memo } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { bossForNode } from "@/data/bosses";
 import { BOSS_ART } from "@/data/characterArt";
-import frames from "@/data/characterFrames.json";
 import type { SkylineKind } from "@/data/tracks";
+import { useAppTheme } from "@/theme/ThemeProvider";
 
 interface Props {
   nodeId?: string;
@@ -11,22 +11,24 @@ interface Props {
   tier?: number;
   size?: number;
   dim?: boolean;
+  ink?: "light" | "dark";
 }
 
-/** Each guardian is a separate cartoon illustration in its family's local atlas. */
+/** Six separate hand-drawn rivals per family, cropped from a 3-by-2 atlas. */
 export const BossSprite = memo(function BossSprite({
   nodeId,
   kind = "waves",
   tier = 1,
   size = 140,
   dim = false,
+  ink,
 }: Props) {
+  const theme = useAppTheme();
   const boss = nodeId ? bossForNode(nodeId) : null;
   const family = boss?.kind ?? kind;
   const rank = Math.max(1, Math.min(6, Math.trunc(boss?.tier ?? tier) || 1));
-  const atlas = frames[family];
-  const frame = atlas.frames[rank - 1];
-  const scale = size / frame.size;
+  const column = (rank - 1) % 3;
+  const row = Math.floor((rank - 1) / 3);
   return (
     <View
       testID={`boss-art-${family}-${rank}`}
@@ -39,7 +41,6 @@ export const BossSprite = memo(function BossSprite({
         {
           width: size,
           height: size,
-          borderRadius: size * 0.18,
           opacity: dim ? 0.68 : 1,
         },
       ]}
@@ -47,14 +48,15 @@ export const BossSprite = memo(function BossSprite({
       <Image
         source={BOSS_ART[family]}
         resizeMode="stretch"
+        tintColor={ink === "light" ? "#FFFFFF" : ink === "dark" ? "#111111" : theme.isDark ? "#FFFFFF" : "#111111"}
         fadeDuration={0}
         accessible={false}
         style={{
           position: "absolute",
-          width: atlas.width * scale,
-          height: atlas.height * scale,
-          left: -frame.x * scale,
-          top: -frame.y * scale,
+          width: size * 3,
+          height: size * 2,
+          left: -column * size,
+          top: -row * size,
         }}
       />
     </View>

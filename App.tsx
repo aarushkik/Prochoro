@@ -72,7 +72,7 @@ function ThemedApp() {
   }, []);
 
   if (!fontsLoaded && !fontError && !waitedForFonts) {
-    return <View style={{ flex: 1, backgroundColor: colors.night, alignItems: 'center', justifyContent: 'center', gap: 18 }}><Text style={{ color: colors.white, fontSize: 28, fontWeight: '700' }}>StudyPlat</Text><ActivityIndicator color={colors.primaryLight} /></View>;
+    return <View style={{ flex: 1, backgroundColor: colors.night, alignItems: 'center', justifyContent: 'center', gap: 18 }}><Text style={{ color: colors.white, fontSize: 28, fontWeight: '700' }}>Prochoro</Text><ActivityIndicator color={colors.primaryLight} /></View>;
   }
 
   return (

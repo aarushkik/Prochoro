@@ -32,7 +32,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // Kept as a console error so it still lands in `npx expo start` output and
     // in any crash reporter added later.
-    console.error('[StudyPlat] render crash:', error, info.componentStack);
+    console.error('[Prochoro] render crash:', error, info.componentStack);
   }
 
   render() {
@@ -44,7 +44,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
         <ScrollView contentContainerStyle={styles.scroll}>
           <Text style={styles.title}>Something broke</Text>
           <Text style={styles.body}>
-            StudyPlat hit an error it could not recover from. The details below are what to send if
+            Prochoro hit an error it could not recover from. The details below are what to send if
             you report it.
           </Text>
 
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: palette.night },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: 28, gap: 14 },
   title: { fontFamily: fonts.displayHeavy, fontSize: 28, lineHeight: 30, color: colors.white },
-  body: { fontFamily: fonts.bodySemibold, fontSize: 14, lineHeight: 20, color: '#A9C3C9' },
+  body: { fontFamily: fonts.bodySemibold, fontSize: 14, lineHeight: 20, color: '#D1D1D1' },
   box: {
     backgroundColor: 'rgba(0,0,0,0.28)',
     borderWidth: stroke.surface,
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 14,
   },
-  mono: { fontFamily: fonts.body, fontSize: 12.5, lineHeight: 18, color: '#FFD9CD' },
+  mono: { fontFamily: fonts.body, fontSize: 12.5, lineHeight: 18, color: '#E6E6E6' },
   retry: {
     alignSelf: 'flex-start',
     marginTop: 6,

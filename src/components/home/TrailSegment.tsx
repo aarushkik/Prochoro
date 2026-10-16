@@ -1,16 +1,12 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import { BossSprite } from '@/components/creatures/BossSprite';
 import React, { useMemo } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { LANDSCAPE_ART } from '@/data/illustrations';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Mascot } from '@/components/Mascot';
 import { Glyph } from '@/components/icons';
 import { colors, fonts, palette } from '@/theme';
 import type { QuestNode, QuestNodeState, QuestUnit } from '@/types/quest';
 import { QuestNodeButton, nodeSizeFor } from './QuestNodeButton';
-import { Skyline } from './Skyline';
-import { TrackProps, type PropAnchor } from './TrackProps';
-import { TrackScenery } from './TrackScenery';
 
 /**
  * One track on the path.
@@ -163,41 +159,17 @@ function TrailSegmentImpl({ unit, width, mode, nextPlace, stateOf, onSelect, onR
   const half = width / 2;
   const cleared = unit.nodes.filter((n) => stateOf(n.id) === 'complete').length;
 
-  // Props follow the trail rather than the track box, so they need to know
-  // where the stops are and which way the path is leaning at each one.
-  const anchors = useMemo<PropAnchor[]>(
-    () => stops.map((s) => ({ top: s.top, off: s.off, size: nodeSizeFor(s.state), current: s.current })),
-    [stops],
-  );
-
   return (
     <View
       style={{
         width,
         height,
-        backgroundColor: appTheme.isDark ? colors.surfaceSunken : track.sky,
+        backgroundColor: colors.background,
         borderTopWidth: 1,
         borderTopColor: colors.border,
         overflow: 'hidden',
       }}
     >
-      {/* Landscape layers only where there is a landscape to draw.
-          A locked track is a 125pt stub: the skyline's silhouettes get clipped
-          to their top few points and read as stray bars floating over a pastel
-          band, and the scenery's arcs have nowhere to sit. Both were added to
-          give a *place* texture, and a stub is not a place — it is a label
-          saying one is coming. The flat band alone is cleaner and stops the
-          eye trying to resolve shapes that mean nothing. */}
-      {mode === 'locked' ? null : (
-        <>
-          <TrackScenery kind={track.kind} color={track.dark} width={width} height={height} seed={track.n} />
-          <Skyline kind={track.kind} color={track.dark} width={width} />
-        </>
-      )}
-      {/* After the silhouette, before the stops: props stand in front of the
-          horizon and behind anything you can tap. */}
-      <TrackProps kind={track.kind} width={width} height={height} anchors={anchors} seed={track.n} />
-
       <View style={styles.head}>
         <Plaque unit={unit} mode={mode} cleared={cleared} />
         {mode === 'cleared' ? <Pips track={track} count={unit.nodes.length} /> : null}
@@ -292,7 +264,6 @@ function Plaque({ unit, mode, cleared }: { unit: QuestUnit; mode: TrackMode; cle
   return (
     <View style={styles.plaqueWrap}>
       <View style={styles.plaque}>
-        <Image source={LANDSCAPE_ART[track.kind]} resizeMode="contain" style={styles.regionArt} accessible={false} />
         <View style={styles.plaqueBody}>
           <Text style={styles.place} numberOfLines={2}>
             {track.place}
@@ -427,7 +398,7 @@ function GateBossCard({
     >
       <View style={styles.bossLip} />
       <View style={styles.bossFace}>
-        <BossSprite nodeId={node.id} size={82} />
+        <BossSprite nodeId={node.id} size={82} ink="light" />
         <View style={styles.bossBody}>
           <Text style={styles.bossKicker}>TRACK {unit.track.n} BOSS</Text>
           <Text style={styles.bossTitle} numberOfLines={2}>
@@ -485,7 +456,6 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     borderRadius: 24,
     paddingHorizontal: 12,
   },
-  regionArt: { width: 60, height: 48 },
   plaqueBody: { flex: 1, minWidth: 0 },
   place: { fontFamily: fonts.displayHeavy, fontSize: 17, lineHeight: 18, color: colors.ink },
   topic: { fontFamily: fonts.bodyBold, fontSize: 11.5, lineHeight: 15, color: colors.textSecondary, marginTop: 1 },
@@ -541,7 +511,7 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    backgroundColor: '#3B2A57',
+    backgroundColor: '#111111',
     borderWidth: stroke.control,
     borderColor: colors.border,
     borderRadius: 30,
@@ -567,5 +537,5 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     color: colors.white,
     marginTop: 1,
   },
-  bossNote: { fontFamily: fonts.bodySemibold, fontSize: 12, color: '#B8A6D4', marginTop: 2 },
+  bossNote: { fontFamily: fonts.bodySemibold, fontSize: 12, color: '#D1D1D1', marginTop: 2 },
 });

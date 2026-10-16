@@ -1,321 +1,117 @@
-/**
- * StudyPlat colour system.
- *
- * Ink on cream with a turquoise brand — the palette is read straight from the
- * Claude Design build, not invented here. Two things carry the whole look:
- *
- * 1. **Ink is on everything.** `#12303C` is the border of every card, button,
- *    chip and stop on the map, and most of the text. It is what makes the UI
- *    read as chunky stickers rather than flat panels.
- * 2. **Orange means "you are here".** Turquoise is the brand, but `#F5A02B` is
- *    reserved for the one stop the student should tap next and for in-progress
- *    state. Spending it anywhere else costs the map its focal point.
- *
- * Twelve screens render on the night ground instead of cream — splash, the
- * session summary, level up, unlock moments, all four boss screens, the
- * placement result, world complete, and review. See `nightScreens` below.
- */
-
+/** Prochoro's monochrome ink, paper, and glass palette. Character art stays hollow. */
 export const palette = {
-  // The line. On borders, on text, on shadows.
-  ink: '#12303C',
-  inkSoft: '#0B4A56',
-  inkDeep: '#052F37',
-
-  // Brand turquoise, sampled from the app icon.
-  turquoise: '#05B1C9',
-  turquoiseLight: '#7FE0EC',
-  turquoiseDeep: '#037D91',
-  turquoiseTint: '#EAF9FB',
-  turquoiseSky: '#D6F2F6',
-
-  // "You are here" and in-progress.
-  orange: '#F5A02B',
-  orangeDeep: '#C77812',
-  orangeDark: '#5A3708',
-
-  // Warm grounds.
-  cream: '#FFFDF7',
-  parchment: '#FBF1E2',
-  sand: '#EADDC6',
-  sandDeep: '#CFC0A4',
-  locked: '#EFE3CD',
-  lockedInk: '#AE9F84',
-
-  // Night ground for the twelve dark screens.
-  night: '#0B2029',
-  nightRaised: '#12303C',
-
-  // Muted text tiers, warm-biased so they sit on cream without going grey.
-  muted: '#7C9199',
-  mutedDeep: '#6D858C',
-  mutedDark: '#5D767E',
-  mutedLight: '#96A8AD',
-
-  // Support hues used by tracks, prizes and characters.
-  violet: '#6B4AA0',
-  violetLight: '#C9A6F2',
-  violetMid: '#A796C2',
-  ember: '#D9552F',
-  green: '#3E9E63',
-  greenDeep: '#2A6E45',
-
+  ink: '#111111', inkSoft: '#303030', inkDeep: '#090909',
+  turquoise: '#626262', turquoiseLight: '#D7D7D7', turquoiseDeep: '#262626',
+  turquoiseTint: '#ECECE9', turquoiseSky: '#F1F1EF',
+  orange: '#D6D6D1', orangeDeep: '#666666', orangeDark: '#262626',
+  cream: '#FFFFFF', parchment: '#FFFFFF', sand: '#E7E7E4', sandDeep: '#B8B8B4',
+  locked: '#ECECEA', lockedInk: '#737373',
+  night: '#000000', nightRaised: '#191919',
+  muted: '#727272', mutedDeep: '#626262', mutedDark: '#585858', mutedLight: '#909090',
+  violet: '#383838', violetLight: '#D7D7D7', violetMid: '#999999',
+  ember: '#606060', green: '#414141', greenDeep: '#242424',
   white: '#FFFFFF',
-
-  /**
-   * The hero surface: the one card per tab that makes a recommendation.
-   *
-   * Deliberately the same in light and dark. A hero is meant to be the
-   * darkest, most saturated thing on screen so it reads as the thing to do
-   * next, and that is true against a cream page and a night page alike.
-   *
-   * It exists as its own group because the alternative was the bug it
-   * replaces: the Practice hero borrowed `ink` — the *text* colour — as its
-   * fill to get an inverted card. In dark mode `ink` flips to near-white, so
-   * the card went pale while its white text stayed white, and "Weak-spot
-   * drill" all but disappeared. A surface that must stay dark cannot borrow
-   * a token whose job is to flip.
-   */
   hero: {
-    from: '#164C59',
-    to: '#102D3A',
-    edge: '#437481',
-    lip: '#05707F',
-    title: '#FFFFFF',
-    body: '#C8DEE1',
-    kicker: '#7FE0EC',
-    faint: '#8FB3BA',
-    glow: 'rgba(5,177,201,0.18)',
+    from: '#252525', to: '#111111', edge: '#626262', lip: '#080808',
+    title: '#FFFFFF', body: '#D3D3D3', kicker: '#ECECEC', faint: '#AAAAAA',
+    glow: 'rgba(0,0,0,0.10)',
   },
 } as const;
 
 export const colors = {
-  // Structure
   ink: palette.ink,
-  border: palette.ink,
+  border: '#D2D2CF',
   background: palette.parchment,
   surface: palette.cream,
   surfaceSelected: palette.turquoiseTint,
   night: palette.night,
   nightRaised: palette.nightRaised,
-
-  // Brand
-  primary: palette.turquoise,
-  primaryLight: palette.turquoiseLight,
-  primaryDeep: palette.turquoiseDeep,
+  primary: palette.ink,
+  primaryLight: '#6F6F6F',
+  primaryDeep: palette.inkDeep,
   primaryTint: palette.turquoiseTint,
-
-  // Progress
   current: palette.orange,
   currentDeep: palette.orangeDeep,
   locked: palette.locked,
   lockedText: palette.lockedInk,
-
-  // Text
   textPrimary: palette.ink,
-  textSecondary: palette.mutedDark,
-  textMuted: palette.mutedDark,
-  textFaint: palette.mutedLight,
-  textOnInk: palette.parchment,
-  textOnPrimary: palette.inkDeep,
-
-  // Feedback. Correct borrows the track green, wrong the ember.
-  success: palette.green,
-  successDeep: palette.greenDeep,
-  successDark: palette.greenDeep,
-  successSoft: '#DDEFE2',
-  danger: palette.ember,
-  dangerDark: '#A93B1C',
-  dangerSoft: '#FBE1DA',
-
-  /**
-   * Violet as *text* — achievement tallies, prize labels. Fills can keep
-   * `palette.violet`, but the same violet as text on a dark card is about
-   * 2.3:1, so dark mode lifts it to the light tint.
-   */
-  violet: palette.violet,
-
-  gold: palette.orange,
-  goldDeep: palette.orangeDeep,
-  goldDark: palette.orangeDeep,
-
-  // Sunken wells and inset tiles.
-  surfaceSunken: palette.parchment,
-
-  /**
-   * The empty part of a progress bar. Its own token because every bar reached
-   * for a light palette tone directly — `palette.sand`, or a hard-coded
-   * `#E9DCC6` — and palette tones do not change with the theme, so in dark
-   * mode each bar became a bright stripe across a dark card.
-   */
-  // A translucent groove, not a solid band: on glass cards an opaque sand
-  // stripe read as a slot cut through the card.
-  track: 'rgba(18,48,60,0.10)',
-
-  /**
-   * Overlays: a quiet tint laid over whatever is underneath, for dividers,
-   * inactive rings, pressed states and empty wells.
-   *
-   * Eighteen places wrote these as ink in rgba — `rgba(18,48,60,0.16)` — which
-   * means "slightly darker than the page". That is right on cream and wrong on
-   * night, where darker-than-the-page is invisible. These flip direction with
-   * the theme instead: ink-tinted in light mode, pale-tinted in dark. Four
-   * steps, faint to strong.
-   */
-  /**
-   * The lip under a chunky surface — its visible thickness.
-   *
-   * Cards used `ink` for this, which is right in light mode and wrong in dark:
-   * `ink` flips to near-white, so every card grew a pale strip along its base
-   * where there should be shadow. A lip is depth, and depth is darker than the
-   * face in both modes.
-   */
-  lip: palette.ink,
-
-  overlayFaint: 'rgba(18,48,60,0.05)',
-  overlaySoft: 'rgba(18,48,60,0.10)',
-  overlay: 'rgba(18,48,60,0.16)',
-  overlayStrong: 'rgba(18,48,60,0.24)',
-
-  // Disabled / sealed.
+  textSecondary: '#4E4E4E',
+  textMuted: '#626262',
+  textFaint: '#858585',
+  textOnInk: '#FFFFFF',
+  textOnPrimary: '#FFFFFF',
+  success: '#242424', successDeep: '#111111', successDark: '#111111', successSoft: '#E6E6E3',
+  danger: '#5C5C5C', dangerDark: '#353535', dangerSoft: '#EDEDEB',
+  violet: '#454545',
+  gold: '#303030', goldDeep: '#1B1B1B', goldDark: '#1B1B1B',
+  surfaceSunken: '#EFEFEC',
+  track: 'rgba(0,0,0,0.10)',
+  lip: '#9A9A9A',
+  overlayFaint: 'rgba(0,0,0,0.04)',
+  overlaySoft: 'rgba(0,0,0,0.08)',
+  overlay: 'rgba(0,0,0,0.14)',
+  overlayStrong: 'rgba(0,0,0,0.22)',
   disabledBg: palette.locked,
   disabledEdge: palette.sandDeep,
   disabledText: palette.lockedInk,
-
-  /**
-   * The streak celebration keeps its own identity, and now that the brand is
-   * turquoise it simply *is* the brand — the old palette had to reach for a
-   * separate colour to avoid clashing with rose.
-   */
-  splash: palette.turquoise,
-  splashDeep: palette.turquoiseDeep,
-  splashMid: palette.turquoiseLight,
-  splashSoft: palette.turquoiseSky,
-
-  primaryDark: palette.turquoiseDeep,
-  primarySoft: palette.turquoiseSky,
-
-  black: palette.ink,
-  white: palette.white,
+  splash: '#171717', splashDeep: '#090909', splashMid: '#666666', splashSoft: '#EAEAE7',
+  primaryDark: '#111111', primarySoft: '#EFEFEC',
+  black: '#111111', white: '#FFFFFF',
 } as const;
 
 export type ThemeColors = { [K in keyof typeof colors]: string };
 
 export const darkColors: ThemeColors = {
   ...colors,
-  ink: '#EDF5F3',
-  border: '#2B4650',
-  background: '#0A1922',
-  surface: '#132832',
-  surfaceSelected: '#143C46',
-  surfaceSunken: '#0F222C',
-  track: 'rgba(237,245,243,0.10)',
-  lip: '#02090D',
-  violet: '#C9A6F2',
-  overlayFaint: 'rgba(237,245,243,0.05)',
-  overlaySoft: 'rgba(237,245,243,0.09)',
-  overlay: 'rgba(237,245,243,0.14)',
-  overlayStrong: 'rgba(237,245,243,0.22)',
-  primary: '#42CADB',
-  primaryDeep: '#7CE0EB',
-  primaryTint: '#123741',
-  primaryLight: '#1D4B55',
-  primarySoft: '#143C46',
-  primaryDark: '#7CE0EB',
-  textPrimary: '#EDF5F3',
-  textSecondary: '#ABC1C6',
-  textMuted: '#ABC1C6',
-  textFaint: '#829DA5',
-  textOnPrimary: '#052F37',
-  success: '#6AD398',
-  successDeep: '#9CE8B9',
-  successDark: '#9CE8B9',
-  successSoft: '#173B31',
-  danger: '#F28F76',
-  dangerDark: '#FFB19B',
-  dangerSoft: '#452B2A',
-  locked: '#1B3039',
-  lockedText: '#8BA3AA',
-  disabledBg: '#1B3039',
-  disabledEdge: '#29424B',
-  disabledText: '#8BA3AA',
+  ink: '#FAFAFA', border: '#3D3D3D', background: '#000000',
+  surface: '#191919', surfaceSelected: '#272727', surfaceSunken: '#111111',
+  track: 'rgba(255,255,255,0.14)', lip: '#050505',
+  overlayFaint: 'rgba(255,255,255,0.05)', overlaySoft: 'rgba(255,255,255,0.09)',
+  overlay: 'rgba(255,255,255,0.15)', overlayStrong: 'rgba(255,255,255,0.23)',
+  primary: '#F4F4F4', primaryDeep: '#FFFFFF', primaryTint: '#272727',
+  primaryLight: '#D4D4D4', primarySoft: '#292929', primaryDark: '#FFFFFF',
+  textPrimary: '#FAFAFA', textSecondary: '#D1D1D1', textMuted: '#B8B8B8',
+  textFaint: '#929292', textOnPrimary: '#111111', textOnInk: '#111111',
+  success: '#F3F3F3', successDeep: '#FFFFFF', successDark: '#FFFFFF', successSoft: '#303030',
+  danger: '#CECECE', dangerDark: '#F1F1F1', dangerSoft: '#303030',
+  violet: '#D9D9D9', gold: '#EEEEEE', goldDeep: '#FFFFFF', goldDark: '#FFFFFF',
+  current: '#D6D6D1', currentDeep: '#F4F4F4',
+  locked: '#262626', lockedText: '#A4A4A4',
+  disabledBg: '#262626', disabledEdge: '#3B3B3B', disabledText: '#A4A4A4',
 };
 
-/**
- * Per-course accent pairs. Courses still colour-code their icon and selected
- * state; these are the old accent keys retuned to sit beside turquoise and ink
- * rather than rose.
- */
+/** Subject accents now differ in value only; course art carries identity. */
 export const accents = {
-  green: { base: palette.green, soft: '#DEEFE1', deep: palette.greenDeep },
-  violet: { base: palette.violet, soft: '#E8DFF7', deep: '#4A3070' },
-  coral: { base: palette.ember, soft: '#FBE1DA', deep: '#A93B1C' },
-  amber: { base: palette.orange, soft: '#FBE6C7', deep: palette.orangeDeep },
-  sky: { base: '#3F63B5', soft: '#DEE7F8', deep: '#2B457F' },
-  lime: { base: '#6FA83C', soft: '#E6F0D6', deep: '#4C7626' },
-  pink: { base: '#B04A87', soft: '#F5E2EE', deep: '#7C3160' },
-  gold: { base: '#8A7A4E', soft: '#EAE5D6', deep: '#615436' },
+  green: { base: '#313131', soft: '#EAEAE8', deep: '#171717' },
+  violet: { base: '#484848', soft: '#E8E8E6', deep: '#242424' },
+  coral: { base: '#5A5A5A', soft: '#E8E8E6', deep: '#303030' },
+  amber: { base: '#373737', soft: '#ECECE9', deep: '#171717' },
+  sky: { base: '#505050', soft: '#E7E7E5', deep: '#272727' },
+  lime: { base: '#414141', soft: '#EAEAE8', deep: '#202020' },
+  pink: { base: '#595959', soft: '#E5E5E3', deep: '#303030' },
+  gold: { base: '#343434', soft: '#EBEBE8', deep: '#171717' },
 } as const;
-
 export type AccentName = keyof typeof accents;
 export type Accent = (typeof accents)[AccentName];
 
-/**
- * Stop colours on the path, keyed by what happens there.
- *
- * The design does not tint stops by kind the way the old map did — a stop is
- * cream when available, the track's deep tone when cleared, orange when it is
- * the one to play next, and sand when sealed. Kind is carried by the emblem
- * inside, not by the fill.
- */
 export const stopColors = {
-  available: { face: palette.cream, edge: palette.ink },
-  current: { face: palette.orange, edge: palette.orangeDeep },
-  locked: { face: palette.locked, edge: palette.ink },
+  available: { face: '#FFFFFF', edge: '#111111' },
+  current: { face: '#D6D6D1', edge: '#666666' },
+  locked: { face: '#ECECEA', edge: '#B8B8B4' },
 } as const;
-
-/**
- * Per-kind colour, used where a stop needs to *say* what it is rather than
- * where it sits — the crest on the stop sheet, legends, the practice list.
- * On the path itself the fill carries state and the emblem carries kind.
- */
 export const questNode = {
-  lesson: { face: palette.turquoise, edge: palette.turquoiseDeep, ring: palette.turquoiseSky },
-  drill: { face: palette.violet, edge: '#4A3070', ring: '#E8DFF7' },
-  study: { face: palette.green, edge: palette.greenDeep, ring: '#DEEFE1' },
-  bonus: { face: palette.orange, edge: palette.orangeDeep, ring: '#FBE6C7' },
-  boss: { face: palette.ember, edge: '#A93B1C', ring: '#FBE1DA' },
-  locked: { face: palette.locked, edge: palette.sandDeep, ring: palette.sand },
+  lesson: { face: '#373737', edge: '#111111', ring: '#EAEAE8' },
+  drill: { face: '#484848', edge: '#222222', ring: '#E7E7E5' },
+  study: { face: '#4D4D4D', edge: '#292929', ring: '#EBEBE8' },
+  bonus: { face: '#626262', edge: '#373737', ring: '#ECECE9' },
+  boss: { face: '#111111', edge: '#090909', ring: '#D6D6D1' },
+  locked: { face: '#ECECEA', edge: '#B8B8B4', ring: '#E7E7E4' },
 } as const;
-
 export type QuestNodeKind = keyof typeof questNode;
 
-/**
- * Screens that render on the night ground. The mascot must use its
- * transparent art on these — the cream-backed copies show a visible square.
- */
 export const nightScreens = [
-  'Splash',
-  'Summary',
-  'LevelUp',
-  'UnlockMoment',
-  'BossIntro',
-  'BossFight',
-  'Victory',
-  'Defeat',
-  'PlacementResult',
-  'WorldDone',
-  'Review',
-  'ReviewDone',
+  'Splash', 'Summary', 'LevelUp', 'UnlockMoment', 'BossIntro', 'BossFight',
+  'Victory', 'Defeat', 'PlacementResult', 'WorldDone', 'Review', 'ReviewDone',
 ] as const;
-
 export type NightScreen = (typeof nightScreens)[number];
-
-/** Confetti chip colours, in the order the design cycles them. */
-export const confettiColors = [
-  palette.parchment,
-  palette.orange,
-  palette.turquoiseLight,
-  palette.white,
-  palette.violet,
-] as const;
+export const confettiColors = ['#FFFFFF', '#D8D8D8', '#ABABAB', '#777777', '#333333'] as const;

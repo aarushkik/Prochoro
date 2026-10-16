@@ -132,8 +132,8 @@ const makeSchemes = ({ colors, glass, solid }: AppTheme): Record<ButtonTone | 'd
   return {
     primary: { face: tinted(colors.primary, solid), text: colors.textOnPrimary, sheen },
     gold: { face: tinted(colors.gold, solid), text: colors.textOnPrimary, sheen },
-    success: { face: tinted('#2A6E45', solid), text: colors.white, sheen },
-    danger: { face: tinted('#A93B1C', solid), text: colors.white, sheen },
+    success: { face: tinted('#111111', solid), text: colors.white, sheen },
+    danger: { face: tinted('#555555', solid), text: colors.white, sheen },
     secondary: { face: glassCard(glass), text: colors.ink, sheen: solid ? undefined : glass.sheen },
     ghost: { face: { backgroundColor: 'transparent', borderWidth: 1, borderColor: 'transparent' }, text: colors.textSecondary },
     disabled: {

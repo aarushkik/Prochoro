@@ -2,15 +2,14 @@ import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvid
 import { BossSprite } from '@/components/creatures/BossSprite';
 import React, { useMemo } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { MASCOT_ART } from '@/components/Mascot';
-import { ChunkyCard, PropBadge } from '@/components/ui';
+import { Mascot } from '@/components/Mascot';
+import { ChunkyCard } from '@/components/ui';
 import { colors, fonts, palette, litRim, tintedCard } from '@/theme';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuest } from '@/state/QuestContext';
 import { useOnboarding } from '@/state/OnboardingContext';
 import { drillSize } from '@/data';
-import { SIGNATURE_PROP } from '@/data/props';
 import { weakSpots, weakSpotMeta } from '@/data/weakSpots';
 import type { RootStackParamList } from '@/navigation/types';
 
@@ -74,7 +73,7 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
           <Text style={styles.title}>Progress</Text>
           <Text style={styles.subtitle}>Every track, measured.</Text>
         </View>
-        <Image source={MASCOT_ART.progress} style={styles.headArt} resizeMode="contain" />
+        <Mascot pose="progress" size={132} />
       </View>
 
       <ChunkyCard style={styles.masteryWrap} contentStyle={styles.mastery}>
@@ -87,7 +86,7 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
             </Text>
           </View>
           <View style={styles.delta}>
-            <Text style={styles.deltaText}>{bossesBeaten} of {bossTotal} checks</Text>
+            <Text style={styles.deltaText}>{bossesBeaten} of {bossTotal} bosses</Text>
           </View>
         </View>
 
@@ -106,10 +105,7 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
             accessibilityLabel={`Go to ${unit.track.place} on the map`}
             contentStyle={styles.trackRow}
           >
-            {/* The track's own landmark. A row for Tidepool Flats shows
-                the lighthouse that actually stands there, which makes the
-                list a set of places rather than ten coloured dots. */}
-            <PropBadge name={SIGNATURE_PROP[unit.track.kind]} tint={unit.track.sky} size={36} radius={13} />
+            <BossSprite nodeId={unit.nodes.find((node) => node.kind === 'boss')?.id} size={36} />
             <Text style={styles.trackName} numberOfLines={1}>
               {unit.track.place}
             </Text>
@@ -123,7 +119,7 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
 
       {nextBoss ? (
         <>
-          <Text style={styles.section}>NEXT CHECK</Text>
+          <Text style={styles.section}>NEXT BOSS</Text>
           <ChunkyCard onPress={() => onSelect(nextBoss)} style={styles.stackTop} contentStyle={styles.bossRow}>
             <BossSprite nodeId={nextBoss.id} size={76} />
             <View style={styles.bossBody}>

@@ -1,5 +1,4 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
-import { Backdrop } from '@/components/ui/Backdrop';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView, Platform, Pressable, ScrollView,
@@ -7,9 +6,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Mascot } from '@/components/Mascot';
-import { StudyCamp } from '@/components/Mascot/StudyCamp';
 import { AppButton, TopBackButton, Wordmark } from '@/components/ui';
 import { Glyph } from '@/components/icons';
 import { links, openLink } from '@/lib/links';
@@ -75,17 +72,15 @@ export function SignInScreen() {
 
   return (
     <View style={styles.root}>
-      <StatusBar style="light" />
-      <LinearGradient colors={[palette.night, '#153F4A', palette.night]} style={StyleSheet.absoluteFill} />
-      <Backdrop base="transparent" />
+      <StatusBar style={appTheme.isDark ? 'light' : 'dark'} />
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <ScrollView ref={scroll} contentContainerStyle={[styles.scroll, welcome && styles.welcomeScroll]} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
             {welcome ? (
               <>
-                <View style={styles.brand}><Wordmark size={30} variant="light" /><View style={styles.edition}><Text style={styles.editionText}>THE AP ADVENTURE</Text></View></View>
+                <View style={styles.brand}><Wordmark size={30} variant={appTheme.isDark ? 'light' : 'brand'} /><View style={styles.edition}><Text style={styles.editionText}>AP STUDY, REIMAGINED</Text></View></View>
                 <View style={styles.welcomeBody}>
-                  <StudyCamp size={Math.min(width - 40, height < 720 ? 280 : 350)} />
+                  <Mascot pose="reading" size={Math.min(width - 96, height < 720 ? 220 : 270)} shadow={false} />
                   <Text accessibilityRole="header" style={styles.headline}>AP practice,{'\n'}one stop at a time.</Text>
                   <Text style={styles.tagline}>Five-minute stops on a map of your course.{'\n'}Sign in to start yours.</Text>
                   <View style={styles.features}>
@@ -112,7 +107,7 @@ export function SignInScreen() {
             ) : (
               <>
                 <View style={styles.formTop}>
-                  <TopBackButton color="#BCD8DD" onPress={() => recovering ? cancelRecovery() : changeMode('welcome')} />
+                  <TopBackButton color={colors.textSecondary} onPress={() => recovering ? cancelRecovery() : changeMode('welcome')} />
                   <Wordmark size={25} variant="light" />
                   <View style={{ width: 44 }} />
                 </View>
@@ -158,7 +153,7 @@ function Feature({ icon, label }: { icon: React.ComponentProps<typeof Glyph>['na
   const { colors, palette, typography, chunky } = appTheme;
   const styles = useThemedStyles(createStyles);
 
-  return <View style={styles.feature}><Glyph name={icon} size={15} color={palette.turquoiseLight} /><Text style={styles.featureText}>{label}</Text></View>;
+  return <View style={styles.feature}><Glyph name={icon} size={15} color={colors.textSecondary} /><Text style={styles.featureText}>{label}</Text></View>;
 }
 function Message({ text, error = false }: { text: string; error?: boolean }) {
   const appTheme = useAppTheme();
@@ -175,46 +170,46 @@ function Field({ label, inputRef, ...input }: { label: string; inputRef?: React.
   const [focused, setFocused] = useState(false);
   return <View style={styles.field}>
     <Text style={styles.fieldLabel}>{label}</Text>
-    <TextInput {...input} ref={inputRef} accessibilityLabel={label} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} autoCapitalize="none" autoCorrect={false} placeholderTextColor="#8BA7AF" selectionColor={palette.turquoiseLight} style={[styles.input, focused && styles.inputFocused]} />
+    <TextInput {...input} ref={inputRef} accessibilityLabel={label} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} autoCapitalize="none" autoCorrect={false} placeholderTextColor={colors.textFaint} selectionColor={colors.ink} style={[styles.input, focused && styles.inputFocused]} />
   </View>;
 }
 
 const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: palette.night }, flex: { flex: 1 },
+  root: { flex: 1, backgroundColor: colors.background }, flex: { flex: 1 },
   scroll: { flexGrow: 1, width: '100%', maxWidth: 520, alignSelf: 'center', paddingHorizontal: 24, paddingTop: 16, paddingBottom: 12 },
   welcomeScroll: { justifyContent: 'space-between' },
   brand: { alignItems: 'center', gap: 8 },
-  edition: { borderWidth: 1, borderColor: '#44616A', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
-  editionText: { fontFamily: fonts.bodyBlack, fontSize: 9, letterSpacing: 2.1, color: '#C4D9D7' },
+  edition: { borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
+  editionText: { fontFamily: fonts.bodyBlack, fontSize: 9, letterSpacing: 2.1, color: colors.textMuted },
   welcomeBody: { alignItems: 'center', paddingTop: 10, paddingBottom: 22 },
-  headline: { fontFamily: fonts.displayHeavy, color: palette.cream, fontSize: 34, lineHeight: 37, letterSpacing: -0.6, textAlign: 'center', marginTop: -4 },
-  tagline: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: '#BDD2D6', textAlign: 'center', maxWidth: 340, marginTop: 12 },
+  headline: { fontFamily: fonts.displayHeavy, color: colors.textPrimary, fontSize: 34, lineHeight: 37, letterSpacing: -0.9, textAlign: 'center', marginTop: -4 },
+  tagline: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.textSecondary, textAlign: 'center', maxWidth: 340, marginTop: 12 },
   features: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 13, marginTop: 20 },
   feature: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  featureText: { fontFamily: fonts.bodyBold, color: '#CCE5E5', fontSize: 12 },
-  featureDot: { width: 3, height: 3, borderRadius: 2, backgroundColor: '#72989D' },
+  featureText: { fontFamily: fonts.bodyBold, color: colors.textSecondary, fontSize: 12 },
+  featureDot: { width: 3, height: 3, borderRadius: 2, backgroundColor: colors.textFaint },
   actions: { gap: 4 },
-  deviceNote: { fontFamily: fonts.body, fontSize: 11, lineHeight: 16, textAlign: 'center', color: '#ACC6CD', marginTop: 8 },
+  deviceNote: { fontFamily: fonts.body, fontSize: 11, lineHeight: 16, textAlign: 'center', color: colors.textMuted, marginTop: 8 },
   textButton: { minHeight: 44, paddingHorizontal: 8, paddingVertical: 12, alignItems: 'center', justifyContent: 'center' },
-  textButtonLabel: { fontFamily: fonts.bodyHeavy, fontSize: 14, lineHeight: 20, color: '#D9EFF0', textAlign: 'center' },
+  textButtonLabel: { fontFamily: fonts.bodyHeavy, fontSize: 14, lineHeight: 20, color: colors.textPrimary, textAlign: 'center' },
   pressed: { opacity: 0.65 },
   formTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: -8 },
   formHero: { alignItems: 'center', paddingTop: 18, paddingBottom: 26 },
-  formTitle: { fontFamily: fonts.displayHeavy, color: palette.cream, fontSize: 29, lineHeight: 34, textAlign: 'center', marginTop: 8 },
+  formTitle: { fontFamily: fonts.displayHeavy, color: colors.textPrimary, fontSize: 29, lineHeight: 34, textAlign: 'center', marginTop: 8 },
   form: { paddingBottom: 16 },
-  or: { fontFamily: fonts.bodyBlack, color: '#ABC7CC', fontSize: 10, letterSpacing: 1.6, textAlign: 'center', marginVertical: 14 },
+  or: { fontFamily: fonts.bodyBlack, color: colors.textMuted, fontSize: 10, letterSpacing: 1.6, textAlign: 'center', marginVertical: 14 },
   field: { marginBottom: 16 },
-  fieldLabel: { fontFamily: fonts.bodyBold, fontSize: 13, color: '#DBEBED', marginBottom: 8, marginLeft: 2 },
-  input: { backgroundColor: '#173943', borderWidth: 2, borderColor: '#49626B', borderRadius: 18, paddingHorizontal: 16, paddingVertical: 16, fontFamily: fonts.bodySemibold, fontSize: 16, color: colors.white, minHeight: 56 },
-  inputFocused: { borderColor: palette.turquoiseLight, backgroundColor: '#17434D' },
+  fieldLabel: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.textPrimary, marginBottom: 8, marginLeft: 2 },
+  input: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 16, fontFamily: fonts.bodySemibold, fontSize: 16, color: colors.textPrimary, minHeight: 56 },
+  inputFocused: { borderColor: colors.ink, backgroundColor: colors.surfaceSelected },
   forgot: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', marginTop: -10, marginBottom: 8 },
-  linkText: { fontFamily: fonts.bodyBold, fontSize: 13, color: palette.turquoiseLight, textAlign: 'center' },
-  message: { padding: 16, borderWidth: 1.5, borderColor: palette.turquoise, borderRadius: 18, backgroundColor: '#144552', marginBottom: 18 },
-  messageText: { fontFamily: fonts.bodySemibold, fontSize: 14, lineHeight: 21, color: '#D1F4F7' },
-  error: { backgroundColor: '#4A302C', borderColor: '#E49D82' },
-  errorText: { color: '#FFE4D9' },
+  linkText: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.textPrimary, textAlign: 'center' },
+  message: { padding: 16, borderWidth: 1, borderColor: colors.border, borderRadius: 18, backgroundColor: colors.surfaceSelected, marginBottom: 18 },
+  messageText: { fontFamily: fonts.bodySemibold, fontSize: 14, lineHeight: 21, color: colors.textPrimary },
+  error: { backgroundColor: colors.dangerSoft, borderColor: colors.danger },
+  errorText: { color: colors.dangerDark },
   legal: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'center' },
   legalTarget: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 4 },
-  legalText: { fontFamily: fonts.body, fontSize: 11, color: '#ACC6CD', textDecorationLine: 'underline' },
-  legalDot: { color: '#7C9DA5' },
+  legalText: { fontFamily: fonts.body, fontSize: 11, color: colors.textMuted, textDecorationLine: 'underline' },
+  legalDot: { color: colors.textFaint },
 });

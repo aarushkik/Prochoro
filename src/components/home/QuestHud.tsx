@@ -5,7 +5,7 @@ import { Image, Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Glyph, type GlyphName } from '@/components/icons';
-import { MASCOT_ART } from '@/components/Mascot';
+import { Mascot } from '@/components/Mascot';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { companionById } from '@/data/companions';
 import { fonts } from '@/theme';
@@ -105,7 +105,7 @@ export function QuestHud({ streakDays, gems, xp, equippedId, onOpenCharacters, o
           {companion ? (
             <CompanionSprite id={companion.id} tint={companion.tint} size={40} radius={20} />
           ) : (
-            <Image source={MASCOT_ART.neutral} style={styles.avatarArt} resizeMode="contain" />
+            <Mascot pose="neutral" size={40} />
           )}
         </GlassSurface>
       </Pressable>

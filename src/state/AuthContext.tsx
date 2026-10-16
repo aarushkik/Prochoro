@@ -273,7 +273,7 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
       if (userError || !user) throw userError ?? new Error('Not signed in');
       if (user.identities?.some(identity => identity.provider === 'apple')) {
         if (Platform.OS !== 'ios' || !(await AppleAuthentication.isAvailableAsync())) {
-          setError('To delete this Apple-linked account, open StudyPlat on your iPhone or iPad and confirm with Apple.');
+          setError('To delete this Apple-linked account, open Prochoro on your iPhone or iPad and confirm with Apple.');
           return false;
         }
         const nonce = Crypto.randomUUID();
@@ -292,7 +292,7 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
           body: { authorizationCode: credential.authorizationCode, nonce },
         });
         if (failure || data?.deleted !== true) {
-          setError('We couldn’t finish account deletion. Confirm with the Apple account linked to StudyPlat and try again. If it continues, contact support. Your study data has not been cleared from this device.');
+          setError('We couldn’t finish account deletion. Confirm with the Apple account linked to Prochoro and try again. If it continues, contact support. Your study data has not been cleared from this device.');
           return false;
         }
       } else {
@@ -343,7 +343,7 @@ let lastCallback: { url: string; result: Promise<void> } | null = null;
 function completeSignIn(url: string): Promise<void> {
   if (lastCallback?.url === url) return lastCallback.result;
   const result = (async () => {
-    if (!isAuthCallback(url)) throw new Error('This sign-in link is not for StudyPlat.');
+    if (!isAuthCallback(url)) throw new Error('This sign-in link is not for Prochoro.');
     const parsed = new URL(url);
     const fragment = new URLSearchParams(parsed.hash.slice(1));
     if (parsed.searchParams.get('error') || fragment.get('error')) throw new Error('Sign-in was not authorized. Please try again.');

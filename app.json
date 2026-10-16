@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "StudyPlat",
+    "name": "Prochoro",
     "slug": "studyplat",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/studyplat-icon.png",
+    "icon": "./assets/prochoro-icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "studyplat",
     "ios": {
@@ -43,7 +43,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/studyplat-icon.png",
+      "favicon": "./assets/prochoro-icon.png",
       "output": "single",
       "bundler": "metro"
     },
@@ -55,9 +55,9 @@
       [
         "expo-splash-screen",
         {
-          "image": "./src/assets/mascot/logo-mark.png",
+          "image": "./src/assets/mascot/prochoro/mark.png",
           "imageWidth": 160,
-          "backgroundColor": "#05B1C9"
+          "backgroundColor": "#FFFFFF"
         }
       ]
     ],

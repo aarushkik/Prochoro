@@ -1,8 +1,9 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import { BossSprite } from '@/components/creatures/BossSprite';
+import { ActivityIllustration } from '@/components/ui/ActivityIllustration';
 import { bossForNode } from '@/data/bosses';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppButton } from '@/components/ui';
 import { GlassSurface } from '@/components/ui/GlassSurface';
@@ -10,7 +11,6 @@ import { Glyph, type GlyphName } from '@/components/icons';
 import { duration, easing, questNode, radius, spacing } from '@/theme';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
 import { BOSS_TIERS } from '@/data/questMap';
-import { ACTIVITY_ART } from '@/data/illustrations';
 import type { QuestNode, QuestNodeKindId, QuestNodeState } from '@/types/quest';
 
 interface LessonSheetProps {
@@ -141,7 +141,7 @@ function SheetBody({
             <View style={[styles.crest, { backgroundColor: scheme.face, borderColor: scheme.edge }]}>
               {node.kind === 'boss'
                 ? <Glyph name={kind.glyph} size={30} color={colors.white} strokeWidth={2.4} />
-                : <Image source={ACTIVITY_ART[node.kind]} style={{ width: 45, height: 45 }} resizeMode="contain" accessibilityIgnoresInvertColors />}
+                : <ActivityIllustration id={node.kind} size={45} ink={state === 'locked' ? 'dark' : 'light'} />}
             </View>
             <View style={styles.headText}>
               <Text style={styles.kicker} numberOfLines={1}>
@@ -274,15 +274,15 @@ const createStyles = ({ colors, palette, typography, stroke, glass }: AppTheme) 
     alignItems: 'center',
     gap: spacing.md,
     marginTop: spacing.lg,
-    backgroundColor: '#3B2A57',
+    backgroundColor: '#111111',
     borderWidth: stroke.surface,
     borderColor: colors.border,
     borderRadius: 18,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
   },
-  bossNoteFinal: { backgroundColor: '#6B2A22' },
-  bossText: { ...typography.caption, color: '#F3E7FA', flex: 1 },
+  bossNoteFinal: { backgroundColor: '#292929' },
+  bossText: { ...typography.caption, color: '#F4F4F4', flex: 1 },
 
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },
   // A translucent well, not a solid one: on glass, an opaque chip reads as a
