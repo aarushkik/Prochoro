@@ -47,3 +47,6 @@ yarn-error.*
 # Web export output. Built in CI and published to Pages; never committed.
 /dist
 /site/app
+
+# Supabase CLI local state
+supabase/.temp/
