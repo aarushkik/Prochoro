@@ -69,7 +69,6 @@ export function PlacementResultScreen() {
               <Text style={styles.levelLabel}>Your starting point</Text>
               <Text style={typography.heading}>{"Level " + (headStart + 1)}</Text>
               <Text style={[typography.bodyStrong, styles.headline]}>Clear one level to open the next.</Text>
-              <Text style={[typography.body, styles.desc]}>Your starting point is based on your setup choices and any placement answers.</Text>
             </View>
           </View>
 

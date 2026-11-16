@@ -68,7 +68,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
   const { colors, palette, typography, chunky } = appTheme;
   const styles = useThemedStyles(createStyles);
 
-  const { xp, skills, map, earned } = useQuest();
+  const { skills, map, earned } = useQuest();
   const { courseId } = useOnboarding();
   const navigation = useNavigation<Nav>();
 
@@ -112,9 +112,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
       if (rematches.length === 0) return "Win a duel first";
       return `${rematches.length} passed`;
     }
-    return name === "Quick practice"
-      ? "A short practice set"
-      : "A mix of course topics";
+    return "";
   };
 
   /**
@@ -149,15 +147,11 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
       <View style={styles.head}>
         <View style={styles.headText}>
           <Text style={styles.title}>Practice</Text>
-          <Text style={styles.subtitle}>
-            Choose a quick round or practise a topic.
-          </Text>
         </View>
         <Mascot pose="point" size={104} />
       </View>
 
       <Recommended
-        xp={xp}
         count={Math.min(
           12,
           countForSkills(
@@ -198,7 +192,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
                 </View>
               ) : null}
             </View>
-            <Text style={styles.weakPct}>{w.pct >= 0 ? `${w.pct}%` : "—"}</Text>
+            {w.pct >= 0 ? <Text style={styles.weakPct}>{`${w.pct}%`}</Text> : <Glyph name="play" size={18} />}
           </ChunkyCard>
         ))}
       </View>
@@ -257,10 +251,9 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
                 {m.name}
               </Text>
               <Text style={[styles.modeMeta, off && styles.modeDim]}>
-                {modeMeta(m.name)}
                 {off
-                  ? ""
-                  : ` · ${m.name === "Boss rematch" && lastBoss ? questionCountFor(lastBoss) : focus?.length ? Math.min(m.count, countForSkills(courseId, focus)) : sized(m.count)}Q`}
+                  ? modeMeta(m.name)
+                  : `${m.name === "Boss rematch" && lastBoss ? questionCountFor(lastBoss) : focus?.length ? Math.min(m.count, countForSkills(courseId, focus)) : sized(m.count)} questions`}
               </Text>
             </ChunkyCard>
           );
@@ -276,12 +269,10 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
  * mistaken for one more option in the list.
  */
 function Recommended({
-  xp,
   count,
   focus,
   onStart,
 }: {
-  xp: number;
   count: number;
   /** The topics the drill will actually pull from, if any are known yet. */
   focus: string;
@@ -332,19 +323,18 @@ function Recommended({
           },
         ]}
       >
-        <Text style={styles.heroKicker}>RECOMMENDED TODAY</Text>
-        <Text style={styles.heroTitle}>Recommended practice</Text>
-        <Text style={styles.heroBody}>
-          {count} questions
-          {focus ? ` on ${focus}` : " across a few topics to find your focus"}.
-        </Text>
-        <View style={styles.heroCta}>
-          <Text style={styles.heroCtaText}>Start · 4 min</Text>
-          <View style={styles.heroArrow}>
-            <Glyph name="arrow-right" size={16} color={colors.textOnPrimary} strokeWidth={2} />
+        <View style={styles.heroTop}>
+          <View style={styles.heroCopy}>
+            <Text style={styles.heroKicker}>RECOMMENDED</Text>
+            <Text style={styles.heroTitle}>{focus || "Today’s mix"}</Text>
+            <Text style={styles.heroBody}>{count} questions</Text>
           </View>
+          <ActivityIllustration id="drill" size={76} />
         </View>
-        <Text style={styles.heroXp}>{xp} XP earned so far</Text>
+        <View style={styles.heroCta}>
+          <Glyph name="play" size={16} color={colors.textOnPrimary} strokeWidth={2} />
+          <Text style={styles.heroCtaText}>Start</Text>
+        </View>
       </Animated.View>
     </Pressable>
   );
@@ -372,6 +362,8 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   headArt: { width: 104, height: 104, marginBottom: -8 },
 
   heroWrap: { marginTop: 12 },
+  heroTop: { flexDirection: "row", alignItems: "center", gap: 8 },
+  heroCopy: { flex: 1, minWidth: 0 },
   hero: { padding: 20, overflow: "hidden" },
   heroGlow: {
     position: "absolute",
@@ -407,13 +399,13 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "flex-start",
-    gap: 12,
+    gap: 8,
     marginTop: 16,
     backgroundColor: colors.primary,
     borderRadius: 23,
     minHeight: 46,
     paddingLeft: 18,
-    paddingRight: 9,
+    paddingRight: 22,
     overflow: "hidden",
   },
   heroArrow: {

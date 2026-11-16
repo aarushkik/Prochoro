@@ -33,7 +33,6 @@ export function AchievementPreviewScreen() {
         step={5}
         total={5}
         question="Your study path."
-        subtitle="From the foundations to exam day."
         mascotPose="excited"
       />
 

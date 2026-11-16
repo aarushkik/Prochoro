@@ -444,14 +444,13 @@ export function QuizScreen() {
     ? question.choices?.find((c) => c.id === question.correctAnswerId)?.text
     : question?.acceptedAnswers?.[0];
 
-  if (!question) return <SafeAreaView style={styles.root}><AreaBackdrop kind={areaKind} opacity={0.3} /><View style={styles.introBody}><Mascot pose="reading" size={130} /><Text style={typography.title}>You’re all caught up.</Text><Text style={[typography.body, styles.introText]}>There are no questions in this practice set. Pick another topic to keep exploring.</Text><AppButton label="Back to practice" onPress={() => navigation.goBack()} /></View></SafeAreaView>;
+  if (!question) return <SafeAreaView style={styles.root}><AreaBackdrop kind={areaKind} opacity={0.14} /><View style={styles.introBody}><Mascot pose="reading" size={130} /><Text style={typography.title}>You’re all caught up.</Text><Text style={[typography.body, styles.introText]}>There are no questions in this practice set. Pick another topic to keep exploring.</Text><AppButton label="Back to practice" onPress={() => navigation.goBack()} /></View></SafeAreaView>;
 
   if (phase === 'study') {
     const example = questions[0];
-    return <SafeAreaView style={styles.root} edges={['top', 'bottom']}><AreaBackdrop kind={areaKind} opacity={0.3} /><StatusBar style={appTheme.isDark ? "light" : "dark"} />
+    return <SafeAreaView style={styles.root} edges={['top', 'bottom']}><AreaBackdrop kind={areaKind} opacity={0.14} /><StatusBar style={appTheme.isDark ? "light" : "dark"} />
       <ScrollView contentContainerStyle={styles.studyContent}>
         <View style={styles.studyHeading}><Mascot size={82} pose="reading" /><View style={{ flex: 1 }}><Text style={typography.overline}>QUICK LESSON</Text><Text style={typography.title}>{session?.title}</Text></View></View>
-        <Text style={[typography.body, { marginBottom: 18 }]}>See how one example works. Then try the questions.</Text>
         <QuestionCard question={example}><Text style={typography.label}>{'Answer: ' + (example.choices?.find(choice => choice.id === example.correctAnswerId)?.text ?? example.acceptedAnswers?.[0])}</Text><Text style={[typography.body, { marginTop: 12 }]}>{example.explanation}</Text></QuestionCard>
         <AppButton label={`Try ${questions.length} questions`} icon="arrow-right" onPress={() => setPhase('quiz')} />
         <Pressable accessibilityRole="button" onPress={() => navigation.goBack()} style={styles.skip}><Text style={styles.skipText}>Back to Home</Text></Pressable>
@@ -463,7 +462,7 @@ export function QuizScreen() {
   if (phase === 'intro') {
     return (
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-        <AreaBackdrop kind={areaKind} opacity={0.3} />
+        <AreaBackdrop kind={areaKind} opacity={0.14} />
         <StatusBar style={appTheme.isDark ? "light" : "dark"} />
         <View style={styles.introTop}>
           <Pressable onPress={() => navigation.goBack()} hitSlop={12} accessibilityLabel="Close">
@@ -475,7 +474,7 @@ export function QuizScreen() {
           <Mascot size={200} pose="excited" />
           <Text style={[typography.title, styles.introTitle]}>Find your starting point</Text>
           <Text style={[typography.body, styles.introText]}>{quiz.intro}</Text>
-          <Text style={styles.introMeta}>{total} questions · about 4 minutes</Text>
+          <Text style={styles.introMeta}>{total} questions</Text>
         </ScrollView>
 
         <View style={styles.footer}>
@@ -499,7 +498,7 @@ export function QuizScreen() {
   // --- Questions ---
   return (
     <View style={styles.root}>
-      <AreaBackdrop kind={areaKind} opacity={0.3} />
+      <AreaBackdrop kind={areaKind} opacity={0.14} />
       <SafeAreaView style={styles.flex} edges={['top']}>
         <StatusBar style={appTheme.isDark ? "light" : "dark"} />
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -669,7 +668,7 @@ const createStyles = ({ colors, palette, typography, stroke, glass, card }: AppT
   introText: { textAlign: 'center', marginTop: spacing.sm, paddingHorizontal: spacing.sm },
   introMeta: { ...typography.caption, marginTop: spacing.lg },
   skip: { alignSelf: 'center', paddingVertical: spacing.md, marginTop: spacing.xs },
-  skipText: { ...typography.bodyStrong, color: colors.textSecondary },
+  skipText: { ...typography.bodyStrong, color: colors.textSecondary, textShadowColor: colors.background, textShadowRadius: 6 },
 
   headerWrap: { paddingHorizontal: 16, paddingTop: 8, width: '100%', maxWidth: 620, alignSelf: 'center' },
   encounterWrap: { width: '100%', maxWidth: 620, alignSelf: 'center' },

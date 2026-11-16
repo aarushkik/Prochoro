@@ -37,7 +37,6 @@ export function ExamTimelineScreen() {
         step={4}
         total={5}
         question="When is your exam?"
-        subtitle="Keep your goal and timeline in view."
         mascotPose="thinking"
       />
 

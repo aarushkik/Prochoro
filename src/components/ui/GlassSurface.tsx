@@ -143,6 +143,7 @@ export function GlassSurface({ children, style, variant = 'regular', tint, inter
             borderLeftColor: glass.rim.side,
             borderRightColor: glass.rim.side,
             borderBottomColor: glass.rim.bottom,
+            boxShadow: glass.highlight,
           },
         ]}
       />

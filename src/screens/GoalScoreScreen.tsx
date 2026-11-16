@@ -37,7 +37,6 @@ export function GoalScoreScreen() {
         step={3}
         total={5}
         question="Your target score?"
-        subtitle="We’ll aim your quest at this target."
         mascotPose="excited"
       />
 

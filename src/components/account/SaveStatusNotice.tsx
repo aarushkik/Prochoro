@@ -1,34 +1,34 @@
-import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
+import { useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Glyph } from '@/components/icons';
+import { GlassSurface } from '@/components/ui/GlassSurface';
 import { useProfileSync } from '@/state/ProfileSync';
-import { colors, fonts } from '@/theme';
 
 /** Persistence failures belong beside progress, not hidden inside settings. */
 export function SaveStatusNotice() {
-  const appTheme = useAppTheme();
-  const { colors, palette, typography, chunky } = appTheme;
   const styles = useThemedStyles(createStyles);
-
   const { offline, error, retry } = useProfileSync();
   if (!offline && !error) return null;
-  return <View style={styles.notice}>
-    <Glyph name="refresh" size={20} color={colors.ink} />
-    <View style={styles.copy} accessibilityLiveRegion="polite">
-      <Text style={styles.title}>{error ? 'Your progress needs a save' : 'Saved here. Sync will catch up.'}</Text>
-      <Text style={styles.detail}>{error ?? 'Keep studying. Your account will update when you reconnect.'}</Text>
-    </View>
-    <Pressable accessibilityRole="button" accessibilityLabel="Retry saving progress" onPress={retry} style={({ pressed }) => [styles.retry, pressed && { opacity: 0.6 }]}>
-      <Text style={styles.title}>Retry</Text>
-    </Pressable>
-  </View>;
+  return (
+    <GlassSurface style={styles.notice}>
+      <Glyph name="refresh" size={18} />
+      <View style={styles.copy} accessibilityLiveRegion="polite">
+        <Text style={styles.title}>{error ? 'Progress not saved yet' : 'Saved on this device'}</Text>
+        <Text style={styles.detail}>{error ?? 'It will sync to your account when you are back online.'}</Text>
+      </View>
+      <Pressable accessibilityRole="button" accessibilityLabel="Retry saving progress" onPress={retry} style={({ pressed }) => [styles.retry, pressed && { opacity: 0.6 }]}>
+        <Text style={styles.retryText}>Retry</Text>
+      </Pressable>
+    </GlassSurface>
+  );
 }
 
-const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.create({
-  notice: { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 18, marginBottom: 14, padding: 12, borderRadius: 17, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.primaryTint },
-  copy: { flex: 1 },
-  title: { fontFamily: fonts.bodyHeavy, fontSize: 12, color: colors.ink },
-  detail: { fontFamily: fonts.body, fontSize: 11, lineHeight: 16, marginTop: 3, color: colors.ink },
-  retry: { minWidth: 44, minHeight: 44, justifyContent: 'center', alignItems: 'center', borderRadius: 13, backgroundColor: colors.surface },
+const createStyles = ({ colors, typography }: AppTheme) => StyleSheet.create({
+  notice: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 14, marginBottom: 12, paddingLeft: 16, paddingRight: 6, paddingVertical: 6, borderRadius: 24 },
+  copy: { flex: 1, minWidth: 0, paddingVertical: 4 },
+  title: { ...typography.label, fontSize: 12.5, lineHeight: 17, color: colors.ink },
+  detail: { ...typography.caption, fontSize: 11.5, lineHeight: 16 },
+  retry: { minWidth: 60, minHeight: 44, paddingHorizontal: 12, justifyContent: 'center', alignItems: 'center', borderRadius: 22, borderWidth: 1, borderColor: colors.border },
+  retryText: { ...typography.label, fontSize: 12.5, color: colors.ink },
 });

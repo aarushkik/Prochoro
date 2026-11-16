@@ -1,21 +1,16 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import { BossSprite } from '@/components/creatures/BossSprite';
 import React, { useMemo } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Mascot } from '@/components/Mascot';
 import { ChunkyCard } from '@/components/ui';
+import { UtilityIllustration } from '@/components/ui/UtilityIllustration';
 import { colors, fonts, palette, outlinedCard } from '@/theme';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuest } from '@/state/QuestContext';
 import { useOnboarding } from '@/state/OnboardingContext';
-import { drillSize } from '@/data';
-import { weakSpots, weakSpotMeta } from '@/data/weakSpots';
-import type { RootStackParamList } from '@/navigation/types';
 import { frameworkFor, officialUnitForArea, unitBossId } from '@/data/courseFrameworks';
 import { learningLevels, levelNumber } from '@/utils/learningLevels';
 
-type Nav = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 import type { QuestNode } from '@/types/quest';
 
 interface ProgressPanelProps {
@@ -42,11 +37,9 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
   const { colors, palette, typography, chunky } = appTheme;
   const styles = useThemedStyles(createStyles);
 
-  const { map, stateOf, completed, earned, sessions, perfectSessions, bestStreak } = useQuest();
-  const navigation = useNavigation<Nav>();
+  const { map, stateOf, completed, earned, sessions, perfectSessions } = useQuest();
   const { courseId } = useOnboarding();
-  const { streakDays, skills } = useQuest();
-  const weak = useMemo(() => weakSpots(skills, courseId), [skills, courseId]);
+  const { streakDays } = useQuest();
 
   const { tracks, mastery, bossesBeaten, bossTotal, nextBoss } = useMemo(() => {
     const cleared = new Set(completed);
@@ -78,7 +71,6 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
       <View style={styles.head}>
         <View style={styles.headText}>
           <Text style={styles.title}>Progress</Text>
-          <Text style={styles.subtitle}>See what you’ve finished.</Text>
         </View>
         <Mascot pose="progress" size={132} />
       </View>
@@ -98,9 +90,8 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
         </View>
 
         <View style={styles.bars}>
-          {[{ value: sessions, label: 'Sessions' }, { value: perfectSessions, label: 'Perfect sets' }, { value: bestStreak, label: 'Best streak' }].map((stat) => <View key={stat.label} style={styles.barCol}><Text style={styles.bigUnit}>{stat.value}</Text><Text style={styles.barLabel}>{stat.label}</Text></View>)}
+          {([{ value: streakDays, label: 'Day streak', art: 'streak' }, { value: sessions, label: 'Sessions', art: 'xp' }, { value: perfectSessions, label: 'Perfect sets', art: 'score3' }] as const).map((stat) => <View key={stat.label} style={styles.barCol}><UtilityIllustration id={stat.art} size={30} /><Text style={styles.statValue}>{stat.value}</Text><Text style={styles.barLabel}>{stat.label}</Text></View>)}
         </View>
-        <Text style={styles.weekNote}>{streakDays > 0 ? `${streakDays}-day streak. Keep a little practice in your day.` : 'Finish a practice session to start your streak.'} Levels opened by your starting check are included.</Text>
       </ChunkyCard>
 
       <Text style={styles.section}>YOUR AP UNITS</Text>
@@ -135,39 +126,6 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
           </ChunkyCard>
         </>
       ) : null}
-
-      <Text style={[styles.section, styles.sectionWarn]}>PRACTISE THESE NEXT</Text>
-      <View style={styles.stack}>
-        {weak.map((w) => (
-          <ChunkyCard key={w.name} contentStyle={styles.weakCard}>
-            <View style={styles.weakTop}>
-              <Text style={styles.weakName}>{w.name}</Text>
-              <Text style={styles.weakPct}>{w.pct >= 0 ? `${w.pct}%` : '—'}</Text>
-            </View>
-            <Text style={styles.weakMeta}>{weakSpotMeta(w)}</Text>
-            {w.pct >= 0 ? (
-              <View style={styles.barTrack}>
-                <View style={[styles.barFill, { width: `${w.pct}%` }]} />
-              </View>
-            ) : null}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Drill ${w.name}, ${w.count} questions`}
-              onPress={() =>
-                navigation.navigate('Quiz', {
-                  title: w.name,
-                  count: drillSize(courseId, w.count),
-                  xp: w.count * 5,
-                  focus: [w.name],
-                })
-              }
-              style={({ pressed }) => [styles.drill, pressed && styles.drillPressed]}
-            >
-              <Text style={styles.drillText}>PRACTISE · {drillSize(courseId, w.count)} QUESTIONS</Text>
-            </Pressable>
-          </ChunkyCard>
-        ))}
-      </View>
     </ScrollView>
   );
 }
@@ -188,6 +146,7 @@ const createStyles = ({ colors, palette, typography, stroke, glass, solid }: App
   overline: { fontFamily: fonts.bodyBlack, fontSize: 10, letterSpacing: 1.6, color: colors.textMuted },
   big: { fontFamily: fonts.displayHeavy, fontSize: 46, lineHeight: 48, color: colors.ink, marginTop: 2 },
   bigUnit: { fontSize: 22, color: colors.textMuted },
+  statValue: { fontFamily: fonts.displayHeavy, fontSize: 22, lineHeight: 26, color: colors.ink },
   delta: {
     marginBottom: 6,
     ...outlinedCard(glass),
@@ -197,8 +156,8 @@ const createStyles = ({ colors, palette, typography, stroke, glass, solid }: App
   },
   deltaText: { fontFamily: fonts.bodyHeavy, fontSize: 12.5, color: colors.primaryDeep },
 
-  bars: { marginTop: 16, flexDirection: 'row', alignItems: 'center', gap: 7 },
-  barCol: { flex: 1, alignItems: 'center', gap: 7 },
+  bars: { marginTop: 18, flexDirection: 'row', alignItems: 'flex-start', gap: 7 },
+  barCol: { flex: 1, alignItems: 'center', gap: 3 },
   // A day is hit or it is not. A bar height would imply a volume the app does
   // not measure.
   day: {
@@ -212,7 +171,7 @@ const createStyles = ({ colors, palette, typography, stroke, glass, solid }: App
   },
   dayHit: { backgroundColor: colors.primary, borderColor: colors.border },
   dayToday: { borderColor: colors.border },
-  barLabel: { fontFamily: fonts.bodyHeavy, fontSize: 10, color: colors.textFaint },
+  barLabel: { fontFamily: fonts.bodyHeavy, fontSize: 11, color: colors.textMuted },
   barLabelToday: { color: colors.ink },
   weekNote: { fontFamily: fonts.bodySemibold, fontSize: 12, color: colors.textMuted, marginTop: 12 },
 

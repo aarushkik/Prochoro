@@ -37,6 +37,26 @@
       ],
       "port": 8101,
       "url": "http://localhost:8101"
+    },
+    {
+      "name": "design-expo",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "expo",
+        "start",
+        "--web",
+        "--port",
+        "8082"
+      ],
+      "port": 8082
+    },
+    {
+      "name": "design-preview",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "scripts/design-preview.mjs"
+      ],
+      "port": 8085
     }
   ]
 }

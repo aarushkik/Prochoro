@@ -36,7 +36,6 @@ export function CourseSelectionScreen() {
         step={1}
         total={5}
         question="Choose your AP subject."
-        subtitle="Choose one course for this quest."
         mascotPose="neutral"
       />
 

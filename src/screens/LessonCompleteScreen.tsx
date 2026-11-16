@@ -140,13 +140,11 @@ export function LessonCompleteScreen() {
               </View>
             </View>
 
-            <Text style={[typography.body, styles.note]}>
-              {cleared === false
-                ? "You kept your practice XP. Read the explanations and try this level again."
-                : boss
-                  ? "You beat the boss. Your next level is ready."
-                  : verdict.note}
-            </Text>
+            {cleared === false || !boss ? (
+              <Text style={[typography.body, styles.note]}>
+                {cleared === false ? "Read the explanations, then try again." : verdict.note}
+              </Text>
+            ) : null}
             <SaveStatusNotice />
           </Animated.View>
         </ScrollView>
@@ -170,22 +168,22 @@ const VERDICTS = [
   {
     min: 100,
     headline: "Flawless",
-    note: "Every answer correct. Revisit these ideas later to help them stick.",
+    note: "Every answer correct.",
   },
   {
     min: 80,
     headline: "Strong run",
-    note: "You’re getting the hang of these ideas. Keep exploring and review what you missed.",
+    note: "Review what you missed and keep going.",
   },
   {
     min: 50,
     headline: "Good progress",
-    note: "Solid footing. The next pass through will tighten the gaps.",
+    note: "Another pass will close the gaps.",
   },
   {
     min: 0,
     headline: "Round one done",
-    note: "Rough first attempt is how it starts. Come back and take it again.",
+    note: "First tries are rough. Take it again.",
   },
 ];
 

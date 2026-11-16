@@ -34,20 +34,25 @@ export function HomeContent({ renderOptions }: { renderOptions: (topInset: numbe
     const unit = quest.map.units.find(unit => unit.nodes.some(item => item.id === node.id));
     navigation.navigate('Quiz', { nodeId: node.id, unit: unit?.index, title: node.title, xp: node.xp, count: questionCountFor(node), boss: node.kind === 'boss' });
   };
-  return <View style={styles.root}>
-    <AreaBackdrop kind={quest.map.units[area]?.track.kind} opacity={0.24} />
+  // The landscape runs the full width of the window; everything you read or
+  // press stays in one centred column on top of it.
+  return <View style={styles.page}>
+    <AreaBackdrop kind={quest.map.units[area]?.track.kind} opacity={tab === 'map' ? 0.17 : 0.11} />
+    <View style={styles.root}>
     <StatusBar style={theme.isDark ? 'light' : 'dark'} />
     <View style={[styles.fill, tab !== 'map' && styles.hidden]} pointerEvents={tab === 'map' ? 'auto' : 'none'}><PlayPanel topInset={hudHeight} areaRequest={areaRequest} onPractice={() => setTab('practice')} onAreaChange={setArea} /></View>
     {tab === 'practice' ? <TrainPanel topInset={hudHeight} /> : null}
     {tab === 'progress' ? <BattlesPanel topInset={hudHeight} onSelect={play} onJumpToTrack={index => { setAreaRequest({ index, id: Date.now() }); setTab('map'); }} /> : null}
     {tab === 'you' ? renderOptions(hudHeight) : null}
-    <QuestHud equippedId={quest.equippedId} onOpenCharacters={() => setTab('you')} onLayout={event => setHudHeight(Math.round(event.nativeEvent.layout.height))} />
+    <QuestHud equippedId={quest.equippedId} streak={quest.streakDays} onOpenCharacters={() => setTab('you')} onLayout={event => setHudHeight(Math.round(event.nativeEvent.layout.height))} />
     <QuestTabBar active={tab} onChange={setTab} />
     <Modal transparent visible={lockedMessage !== null} animationType="fade" onRequestClose={() => setLockedMessage(null)}><View style={styles.scrim}><GlassSurface variant="thick" style={styles.dialog}><Text style={styles.title}>One level at a time</Text><Text style={styles.body}>{lockedMessage}</Text><AppButton label="Got it" onPress={() => setLockedMessage(null)} /></GlassSurface></View></Modal>
+    </View>
   </View>;
 }
 const createStyles = ({ colors, typography, glass }: AppTheme) => StyleSheet.create({
-  root: { flex: 1, width: '100%', maxWidth: 620, alignSelf: 'center', backgroundColor: colors.background },
+  page: { flex: 1, backgroundColor: colors.background },
+  root: { flex: 1, width: '100%', maxWidth: 620, alignSelf: 'center' },
   fill: { flex: 1 }, hidden: { display: 'none' }, scrim: { flex: 1, padding: 24, justifyContent: 'center', alignItems: 'center', backgroundColor: glass.scrim },
   dialog: { padding: 24, borderRadius: 28, maxWidth: 380, gap: 20 }, title: { ...typography.heading }, body: { ...typography.body },
 });

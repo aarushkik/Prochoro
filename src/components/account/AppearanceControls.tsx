@@ -12,10 +12,9 @@ const options = [
 export function AppearanceControls() {
   const { typography, colors } = useAppTheme();
   const { preference, setPreference, error } = useAppearancePreference();
-  return <View style={{ marginBottom: 24 }}>
+  return <View>
     <Text style={[typography.overline, { marginBottom: 12 }]}>Appearance</Text>
     <SegmentedControl items={options} value={preference} onChange={setPreference} />
-    <Text style={[typography.caption, { marginTop: 10 }]}>Light, dark, or matched to your device.</Text>
     {error ? <Text accessibilityRole="alert" style={[typography.caption, { color: colors.ink, marginTop: 10 }]}>{error}</Text> : null}
   </View>;
 }

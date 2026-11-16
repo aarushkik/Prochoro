@@ -13,13 +13,12 @@ export function PetOptions() {
   const styles = useThemedStyles(createStyles);
   const haptic = useHaptics();
   const [showLocked, setShowLocked] = useState(false);
-  const [note, setNote] = useState('Tap a pet to use it. You can change it anytime.');
-  const current = companions.find(p => p.id === equippedId);
+  const [note, setNote] = useState('');
   const available = companions.filter(p => p.owned);
   const locked = companions.filter(p => !p.owned);
   return <View style={styles.section}>
     <Text style={styles.title}>Your pet</Text>
-    <Text style={styles.note} accessibilityLiveRegion="polite">{note}</Text>
+    {note ? <Text style={styles.note} accessibilityLiveRegion="polite">{note}</Text> : null}
     <View accessibilityRole="radiogroup" accessibilityLabel="Choose your pet" style={styles.grid}>
       {available.map(pet => {
         const selected = pet.id === equippedId;
@@ -32,11 +31,9 @@ export function PetOptions() {
           <View style={styles.petTop}><CompanionSprite id={pet.id} size={56} /><View style={styles.state}><Glyph name={selected ? 'check' : 'plus'} size={16} /></View></View>
           <Text style={styles.name}>{pet.name}</Text>
           <Text style={styles.ability}>{pet.ability}</Text>
-          <Text style={styles.tag}>{selected ? 'Selected' : 'Tap to use'}</Text>
         </Pressable>;
       })}
     </View>
-    {current ? <Text style={styles.tip}>{current.name + ' will join your next level.'}</Text> : null}
     {locked.length ? <>
       <Pressable accessibilityRole="button" accessibilityState={{ expanded: showLocked }} onPress={() => setShowLocked(value => !value)} style={styles.more}><Text style={styles.moreText}>{showLocked ? 'Hide locked pets' : 'More pets to unlock'}</Text><Glyph name={showLocked ? 'chevron-up' : 'chevron-down'} size={18} /></Pressable>
       {showLocked ? <View style={styles.lockedList}>{locked.map(pet => <View key={pet.id} style={styles.locked} accessible accessibilityLabel={pet.name + '. Locked. ' + unlockLabel(pet)}><CompanionSprite id={pet.id} size={44} dim /><View style={styles.lockedCopy}><Text style={styles.name}>{pet.name}</Text><Text style={styles.ability}>{unlockLabel(pet)}</Text></View><Glyph name="lock" size={16} /></View>)}</View> : null}
