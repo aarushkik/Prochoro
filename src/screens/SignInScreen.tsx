@@ -1,18 +1,23 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  KeyboardAvoidingView, Platform, Pressable, ScrollView,
-  StyleSheet, Text, TextInput, useWindowDimensions, View,
+  KeyboardAvoidingView, Platform, Pressable, ScrollView, type ScrollViewInstance,
+  StyleSheet, Text, TextInput, type TextInputInstance, useWindowDimensions, View,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mascot } from '@/components/Mascot';
 import { AppButton, TopBackButton, Wordmark } from '@/components/ui';
-import { links, openLink } from '@/lib/links';
+import { AP_DISCLAIMER, links, openLink } from '@/lib/links';
 import { fonts } from '@/theme';
 import { useAuth } from '@/state/AuthContext';
 import { ProviderButton } from '@/components/ui/ProviderButton';
 import { AppleSignInButton } from '@/components/ui/AppleSignInButton';
+import { apCourses } from '@/data/apCourses';
+import { AreaBackdrop } from '@/components/ui/AreaBackdrop';
+
+const COUNT_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
+const SUBJECTS = (COUNT_WORDS[apCourses.length] ?? String(apCourses.length)) + ' subjects';
 
 type Mode = 'welcome' | 'signIn' | 'signUp' | 'reset';
 
@@ -27,6 +32,9 @@ export function SignInScreen() {
     resetPassword, updatePassword, recovering, cancelRecovery,
   } = useAuth();
   const { width, height } = useWindowDimensions();
+  // iPad and desktop: the welcome splits into a large illustration and the
+  // sign-in choices side by side, instead of one narrow phone-sized strip.
+  const wide = width >= 820;
   const [mode, setMode] = useState<Mode>('welcome');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,8 +43,8 @@ export function SignInScreen() {
   const [localError, setLocalError] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
   const latch = useRef(false);
-  const passwordInput = useRef<TextInput>(null);
-  const scroll = useRef<ScrollView>(null);
+  const passwordInput = useRef<TextInputInstance>(null);
+  const scroll = useRef<ScrollViewInstance>(null);
   const busy = pending !== null || emailPending || working;
   const welcome = mode === 'welcome' && !recovering;
   const signingUp = mode === 'signUp';
@@ -71,19 +79,21 @@ export function SignInScreen() {
 
   return (
     <View style={styles.root}>
+      <AreaBackdrop kind="waves" opacity={0.1} />
       <StatusBar style={appTheme.isDark ? 'light' : 'dark'} />
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <ScrollView ref={scroll} contentContainerStyle={[styles.scroll, welcome && styles.welcomeScroll]} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
+          <ScrollView ref={scroll} contentContainerStyle={[styles.scroll, welcome && styles.welcomeScroll, wide && welcome && styles.wideScroll]} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
             {welcome ? (
               <>
                 <View style={styles.brand}><Wordmark size={28} /></View>
-                <View style={styles.welcomeBody}>
-                  <Mascot pose="reading" size={Math.min(width - 96, height < 700 ? 112 : 156)} shadow={false} />
-                  <Text accessibilityRole="header" style={styles.headline}>AP practice,{'\n'}at your pace.</Text>
-                  <Text style={styles.tagline}>Eight subjects. Short lessons, thoughtful{'\n'}questions, and a few cute rivals.</Text>
+                <View style={wide ? styles.welcomeRow : undefined}>
+                <View style={[styles.welcomeBody, wide && styles.welcomeBodyWide]}>
+                  <Mascot pose="reading" size={wide ? Math.min(260, height * 0.32) : Math.min(width - 96, height < 700 ? 112 : 156)} shadow={false} />
+                  <Text accessibilityRole="header" style={[styles.headline, wide && styles.headlineWide]}>AP practice,{'\n'}at your pace.</Text>
+                  <Text style={[styles.tagline, wide && styles.taglineWide]}>{SUBJECTS}. Short lessons, thoughtful{'\n'}questions, and a few cute rivals.</Text>
                 </View>
-                <View style={styles.actions}>
+                <View style={[styles.actions, wide && styles.actionsWide]}>
                   {/* Apple first: guideline 4.8 wants it at least as prominent as the others. */}
                   <AppleSignInButton disabled={busy} onPress={() => signIn('apple')} />
                   <ProviderButton provider="google" busy={pending === 'google'} disabled={busy} onPress={() => signIn('google')} />
@@ -96,6 +106,7 @@ export function SignInScreen() {
                   <Pressable accessibilityRole="button" disabled={busy} onPress={() => changeMode('signUp')} style={({ pressed }) => [styles.textButton, pressed && styles.pressed]}>
                     <Text style={styles.textButtonLabel}>New here? Create an account</Text>
                   </Pressable>
+                </View>
                 </View>
               </>
             ) : (
@@ -129,6 +140,7 @@ export function SignInScreen() {
               <Text style={styles.legalDot}>·</Text>
               <Pressable accessibilityRole="link" accessibilityLabel="Read the Privacy Policy" onPress={() => openLink(links.privacy)} style={styles.legalTarget}><Text style={styles.legalText}>Privacy Policy</Text></Pressable>
             </View>
+            <Text style={styles.disclaimer}>{AP_DISCLAIMER}</Text>
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -143,7 +155,7 @@ function Message({ text, error = false }: { text: string; error?: boolean }) {
 
   return <View accessibilityRole={error ? 'alert' : undefined} accessibilityLiveRegion="polite" style={[styles.message, error && styles.error]}><Text style={[styles.messageText, error && styles.errorText]}>{text}</Text></View>;
 }
-function Field({ label, inputRef, ...input }: { label: string; inputRef?: React.RefObject<TextInput | null> } & React.ComponentProps<typeof TextInput>) {
+function Field({ label, inputRef, ...input }: { label: string; inputRef?: React.RefObject<TextInputInstance | null> } & React.ComponentProps<typeof TextInput>) {
   const appTheme = useAppTheme();
   const { colors, palette, typography, chunky } = appTheme;
   const styles = useThemedStyles(createStyles);
@@ -159,6 +171,12 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   root: { flex: 1, backgroundColor: colors.background }, flex: { flex: 1 },
   scroll: { flexGrow: 1, width: '100%', maxWidth: 460, alignSelf: 'center', paddingHorizontal: 24, paddingTop: 24, paddingBottom: 12 },
   welcomeScroll: { justifyContent: 'space-between' },
+  wideScroll: { maxWidth: 1040, paddingHorizontal: 40 },
+  welcomeRow: { flexDirection: 'row', alignItems: 'center', gap: 56 },
+  welcomeBodyWide: { flex: 1.1, paddingVertical: 32 },
+  headlineWide: { fontSize: 48, lineHeight: 54, letterSpacing: -1.4 },
+  taglineWide: { fontSize: 18, lineHeight: 27, maxWidth: 420 },
+  actionsWide: { flex: 1, maxWidth: 420 },
   brand: { alignItems: 'center', gap: 8 },
   edition: { borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
   editionText: { fontFamily: fonts.bodyBlack, fontSize: 9, letterSpacing: 2.1, color: colors.textMuted },
@@ -193,4 +211,5 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   legalTarget: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 4 },
   legalText: { fontFamily: fonts.body, fontSize: 11, color: colors.textMuted, textDecorationLine: 'underline' },
   legalDot: { color: colors.textFaint },
+  disclaimer: { fontFamily: fonts.body, fontSize: 10, lineHeight: 14, color: colors.textMuted, textAlign: 'center', maxWidth: 340, alignSelf: 'center', marginTop: 2 },
 });

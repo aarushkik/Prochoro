@@ -18,12 +18,14 @@ import { questionCountFor } from '@/data/questMap';
 import { levelNumber } from '@/utils/learningLevels';
 import type { QuestNode } from '@/types/quest';
 import type { RootStackParamList } from '@/navigation/types';
+import { useScreenLayout } from '@/hooks/useScreenLayout';
 
 export function HomeScreen() { return <HomeContent renderOptions={topInset => <ProfilePanel topInset={topInset} />} />; }
 
 /** Shared with visual QA: identical navigation, without loading a real account. */
 export function HomeContent({ renderOptions }: { renderOptions: (topInset: number) => React.ReactNode }) {
   const theme = useAppTheme(); const styles = useThemedStyles(createStyles); const quest = useQuest();
+  const layout = useScreenLayout();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [tab, setTab] = useState<QuestTab>('map'); const [hudHeight, setHudHeight] = useState(74);
   const currentArea = quest.map.units.find(unit => unit.nodes.some(node => node.id === quest.currentNodeId))?.index ?? 0;
@@ -38,7 +40,7 @@ export function HomeContent({ renderOptions }: { renderOptions: (topInset: numbe
   // press stays in one centred column on top of it.
   return <View style={styles.page}>
     <AreaBackdrop kind={quest.map.units[area]?.track.kind} opacity={tab === 'map' ? 0.17 : 0.11} />
-    <View style={styles.root}>
+    <View style={[styles.root, { maxWidth: layout.wide ? layout.column : undefined }]}>
     <StatusBar style={theme.isDark ? 'light' : 'dark'} />
     <View style={[styles.fill, tab !== 'map' && styles.hidden]} pointerEvents={tab === 'map' ? 'auto' : 'none'}><PlayPanel topInset={hudHeight} areaRequest={areaRequest} onPractice={() => setTab('practice')} onAreaChange={setArea} /></View>
     {tab === 'practice' ? <TrainPanel topInset={hudHeight} /> : null}
@@ -52,7 +54,7 @@ export function HomeContent({ renderOptions }: { renderOptions: (topInset: numbe
 }
 const createStyles = ({ colors, typography, glass }: AppTheme) => StyleSheet.create({
   page: { flex: 1, backgroundColor: colors.background },
-  root: { flex: 1, width: '100%', maxWidth: 620, alignSelf: 'center' },
+  root: { flex: 1, width: '100%', alignSelf: 'center' },
   fill: { flex: 1 }, hidden: { display: 'none' }, scrim: { flex: 1, padding: 24, justifyContent: 'center', alignItems: 'center', backgroundColor: glass.scrim },
   dialog: { padding: 24, borderRadius: 28, maxWidth: 380, gap: 20 }, title: { ...typography.heading }, body: { ...typography.body },
 });

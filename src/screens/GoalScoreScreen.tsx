@@ -10,6 +10,7 @@ import { scoreGoals } from '@/data';
 import { useOnboarding } from '@/state/OnboardingContext';
 import type { ScoreGoalId } from '@/types';
 import type { RootStackParamList } from '@/navigation/types';
+import { OptionGrid } from '@/components/ui/OptionGrid';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'GoalScore'>;
 
@@ -41,6 +42,7 @@ export function GoalScoreScreen() {
       />
 
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+        <OptionGrid>
         {scoreGoals.map((goal) => (
           <ChoiceCard
             key={goal.id}
@@ -51,6 +53,7 @@ export function GoalScoreScreen() {
             onPress={() => setSelected(goal.id)}
           />
         ))}
+        </OptionGrid>
         <View style={styles.pad} />
       </ScrollView>
 

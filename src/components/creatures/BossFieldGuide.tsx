@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   Pressable,
   ScrollView,
+  type ScrollViewInstance,
   StyleSheet,
   Text,
   View,
@@ -23,7 +24,7 @@ export function BossFieldGuide() {
   const { fontScale, width } = useWindowDimensions();
   const { map, earned, stateOf } = useQuest();
   const [area, setArea] = useState(0);
-  const areaStrip = useRef<ScrollView>(null);
+  const areaStrip = useRef<ScrollViewInstance>(null);
   useEffect(() => {
     areaStrip.current?.scrollTo({
       x: Math.max(0, area * 52 - (Math.min(width, 620) - 36) / 2 + 22),

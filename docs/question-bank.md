@@ -1,19 +1,27 @@
 # Original AP practice
 
-Updated 16 October 2026. The first release covers eight courses. These are original practice questions informed by College Board’s public course frameworks and sample-exam formats. They are not official, copied, licensed, or endorsed College Board questions. Historical summaries, writing passages, and datasets are authored for practice and labeled accordingly.
+Updated 18 November 2026. The app covers ten courses. These are original practice questions informed by College Board’s public course frameworks and sample-exam formats. They are not official, copied, licensed, or endorsed College Board questions. Historical summaries, writing passages, and datasets are authored for practice and labeled accordingly.
 
-| Course | Official units | Available items | Public framework and sample reference |
+| Course | Official units | Distinct items | Public framework and sample reference |
 | --- | ---: | ---: | --- |
-| Biology | 8 | 120 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-biology-course-and-exam-description.pdf) |
-| Calculus AB | 8 | 120 | [AB/BC Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-calculus-ab-and-bc-course-and-exam-description.pdf) — AB units only |
-| Chemistry | 9 | 102 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-chemistry-course-and-exam-description.pdf) |
-| Computer Science A | 4 | 120 | [Revised Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-computer-science-a-course-and-exam-description.pdf) |
-| English Language | 9 | 100 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-english-language-and-composition-course-and-exam-description.pdf), [unit skill progression](https://apcentral.collegeboard.org/media/pdf/ap-english-language-and-composition-course-at-a-glance.pdf) |
-| Psychology | 5 | 98 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-psychology-course-and-exam-description.pdf) |
+| Biology | 8 | 73 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-biology-course-and-exam-description.pdf) |
+| Calculus AB | 8 | 114 | [AB/BC Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-calculus-ab-and-bc-course-and-exam-description.pdf) — AB units only |
+| Chemistry | 9 | 80 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-chemistry-course-and-exam-description.pdf) |
+| Computer Science A | 4 | 112 | [Revised Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-computer-science-a-course-and-exam-description.pdf) |
+| Computer Science Principles | 5 big ideas | 120 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-computer-science-principles-course-and-exam-description.pdf) |
+| English Language | 9 | 92 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-english-language-and-composition-course-and-exam-description.pdf), [unit skill progression](https://apcentral.collegeboard.org/media/pdf/ap-english-language-and-composition-course-at-a-glance.pdf) |
+| Psychology | 5 | 82 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-psychology-course-and-exam-description.pdf) |
+| Statistics | 9 | 119 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-statistics-course-and-exam-description.pdf) |
 | U.S. History | 9 | 78 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-us-history-course-and-exam-description.pdf) |
-| World History: Modern | 9 | 84 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-world-history-modern-course-and-exam-description.pdf) |
+| World History: Modern | 9 | 82 | [Course and Exam Description](https://apcentral.collegeboard.org/media/pdf/ap-world-history-modern-course-and-exam-description.pdf) |
 
-The 822 items comprise 320 reasoning families with up to three scenario, numerical, or code variants per family. Identical variants are removed. Variants are not 822 distinct concepts. Questions recur across the 180 game levels per course. Each item has four distinct choices, a worked explanation, a primary reference link, a practice-format tag, and an official-unit tag.
+The 952 items come from 400 reasoning families with up to three variants each. A variant only counts when it is a different problem: one that repeats a sibling’s choices, answer and material with a relabelled stem (“sample B” for “sample A”) is discarded. That rule removed 154 relabelled copies from the original eight banks on 18 November 2026; Psychology then gained one new scenario per family. Questions recur across the 180 game levels per course. Each item has four distinct choices, a worked explanation, a primary reference link, a practice-format tag, and an official-unit tag.
+
+## Writing rules
+
+- Wrong answers are believable mistakes a student could make: the reversed conditional, the missing square root, a misread proclamation. They do not lean on “always”, “never”, “immediately” or “impossible”, which let students eliminate a choice without knowing the content. A test enforces this for every course.
+- Computed answers (code tracing, binary, probability, intervals) are generated from the same arithmetic the question describes, and tests check selected results against independent calculations.
+- No question is copied from a College Board exam. Items follow the public frameworks’ skills and the published question formats.
 
 ## Alignment choices
 
@@ -23,6 +31,8 @@ The 822 items comprise 320 reasoning families with up to three scenario, numeric
 - Computer Science A follows the current four-unit framework, including text-file input, collections, and recursion. Inheritance is no longer taught as a standalone unit. Scanner examples do not combine line-based input with other Scanner parsing methods, consistent with the stated scope.
 - Psychology applies concepts to scenarios and asks about evidence, statistics, operational definitions, causation, and research safeguards. Vignettes are not personal diagnoses.
 - English Language follows the nine-unit progression of recurring rhetorical situation, claims/evidence, reasoning/organization, and style skills. Units do not have invented official content-topic names. All writing and source sets are original.
+- Computer Science Principles follows the five big ideas. Code uses the exam reference sheet’s pseudocode: ← for assignment, lists that start at index 1, DISPLAY, REPEAT UNTIL, FOR EACH, and / as ordinary division. Big Idea 3 spans four map areas, reflecting its exam weighting.
+- Statistics follows the nine units, with a tenth map area of mixed review tagged to its official units. Answers use AP conventions: hypotheses about parameters, conclusions in context, and confidence statements about the method.
 - History questions emphasize context, cause, comparison, continuity/change, sourcing, and evidence. Original explanatory summaries are not represented as primary-source quotations. Constructed numerical examples are labeled, rather than presented as actual historical measurements.
 
 ## Unit bosses and compatibility

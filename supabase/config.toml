@@ -4,3 +4,8 @@ project_id = "studyplat"
 # The function verifies the bearer token against Auth.getUser itself, which
 # supports both legacy and asymmetric Supabase signing keys.
 verify_jwt = false
+
+[functions.verify-email]
+# Answers the browser's CORS preflight itself and verifies the bearer token
+# with Auth.getUser before doing anything, like delete-apple-account.
+verify_jwt = false

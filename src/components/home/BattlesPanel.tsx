@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Mascot } from '@/components/Mascot';
 import { ChunkyCard } from '@/components/ui';
 import { UtilityIllustration } from '@/components/ui/UtilityIllustration';
+import { useScreenLayout } from '@/hooks/useScreenLayout';
 import { colors, fonts, palette, outlinedCard } from '@/theme';
 import { useQuest } from '@/state/QuestContext';
 import { useOnboarding } from '@/state/OnboardingContext';
@@ -40,6 +41,8 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
   const { map, stateOf, completed, earned, sessions, perfectSessions } = useQuest();
   const { courseId } = useOnboarding();
   const { streakDays } = useQuest();
+  const layout = useScreenLayout();
+  const unitCell = layout.wide ? (layout.expanded ? styles.unitCell3 : styles.unitCell2) : undefined;
 
   const { tracks, mastery, bossesBeaten, bossTotal, nextBoss } = useMemo(() => {
     const cleared = new Set(completed);
@@ -67,15 +70,16 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
   }, [map, completed, earned, stateOf, courseId]);
 
   return (
-    <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: topInset + 4 }]} scrollIndicatorInsets={{ top: topInset }} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, layout.wide && styles.scrollWide, { paddingTop: topInset + 4 }]} scrollIndicatorInsets={{ top: topInset }} showsVerticalScrollIndicator={false}>
       <View style={styles.head}>
         <View style={styles.headText}>
           <Text style={styles.title}>Progress</Text>
         </View>
-        <Mascot pose="progress" size={132} />
+        <Mascot pose="progress" size={132 * layout.scale} />
       </View>
 
-      <ChunkyCard style={styles.masteryWrap} contentStyle={styles.mastery}>
+      <View style={layout.wide ? styles.summaryRow : undefined}>
+      <ChunkyCard style={[styles.masteryWrap, layout.wide && styles.summaryMain]} contentStyle={styles.mastery}>
         <View style={styles.masteryTop}>
           <View>
             <Text style={styles.overline}>LEVELS CLEARED</Text>
@@ -93,12 +97,15 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
           {([{ value: streakDays, label: 'Day streak', art: 'streak' }, { value: sessions, label: 'Sessions', art: 'xp' }, { value: perfectSessions, label: 'Perfect sets', art: 'score3' }] as const).map((stat) => <View key={stat.label} style={styles.barCol}><UtilityIllustration id={stat.art} size={30} /><Text style={styles.statValue}>{stat.value}</Text><Text style={styles.barLabel}>{stat.label}</Text></View>)}
         </View>
       </ChunkyCard>
+      {layout.wide ? renderNextBoss() : null}
+      </View>
 
       <Text style={styles.section}>YOUR AP UNITS</Text>
-      <View style={styles.tight}>
+      <View style={[styles.tight, layout.wide && styles.unitGrid]}>
         {tracks.map(row => (
           <ChunkyCard
             key={row.id}
+            style={unitCell}
             onPress={() => onJumpToTrack(row.area)}
             accessibilityLabel={'See ' + row.title + ', ' + row.name + '. ' + row.done + ' of ' + row.total + ' levels cleared'}
             contentStyle={styles.trackRow}
@@ -110,24 +117,28 @@ export function BattlesPanel({ onSelect, onJumpToTrack, topInset = 0 }: Progress
         ))}
       </View>
 
-      {nextBoss ? (
-        <>
-          <Text style={styles.section}>NEXT BOSS</Text>
-          <ChunkyCard onPress={() => onSelect(nextBoss)} style={styles.stackTop} contentStyle={styles.bossRow}>
-            <BossSprite nodeId={nextBoss.id} size={76} />
-            <View style={styles.bossBody}>
-              <Text style={styles.bossName} numberOfLines={2}>
-                {nextBoss.title}
-              </Text>
-              <Text style={styles.bossMeta}>
-                {stateOf(nextBoss.id) === 'locked' ? 'Level ' + levelNumber(map, nextBoss.id) + ' · Finish earlier levels first' : 'Level ' + levelNumber(map, nextBoss.id) + ' · Ready to play'}
-              </Text>
-            </View>
-          </ChunkyCard>
-        </>
-      ) : null}
+      {layout.wide ? null : renderNextBoss()}
     </ScrollView>
   );
+
+  function renderNextBoss() {
+    if (!nextBoss) return null;
+    return (
+      <View style={layout.wide ? styles.summarySide : undefined}>
+        {layout.wide ? null : <Text style={styles.section}>NEXT BOSS</Text>}
+        <ChunkyCard onPress={() => onSelect(nextBoss)} style={[styles.stackTop, layout.wide && styles.fill]} contentStyle={[styles.bossRow, layout.wide && styles.bossTall]}>
+          <BossSprite nodeId={nextBoss.id} size={layout.wide ? 120 : 76} />
+          <View style={styles.bossBody}>
+            {layout.wide ? <Text style={styles.overline}>NEXT BOSS</Text> : null}
+            <Text style={styles.bossName} numberOfLines={2}>{nextBoss.title}</Text>
+            <Text style={styles.bossMeta}>
+              {stateOf(nextBoss.id) === 'locked' ? 'Level ' + levelNumber(map, nextBoss.id) + ' · Finish earlier levels first' : 'Level ' + levelNumber(map, nextBoss.id) + ' · Ready to play'}
+            </Text>
+          </View>
+        </ChunkyCard>
+      </View>
+    );
+  }
 }
 
 const createStyles = ({ colors, palette, typography, stroke, glass, solid }: AppTheme) => StyleSheet.create({
@@ -141,6 +152,15 @@ const createStyles = ({ colors, palette, typography, stroke, glass, solid }: App
   headArt: { width: 132, height: 132, marginBottom: -10, marginRight: -10 },
 
   masteryWrap: { marginTop: 10 },
+  scrollWide: { paddingHorizontal: 24 },
+  summaryRow: { flexDirection: 'row', gap: 14, alignItems: 'stretch' },
+  summaryMain: { flex: 1.5 },
+  summarySide: { flex: 1 },
+  fill: { flex: 1, marginTop: 10 },
+  bossTall: { flex: 1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', padding: 18 },
+  unitGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  unitCell2: { flexBasis: '45%', flexGrow: 1 },
+  unitCell3: { flexBasis: '30%', flexGrow: 1 },
   mastery: { padding: 16 },
   masteryTop: { flexDirection: 'row', alignItems: 'flex-end', gap: 12 },
   overline: { fontFamily: fonts.bodyBlack, fontSize: 10, letterSpacing: 1.6, color: colors.textMuted },

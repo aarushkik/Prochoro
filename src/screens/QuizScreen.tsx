@@ -11,6 +11,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  type ScrollViewInstance,
   StyleSheet,
   Text,
   TextInput,
@@ -44,6 +45,7 @@ import { isStreakMilestone } from '@/utils/streaks';
 import { choiceCanBeSubmitted, eliminatedChoiceFor } from '@/utils/quizChoices';
 import { bossBattle } from '@/utils/bossBattle';
 import { shuffleQuizChoices } from '@/utils/shuffleQuizChoices';
+import { useScreenLayout } from '@/hooks/useScreenLayout';
 import { levelNumber } from '@/utils/learningLevels';
 import { useOnboarding } from '@/state/OnboardingContext';
 import { useQuest } from '@/state/QuestContext';
@@ -74,7 +76,11 @@ export function QuizScreen() {
   const { reduceMotion } = useMotionPreference();
   const haptic = useHaptics();
   const insets = useSafeAreaInsets();
-  const questionScroll = useRef<ScrollView>(null);
+  const layout = useScreenLayout();
+  // The quiz column grows with the screen; past a phone it stops at a width
+  // where a line of question text is still comfortable to read.
+  const column = { maxWidth: layout.expanded ? 1100 : layout.wide ? 820 : 620 };
+  const questionScroll = useRef<ScrollViewInstance>(null);
   const { courseId, setPlacementLevelId, setStartChoice } = useOnboarding();
   const { recordSession, ability, equippedId, map } = useQuest();
   const areaKind = map.units[params?.unit ?? 0]?.track.kind ?? 'waves';
@@ -449,7 +455,7 @@ export function QuizScreen() {
   if (phase === 'study') {
     const example = questions[0];
     return <SafeAreaView style={styles.root} edges={['top', 'bottom']}><AreaBackdrop kind={areaKind} opacity={0.14} /><StatusBar style={appTheme.isDark ? "light" : "dark"} />
-      <ScrollView contentContainerStyle={styles.studyContent}>
+      <ScrollView contentContainerStyle={[styles.studyContent, column]}>
         <View style={styles.studyHeading}><Mascot size={82} pose="reading" /><View style={{ flex: 1 }}><Text style={typography.overline}>QUICK LESSON</Text><Text style={typography.title}>{session?.title}</Text></View></View>
         <QuestionCard question={example}><Text style={typography.label}>{'Answer: ' + (example.choices?.find(choice => choice.id === example.correctAnswerId)?.text ?? example.acceptedAnswers?.[0])}</Text><Text style={[typography.body, { marginTop: 12 }]}>{example.explanation}</Text></QuestionCard>
         <AppButton label={`Try ${questions.length} questions`} icon="arrow-right" onPress={() => setPhase('quiz')} />
@@ -470,14 +476,14 @@ export function QuizScreen() {
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={styles.introBody}>
+        <ScrollView contentContainerStyle={[styles.introBody, column]}>
           <Mascot size={200} pose="excited" />
           <Text style={[typography.title, styles.introTitle]}>Find your starting point</Text>
           <Text style={[typography.body, styles.introText]}>{quiz.intro}</Text>
           <Text style={styles.introMeta}>{total} questions</Text>
         </ScrollView>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, column]}>
           <AppButton label="Start the questions" icon="play" emphasis onPress={() => { setStartChoice('find_level'); setPhase('quiz'); }} />
           <Pressable
             onPress={() => {
@@ -496,13 +502,16 @@ export function QuizScreen() {
   }
 
   // --- Questions ---
+  // Short answers sit two across on a wide screen, so four of them fill one
+  // block instead of a long ladder. Long answers keep a full row each.
+  const answerGrid = layout.wide && !question.stimulus && isChoiceBased && question.choices!.every(choice => choice.text.length <= 44);
   return (
     <View style={styles.root}>
       <AreaBackdrop kind={areaKind} opacity={0.14} />
       <SafeAreaView style={styles.flex} edges={['top']}>
         <StatusBar style={appTheme.isDark ? "light" : "dark"} />
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <View style={styles.headerWrap}>
+          <View style={[styles.headerWrap, column]}>
             <QuizProgressHeader
               title={stop ? 'Level ' + levelNumber(map, stop.id) : getCourse(courseId)?.name ?? 'AP practice'}
               subtitle={isBoss ? 'Boss battle · ' + stop.title : session?.title ?? 'Find your starting point'}
@@ -513,12 +522,12 @@ export function QuizScreen() {
               onClose={() => (endless ? finish(answered) : navigation.goBack())}
             />
           </View>
-          {isBoss ? <View style={styles.encounterWrap}><BossEncounter nodeId={stop.id} correct={correctCount} attempted={answered.length} total={total} damageTotal={questions.length} reviewPending={pendingReview} move={duelMove} finalStrike={finalStrike} onMoveComplete={onDuelMoveComplete} /></View> : null}
+          {isBoss ? <View style={[styles.encounterWrap, column]}><BossEncounter nodeId={stop.id} correct={correctCount} attempted={answered.length} total={total} damageTotal={questions.length} reviewPending={pendingReview} move={duelMove} finalStrike={finalStrike} onMoveComplete={onDuelMoveComplete} /></View> : null}
 
           <ScrollView
             ref={questionScroll}
             style={styles.flex}
-            contentContainerStyle={styles.scroll}
+            contentContainerStyle={[styles.scroll, column]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             onContentSizeChange={() => { if (checked && revealFeedback.current) { revealFeedback.current = false; questionScroll.current?.scrollToEnd({ animated: !reduceMotion }); } }}
@@ -528,9 +537,10 @@ export function QuizScreen() {
                 opacity: qAnim,
               }}
             >
-              <QuestionCard question={question}>
+              <QuestionCard question={question} split={layout.expanded && Boolean(question.stimulus)}>
                 {isChoiceBased ? (
-                  question.choices!.map((choice, i) => (
+                  <View style={answerGrid ? styles.answerGrid : undefined}>{question.choices!.map((choice, i) => (
+                    <View key={choice.id} style={answerGrid ? styles.answerCell : undefined}>
                     <AnswerChoice
                       key={choice.id}
                       index={i}
@@ -539,7 +549,8 @@ export function QuizScreen() {
                       disabled={checked || choice.id === struckId}
                       onPress={() => { if (choice.id !== struckId) setSelectedChoiceId(choice.id); }}
                     />
-                  ))
+                    </View>
+                  ))}</View>
                 ) : (
                   <TextInput
                     style={[
@@ -564,7 +575,7 @@ export function QuizScreen() {
             {hintShown && !checked ? <GlassSurface variant="thick" style={styles.hint}><Text style={typography.overline}>{companion?.name ?? 'Your companion'}’s hint</Text><Text style={styles.hintText}>{question.explanation}</Text></GlassSurface> : null}
             {checked ? <QuizFeedbackPanel correct={isCorrect} explanation={question.explanation} answer={correctAnswerText} /> : null}
           </ScrollView>
-          <View style={[styles.actionDock, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+          <View style={[styles.actionDock, column, { paddingBottom: Math.max(insets.bottom, 10) }]}>
             <GlassSurface variant="thick" style={styles.actionGlass}>
               {!checked && companionAction ? <View style={styles.assistRow}>
                 <CompanionSprite id={companion!.id} size={26} />
@@ -661,6 +672,8 @@ const createStyles = ({ colors, palette, typography, stroke, glass, card }: AppT
   hintText: { ...typography.body, fontSize: 13.5, color: colors.primaryDeep },
 
   flex: { flex: 1 },
+  answerGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 12 },
+  answerCell: { flexBasis: '45%', flexGrow: 1 },
 
   introTop: { paddingHorizontal: spacing.xl, paddingTop: spacing.sm },
   introBody: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, width: '100%', maxWidth: 620, alignSelf: 'center' },

@@ -6,10 +6,11 @@ import { PetOptions } from './PetOptions';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { AppButton } from '@/components/ui';
 import { Glyph } from '@/components/icons';
-import { links, openLink } from '@/lib/links';
+import { AP_DISCLAIMER, links, openLink } from '@/lib/links';
 import { useQuest } from '@/state/QuestContext';
 import { useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import { achievementsFor, isEarned } from '@/data/achievements';
+import { useScreenLayout } from '@/hooks/useScreenLayout';
 
 export interface ProfileAccount {
   user: { user_metadata?: Record<string, unknown>; email?: string } | null;
@@ -23,14 +24,19 @@ export function ProfileContent({ topInset = 0, account, connection, verification
   const styles = useThemedStyles(createStyles); const quest = useQuest(); const nav = useNavigation();
   const [accountOpen, setAccountOpen] = useState(false); const [rewardsOpen, setRewardsOpen] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const layout = useScreenLayout();
+  // A landscape iPad or desktop puts pets on one side and settings on the other.
+  const split = layout.expanded;
   const achievements = achievementsFor({ completed: quest.earned, map: quest.map, skills: quest.skills, sessions: quest.sessions, perfectSessions: quest.perfectSessions, bestStreak: quest.bestStreak, xp: quest.xp });
   const displayName = account.user?.user_metadata?.full_name ?? account.user?.user_metadata?.name;
-  return <ScrollView style={styles.fill} contentContainerStyle={[styles.scroll, { paddingTop: topInset + 20 }]} showsVerticalScrollIndicator={false}>
+  return <ScrollView style={styles.fill} contentContainerStyle={[styles.scroll, layout.wide && styles.scrollWide, { paddingTop: topInset + 20 }]} showsVerticalScrollIndicator={false}>
     <Text style={styles.title}>Options</Text>
     {(connection.offline || connection.error) ? <GlassSurface variant="thick" style={styles.notice}><Text style={styles.body}>{connection.error ?? 'Your progress is saved on this device. We’ll sync it when you reconnect.'}</Text><AppButton label="Try syncing again" tone="secondary" onPress={connection.retry} /></GlassSurface> : null}
     {connection.notice ? <Text style={styles.body}>{connection.notice}</Text> : null}
     {account.error ? <Text accessibilityRole="alert" style={styles.body}>{account.error}</Text> : null}
-    <PetOptions />
+    <View style={split ? styles.split : styles.stack}>
+    <View style={split ? styles.splitMain : undefined}><PetOptions perRow={split ? 2 : undefined} /></View>
+    <View style={[styles.stack, split && styles.splitSide]}>
     <AppearanceControls />
     <View style={styles.rows}>
     <Pressable accessibilityRole="button" accessibilityLabel="Meet the bosses" onPress={() => nav.navigate('Characters', { page: 'bosses' })} style={styles.row}><Text style={styles.rowTitle}>Meet the bosses</Text><Glyph name="chevron-right" size={19} /></Pressable>
@@ -49,6 +55,9 @@ export function ProfileContent({ topInset = 0, account, connection, verification
     </GlassSurface> : null}
     </View>
     <View style={styles.legal}>{(['support', 'privacy', 'terms'] as const).map(key => <Pressable key={key} accessibilityRole="link" onPress={() => openLink(links[key])} style={styles.link}><Text style={styles.linkText}>{key === 'support' ? 'Help' : key === 'privacy' ? 'Privacy' : 'Terms'}</Text></Pressable>)}</View>
+    <Text style={styles.disclaimer}>{AP_DISCLAIMER}</Text>
+    </View>
+    </View>
   </ScrollView>;
 }
 const createStyles = ({ colors, typography, card }: AppTheme) => StyleSheet.create({
@@ -60,4 +69,7 @@ const createStyles = ({ colors, typography, card }: AppTheme) => StyleSheet.crea
   detail: { borderRadius: 25, padding: 18, gap: 16 }, name: { ...typography.subtitle, fontSize: 14 }, achievement: { flexDirection: 'row', gap: 12, alignItems: 'center' }, achievementCopy: { flex: 1, gap: 4 },
   deleteBox: { gap: 14, borderWidth: 1, borderColor: colors.ink, borderRadius: 20, padding: 14 }, link: { minHeight: 44, justifyContent: 'center' }, linkText: { ...typography.label, fontSize: 13, textDecorationLine: 'underline' },
   legal: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 24 },
+  disclaimer: { ...typography.caption, fontSize: 11, lineHeight: 16, textAlign: 'center', marginTop: -12 },
+  stack: { gap: 22 }, split: { flexDirection: 'row', gap: 32, alignItems: 'flex-start' }, splitMain: { flex: 1.25 }, splitSide: { flex: 1 },
+  scrollWide: { paddingHorizontal: 24 },
 });

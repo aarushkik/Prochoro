@@ -30,6 +30,14 @@ export const COURSE_FRAMEWORKS: Record<string, APFramework> = {
   ] },
   // English Language's nine official units scaffold recurring reading/writing
   // skills; College Board does not assign a single content-topic title to each.
+  'ap-csp': { courseURL: page + 'ap-computer-science-principles', cedURL: pdf + 'ap-computer-science-principles-course-and-exam-description.pdf', units: [
+    { title: 'Creative Development', areas: [0], bossArea: 0 },
+    { title: 'Data', areas: [1, 2], bossArea: 2 },
+    { title: 'Algorithms and Programming', areas: [3, 4, 5, 6], bossArea: 6 },
+    { title: 'Computer Systems and Networks', areas: [7], bossArea: 7 },
+    { title: 'Impact of Computing', areas: [8, 9], bossArea: 9 },
+  ] },
+  'ap-stats': { courseURL: page + 'ap-statistics', cedURL: pdf + 'ap-statistics-course-and-exam-description.pdf', units: sequential(['Exploring One-Variable Data', 'Exploring Two-Variable Data', 'Collecting Data', 'Probability, Random Variables, and Probability Distributions', 'Sampling Distributions', 'Inference for Categorical Data: Proportions', 'Inference for Quantitative Data: Means', 'Inference for Categorical Data: Chi-Square', 'Inference for Quantitative Data: Slopes']) },
   'ap-eng-lang': { courseURL: page + 'ap-english-language-and-composition', cedURL: pdf + 'ap-english-language-and-composition-course-and-exam-description.pdf', units: sequential(Array.from({ length: 9 }, (_, index) => 'Unit ' + (index + 1))) },
 };
 export function frameworkFor(courseId: string | null): APFramework { return COURSE_FRAMEWORKS[courseId ?? ''] ?? COURSE_FRAMEWORKS['ap-biology']; }

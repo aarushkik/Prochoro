@@ -69,6 +69,8 @@ function Menu() {
     <AppButton label="Lesson and questions" tone="secondary" onPress={() => start(lesson)} />
     <AppButton label="Data question preview" tone="secondary" onPress={() => openSample('ap-biology', 'Data practice', 'Osmosis')} />
     <AppButton label="Code question preview" tone="secondary" onPress={() => openSample('ap-csa', 'Code practice', 'String methods')} />
+    <AppButton label="CSP pseudocode preview" tone="secondary" onPress={() => openSample('ap-csp', 'Pseudocode practice', 'List operations')} />
+    <AppButton label="Statistics table preview" tone="secondary" onPress={() => openSample('ap-stats', 'Statistics practice', 'Two-way tables')} />
     <AppButton label="Reading question preview" tone="secondary" onPress={() => openSample('ap-eng-lang', 'Reading practice', 'Rhetorical situation')} />
     <AppButton label="Subjects" tone="secondary" onPress={() => nav.navigate('CourseSelection')} />
     <AppButton label="Pets and bosses" tone="secondary" onPress={() => nav.navigate('Characters')} />

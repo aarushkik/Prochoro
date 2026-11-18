@@ -9,6 +9,7 @@ import { spacing } from '@/theme';
 import { apCourses } from '@/data';
 import { useOnboarding } from '@/state/OnboardingContext';
 import type { RootStackParamList } from '@/navigation/types';
+import { OptionGrid } from '@/components/ui/OptionGrid';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'CourseSelection'>;
 
@@ -40,6 +41,7 @@ export function CourseSelectionScreen() {
       />
 
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+        <OptionGrid>
         {apCourses.map((course) => (
           <CourseCard
             key={course.id}
@@ -48,6 +50,7 @@ export function CourseSelectionScreen() {
             onPress={() => setSelected(course.id)}
           />
         ))}
+        </OptionGrid>
         <View style={styles.pad} />
       </ScrollView>
 

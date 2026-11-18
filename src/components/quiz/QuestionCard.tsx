@@ -11,14 +11,34 @@ interface QuestionCardProps {
   question: PlacementQuestion;
   /** The answer UI (choices or text input), rendered by the parent. */
   children: React.ReactNode;
+  /** Wide screens: the stimulus on the left, the question and answers beside it. */
+  split?: boolean;
 }
 
 /** Renders a question's skill kicker, prompt, optional stimulus, and answers. */
-export function QuestionCard({ question, children }: QuestionCardProps) {
+export function QuestionCard({ question, children, split = false }: QuestionCardProps) {
   const appTheme = useAppTheme();
   const { colors, palette, typography, chunky } = appTheme;
   const styles = useThemedStyles(createStyles);
 
+  const source = question.examSource ? <Pressable accessibilityRole="link" accessibilityLabel="View the College Board study reference for this original practice question" onPress={() => openLink(question.examSource!.url)} style={{ minHeight: 44, justifyContent: 'center', marginTop: 8 }}><Text style={[typography.caption, { fontSize: 11, textDecorationLine: 'underline' }]}>Original practice · Study reference</Text></Pressable> : null;
+  if (split && question.stimulus) {
+    // Like a printed exam booklet: the material stays in view on the left
+    // while the question and choices are answered on the right.
+    return (
+      <GlassSurface variant="thick" style={[styles.card, styles.splitCard]}>
+        <View style={styles.splitLeft}>
+          <Text style={styles.kicker}>{question.skillTag.toUpperCase()}</Text>
+          <View style={styles.splitStimulus}><StimulusBlock stimulus={question.stimulus} /></View>
+        </View>
+        <View style={styles.splitRight}>
+          <Text style={styles.prompt}>{question.prompt}</Text>
+          <View style={styles.answers}>{children}</View>
+          {source}
+        </View>
+      </GlassSurface>
+    );
+  }
   return (
     <GlassSurface variant="thick" style={styles.card}>
       {/* One kicker line rather than two pills. Two coloured chips above every
@@ -31,7 +51,7 @@ export function QuestionCard({ question, children }: QuestionCardProps) {
       {question.stimulus ? <StimulusBlock stimulus={question.stimulus} /> : null}
       <Text style={styles.prompt}>{question.prompt}</Text>
       <View style={styles.answers}>{children}</View>
-      {question.examSource ? <Pressable accessibilityRole="link" accessibilityLabel="View the College Board study reference for this original practice question" onPress={() => openLink(question.examSource!.url)} style={{ minHeight: 44, justifyContent: 'center', marginTop: 8 }}><Text style={[typography.caption, { fontSize: 11, textDecorationLine: 'underline' }]}>Original practice · Study reference</Text></Pressable> : null}
+      {source}
     </GlassSurface>
   );
 }
@@ -89,6 +109,10 @@ function StimulusBlock({ stimulus }: { stimulus: Stimulus }) {
 
 const createStyles = ({ colors, palette, typography, stroke }: AppTheme) => StyleSheet.create({
   card: { padding: 20, borderRadius: 28 },
+  splitCard: { flexDirection: 'row', gap: 24, padding: 24 },
+  splitLeft: { flex: 1.1, minWidth: 0 },
+  splitStimulus: { marginTop: 10 },
+  splitRight: { flex: 1, minWidth: 0 },
   tags: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
   skillTag: {
     backgroundColor: colors.primaryTint,

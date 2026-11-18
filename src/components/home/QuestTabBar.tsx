@@ -7,6 +7,7 @@ import { Glyph, type GlyphName } from '@/components/icons';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
 import { useHaptics } from '@/hooks/useHaptics';
 import { GlassSurface } from '@/components/ui/GlassSurface';
+import { useScreenLayout } from '@/hooks/useScreenLayout';
 import { ActivityIllustration } from '@/components/ui/ActivityIllustration';
 
 export type QuestTab = 'map' | 'practice' | 'progress' | 'you';
@@ -23,6 +24,10 @@ const INSET = 7;
 const TILE_HEIGHT = 58;
 const LENS_RADIUS = TILE_HEIGHT / 2;
 const BAR_RADIUS = LENS_RADIUS + INSET;
+/** The bar and the gap above it, less the safe area: what content keeps clear of. */
+export const TAB_BAR_HEIGHT = TILE_HEIGHT + INSET * 2 + 8;
+/** On a wide screen four tabs stay a compact capsule rather than spanning the window. */
+const WIDE_BAR = 560;
 
 /**
  * Bottom navigation: a floating glass capsule with a lens on the active tab.
@@ -41,6 +46,7 @@ export function QuestTabBar({ active, onChange }: { active: QuestTab; onChange: 
   const styles = useThemedStyles(createStyles);
 
   const insets = useSafeAreaInsets();
+  const { wide } = useScreenLayout();
   const haptic = useHaptics();
   const { motionEnabled } = useMotionPreference();
   const [barWidth, setBarWidth] = useState(0);
@@ -67,7 +73,7 @@ export function QuestTabBar({ active, onChange }: { active: QuestTab; onChange: 
 
   return (
     <View style={[styles.dock, { paddingBottom: Math.max(insets.bottom, 12) }]} pointerEvents="box-none">
-    <GlassSurface style={styles.bar} onLayout={event => setBarWidth(event.nativeEvent.layout.width)}>
+    <GlassSurface style={[styles.bar, wide && styles.wideBar]} onLayout={event => setBarWidth(event.nativeEvent.layout.width)}>
       {barWidth > 0 ? (
         <Animated.View
           pointerEvents="none"
@@ -135,8 +141,10 @@ function Tile({ on, children }: { on: boolean; children: React.ReactNode }) {
 }
 
 const createStyles = ({ colors }: AppTheme) => StyleSheet.create({
-  dock: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 14, paddingTop: 8 },
+  dock: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 14, paddingTop: 8, alignItems: 'center' },
+  wideBar: { width: WIDE_BAR, maxWidth: '100%', alignSelf: 'center' },
   bar: {
+    alignSelf: 'stretch',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',

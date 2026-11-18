@@ -9,7 +9,7 @@
       "environment": "preview",
       "node": "24.15.0",
       "ios": {
-        "image": "macos-sequoia-15.6-xcode-26.0"
+        "image": "sdk-58"
       }
     },
     "simulator": {
@@ -23,17 +23,18 @@
       "environment": "production",
       "node": "24.15.0",
       "ios": {
-        "image": "macos-sequoia-15.6-xcode-26.0"
+        "image": "sdk-58"
       }
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "ascApiKeyPath": "~/Keys/asc-api-AuthKey_VTGZRVB63V.p8",
+        "ascApiKeyPath": "../../../Keys/asc-api-AuthKey_VTGZRVB63V.p8",
         "ascApiKeyIssuerId": "df7ea7a8-6e77-4c77-be94-4d8a902c980c",
         "ascApiKeyId": "VTGZRVB63V",
-        "appleTeamId": "574V2VBH2Q"
+        "appleTeamId": "574V2VBH2Q",
+        "ascAppId": "6836141505"
       }
     }
   }

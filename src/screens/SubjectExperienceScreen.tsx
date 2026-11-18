@@ -10,6 +10,7 @@ import { experienceLevels, getCourse } from '@/data';
 import { useOnboarding } from '@/state/OnboardingContext';
 import type { ExperienceLevelId } from '@/types';
 import type { RootStackParamList } from '@/navigation/types';
+import { OptionGrid } from '@/components/ui/OptionGrid';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'SubjectExperience'>;
 
@@ -45,6 +46,7 @@ export function SubjectExperienceScreen() {
       />
 
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+        <OptionGrid>
         {experienceLevels.map((level) => (
           <LevelOptionCard
             key={level.id}
@@ -55,6 +57,7 @@ export function SubjectExperienceScreen() {
             onPress={() => setSelected(level.id)}
           />
         ))}
+        </OptionGrid>
         <View style={styles.pad} />
       </ScrollView>
 

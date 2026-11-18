@@ -16,7 +16,9 @@ export const formula = (content: string): Stimulus => ({ kind: 'formula', conten
 export const pick = <T,>(values: readonly T[], variant: number): T => values[variant % values.length];
 
 /** Forty reasoning families, each allowing up to three scenario variants.
- * Identical variants are discarded, not counted as additional questions.
+ * A variant only counts when it is a different problem: one that repeats a
+ * sibling's choices, answer and material with a relabelled stem ("sample B"
+ * instead of "sample A") is discarded, not counted as another question.
  * Saved game-stop identities are preserved independently of bank content.
  * Every stem, scenario, dataset and explanation is original; sources identify
  * the public framework and sample-exam format, not official authorship.
@@ -26,8 +28,12 @@ export function buildExamBank(courseId: string, areas: Family[][]): PlacementQue
   if (areas.length !== 10 || areas.some(families => families.length !== 4)) throw new Error(courseId + ': expected four reasoning families in each of ten game areas');
   areas.forEach((families, area) => {
     builder.inUnit(area);
+    const families_seen = families.map(() => new Set<string>());
     for (let variant = 0; variant < 3; variant += 1) families.forEach((family, familyIndex) => {
       const entry = family(variant);
+      const substance = JSON.stringify([entry.stimulus?.content ?? '', entry.answer, [...entry.wrong].sort()]);
+      if (families_seen[familyIndex].has(substance)) return;
+      families_seen[familyIndex].add(substance);
       const options = [entry.answer, ...entry.wrong];
       if (options.length !== 4 || new Set(options.map(value => value.trim().toLocaleLowerCase())).size !== options.length) issues.push('area ' + area + ', family ' + familyIndex + ', variant ' + variant + ': ' + options.join(' | '));
       const apUnit = entry.apUnit ?? officialUnitForArea(courseId, area);

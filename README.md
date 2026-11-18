@@ -23,7 +23,7 @@ Use `npm run web` for a browser preview. Google/Microsoft callbacks on native re
 - Local saves are immediate. Account changes use a persistent outbox with idempotent mutation IDs and an atomic PostgreSQL merge; retries do not duplicate rewards. Returning to the foreground refreshes account progress.
 - Home offers one next action: Play Level N. Completing a full attempt with at least 60% correct opens the next level. Lessons begin with a worked example; results offer the next level or a retry. The optional level list is grouped by official AP unit.
 - Options lets students select an owned pet with one tap. Rewards are separate from level numbers; XP no longer creates a second rank system.
-- There are eight courses, 822 original practice items across 320 reasoning families, and 180 saved levels per course. Each official AP unit has a designated final boss. Questions recur across levels, with answer order shuffled per attempt. This is original practice, not official exam content or a validated predictor of exam scores. See [question-bank scope and sources](docs/question-bank.md).
+- There are ten courses, 952 distinct original practice items across 400 reasoning families, and 180 saved levels per course. Each official AP unit has a designated final boss. Questions recur across levels, with answer order shuffled per attempt. This is original practice, not official exam content or a validated predictor of exam scores. See [question-bank scope and sources](docs/question-bank.md).
 
 ## Original creatures
 
@@ -42,6 +42,6 @@ npm run export:web
 
 ## Release
 
-See [docs/release-readiness.md](docs/release-readiness.md) for verified results, remaining external setup, native acceptance checks, and draft store metadata. `eas.json` supplies preview, simulator, and production profiles using Xcode 26. The generated light/dark Prochoro app icons are in `assets/`. The internal app scheme, bundle identifier, storage keys and storage namespace retain `studyplat` for compatibility; the custom-domain web build uses `/app`.
+See [docs/release-readiness.md](docs/release-readiness.md) for verified results, remaining external setup, native acceptance checks, and draft store metadata. `eas.json` supplies preview, simulator, and production profiles on the Expo SDK 58 image (Xcode 27, iOS 27 SDK, minimum iOS 16.4). The generated light/dark Prochoro app icons are in `assets/`. The internal app scheme, bundle identifier, storage keys and storage namespace retain `studyplat` for compatibility; the custom-domain web build uses `/app`.
 
 Support/privacy/terms source lives in `site/`. The Pages workflow publishes the website and web app on pushes to main. App Store submission still requires the owner’s Apple/Supabase configuration and native acceptance testing.

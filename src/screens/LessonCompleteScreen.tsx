@@ -217,7 +217,7 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
   body: {
     flexGrow: 1,
     width: "100%",
-    maxWidth: 620,
+    maxWidth: 760,
     alignSelf: "center",
     paddingVertical: 24,
     alignItems: "center",
@@ -276,7 +276,7 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
   },
   footer: {
     width: "100%",
-    maxWidth: 620,
+    maxWidth: 760,
     alignSelf: "center",
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.lg,

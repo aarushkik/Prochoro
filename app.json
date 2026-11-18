@@ -78,7 +78,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-status-bar"
     ],
     "extra": {
       "eas": {

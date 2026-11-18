@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { BossSprite } from "@/components/creatures/BossSprite";
 import { useMotionPreference } from "@/hooks/useMotionPreference";
+import { useScreenLayout } from "@/hooks/useScreenLayout";
 import { Mascot } from "@/components/Mascot";
 import { Glyph } from "@/components/icons";
 import { ChunkyCard } from "@/components/ui";
@@ -69,6 +70,10 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
   const styles = useThemedStyles(createStyles);
 
   const { skills, map, earned } = useQuest();
+  const layout = useScreenLayout();
+  // Wider screens lay the same cards out in rows instead of one long column.
+  const topicCell = layout.wide ? styles.topicCell : undefined;
+  const modeCell = layout.wide ? styles.modeCell : styles.gridItem;
   const { courseId } = useOnboarding();
   const navigation = useNavigation<Nav>();
 
@@ -140,7 +145,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
   return (
     <ScrollView
       style={styles.flex}
-      contentContainerStyle={[styles.scroll, { paddingTop: topInset + 4 }]}
+      contentContainerStyle={[styles.scroll, layout.wide && styles.scrollWide, { paddingTop: topInset + 4 }]}
       scrollIndicatorInsets={{ top: topInset }}
       showsVerticalScrollIndicator={false}
     >
@@ -148,10 +153,11 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
         <View style={styles.headText}>
           <Text style={styles.title}>Practice</Text>
         </View>
-        <Mascot pose="point" size={104} />
+        <Mascot pose="point" size={104 * layout.scale} />
       </View>
 
       <Recommended
+        wide={layout.wide}
         count={Math.min(
           12,
           countForSkills(
@@ -175,13 +181,14 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
       />
 
       <Text style={styles.section}>TOPICS TO PRACTISE</Text>
-      <View style={styles.stack}>
+      <View style={[styles.stack, layout.wide && styles.row]}>
         {weak.map((w) => (
           <ChunkyCard
             key={w.name}
+            style={topicCell}
+            contentStyle={[styles.weakCard, layout.wide && styles.weakCardWide]}
             onPress={() => drill(w.name, w.count, w.count * 5, [w.name])}
             accessibilityLabel={`Drill ${w.name}, ${w.count} questions`}
-            contentStyle={styles.weakCard}
           >
             <View style={styles.weakBody}>
               <Text style={styles.weakName}>{w.name}</Text>
@@ -198,7 +205,7 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
       </View>
 
       <Text style={styles.section}>MORE PRACTICE</Text>
-      <View style={styles.grid}>
+      <View style={[styles.grid, layout.wide && styles.gridWide]}>
         {MODES.map((m) => {
           // A rematch needs something to rematch. Rather than run a generic
           // set under a name that promises otherwise, the card goes quiet
@@ -232,8 +239,8 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
                     }
               }
               accessibilityLabel={off ? undefined : `Start ${m.name}`}
-              style={styles.gridItem}
-              contentStyle={[styles.modeCard, off && styles.modeCardOff]}
+              style={modeCell}
+              contentStyle={[styles.modeCard, layout.wide && styles.modeCardWide, off && styles.modeCardOff]}
             >
               {m.name === "Boss rematch" ? (
                 <BossSprite
@@ -241,13 +248,13 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
                     lastBoss?.id ??
                     map.units[0]?.nodes.find((node) => node.kind === "boss")?.id
                   }
-                  size={54}
+                  size={54 * layout.scale}
                   dim={off}
                 />
               ) : (
-                <ActivityIllustration id={m.illustration} size={44} dim={off} />
+                <ActivityIllustration id={m.illustration} size={44 * layout.scale} dim={off} />
               )}
-              <Text style={[styles.modeName, off && styles.modeDim]}>
+              <Text style={[styles.modeName, layout.wide && styles.modeNameWide, off && styles.modeDim]}>
                 {m.name}
               </Text>
               <Text style={[styles.modeMeta, off && styles.modeDim]}>
@@ -269,10 +276,12 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
  * mistaken for one more option in the list.
  */
 function Recommended({
+  wide,
   count,
   focus,
   onStart,
 }: {
+  wide: boolean;
   count: number;
   /** The topics the drill will actually pull from, if any are known yet. */
   focus: string;
@@ -326,10 +335,10 @@ function Recommended({
         <View style={styles.heroTop}>
           <View style={styles.heroCopy}>
             <Text style={styles.heroKicker}>RECOMMENDED</Text>
-            <Text style={styles.heroTitle}>{focus || "Today’s mix"}</Text>
-            <Text style={styles.heroBody}>{count} questions</Text>
+            <Text style={[styles.heroTitle, wide && styles.heroTitleWide]}>{focus || "Today’s mix"}</Text>
+            <Text style={[styles.heroBody, wide && styles.heroBodyWide]}>{count} questions</Text>
           </View>
-          <ActivityIllustration id="drill" size={76} />
+          <ActivityIllustration id="drill" size={wide ? 132 : 76} />
         </View>
         <View style={styles.heroCta}>
           <Glyph name="play" size={16} color={colors.textOnPrimary} strokeWidth={2} />
@@ -362,6 +371,15 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   headArt: { width: 104, height: 104, marginBottom: -8 },
 
   heroWrap: { marginTop: 12 },
+  scrollWide: { paddingHorizontal: 24 },
+  row: { flexDirection: "row", flexWrap: "wrap" },
+  topicCell: { flexBasis: "30%", flexGrow: 1 },
+  gridWide: { gap: 12 },
+  modeCell: { flexBasis: "22%", flexGrow: 1 },
+  modeNameWide: { fontSize: 17, marginTop: 14 },
+  weakCardWide: { paddingVertical: 20, paddingHorizontal: 18 },
+  heroTitleWide: { fontSize: 36, lineHeight: 42 },
+  heroBodyWide: { fontSize: 16, lineHeight: 22 },
   heroTop: { flexDirection: "row", alignItems: "center", gap: 8 },
   heroCopy: { flex: 1, minWidth: 0 },
   hero: { padding: 20, overflow: "hidden" },
@@ -469,6 +487,7 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   // Two per row: half the 375-wide gutter box, less half the 10pt gap.
   gridItem: { width: "48%" },
   modeCard: { padding: 14 },
+  modeCardWide: { padding: 20, minHeight: 168 },
   modeCardOff: { backgroundColor: colors.surfaceSunken },
   modeDim: { opacity: 0.55 },
   modeName: {

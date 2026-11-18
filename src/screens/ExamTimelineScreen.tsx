@@ -10,6 +10,7 @@ import { examTimeframes } from '@/data';
 import { useOnboarding } from '@/state/OnboardingContext';
 import type { ExamTimeframeId } from '@/types';
 import type { RootStackParamList } from '@/navigation/types';
+import { OptionGrid } from '@/components/ui/OptionGrid';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'ExamTimeline'>;
 
@@ -41,6 +42,7 @@ export function ExamTimelineScreen() {
       />
 
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+        <OptionGrid>
         {examTimeframes.map((t) => (
           <ChoiceCard
             key={t.id}
@@ -51,6 +53,7 @@ export function ExamTimelineScreen() {
             onPress={() => setSelected(t.id)}
           />
         ))}
+        </OptionGrid>
         <View style={styles.pad} />
       </ScrollView>
 

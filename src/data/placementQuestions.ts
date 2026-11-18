@@ -23,6 +23,8 @@ import { apCSAQuestions } from './questions/apCSA';
 import { apChemQuestions } from './questions/apChem';
 import { apPsychQuestions } from './questions/apPsych';
 import { apEngLangQuestions } from './questions/apEngLang';
+import { apCSPQuestions } from './questions/apCSP';
+import { apStatsQuestions } from './questions/apStats';
 import { bossUnitIndex, frameworkFor, gameAreaOrder } from './courseFrameworks';
 
 /** Plain on purpose: say what the check is and what it decides. */
@@ -35,6 +37,8 @@ const quizIntros: Record<string, string> = {
   'ap-chem': 'A few questions from across AP Chemistry. Your answers decide where on the map you start.',
   'ap-psych': 'A few questions from across AP Psychology. Your answers decide where on the map you start.',
   'ap-eng-lang': 'A few questions from across AP English Language. Your answers decide where on the map you start.',
+  'ap-csp': 'A few questions from across AP Computer Science Principles. Your answers decide where on the map you start.',
+  'ap-stats': 'A few questions from across AP Statistics. Your answers decide where on the map you start.',
 };
 
 const questionsByCourse: Record<string, PlacementQuestion[]> = {
@@ -46,6 +50,8 @@ const questionsByCourse: Record<string, PlacementQuestion[]> = {
   'ap-chem': apChemQuestions,
   'ap-psych': apPsychQuestions,
   'ap-eng-lang': apEngLangQuestions,
+  'ap-csp': apCSPQuestions,
+  'ap-stats': apStatsQuestions,
 };
 
 /** The starting levels a student can be placed into. */

@@ -16,4 +16,6 @@ export const apCourses: APCourse[] = [
   { id: 'ap-chem', abbr: 'CHM', name: 'AP Chemistry', shortName: 'Chemistry', blurb: 'Atoms, bonds & reactions', accent: 'lime', category: 'stem' },
   { id: 'ap-psych', abbr: 'PSY', name: 'AP Psychology', shortName: 'Psychology', blurb: 'Mind, brain & behavior', accent: 'pink', category: 'history' },
   { id: 'ap-eng-lang', abbr: 'ENG', name: 'AP English Language', shortName: 'English Lang', blurb: 'Rhetoric & argument', accent: 'gold', category: 'english' },
+  { id: 'ap-csp', abbr: 'CSP', name: 'AP Computer Science Principles', shortName: 'CS Principles', blurb: 'Data, the internet & algorithms', accent: 'sky', category: 'stem' },
+  { id: 'ap-stats', abbr: 'STA', name: 'AP Statistics', shortName: 'Statistics', blurb: 'Data, chance & inference', accent: 'violet', category: 'stem' },
 ];

@@ -160,6 +160,32 @@ const SPECS: Record<string, readonly Spec[]> = {
     ['Exam Summit', 'peak', 'slate'],
   ],
 
+  'ap-csp': [
+    ['Prototype Cove', 'waves', 'turquoise'],
+    ['Bit Bazaar', 'towers', 'green'],
+    ['Data Dunes', 'mesa', 'amber'],
+    ['Variable Wetlands', 'reeds', 'teal'],
+    ['Loop Works', 'gears', 'blue'],
+    ['Procedure Port', 'islands', 'ember'],
+    ['Algorithm Ridge', 'ridge', 'khaki'],
+    ['Packet Pylons', 'pylons', 'magenta'],
+    ['Impact Foundry', 'chimneys', 'violet'],
+    ['Exam Summit', 'peak', 'slate'],
+  ],
+
+  'ap-stats': [
+    ['Distribution Shore', 'waves', 'turquoise'],
+    ['Scatter Gardens', 'reeds', 'green'],
+    ['Survey Square', 'towers', 'amber'],
+    ['Chance Isles', 'islands', 'teal'],
+    ['Sampling Mesa', 'mesa', 'blue'],
+    ['Proportion Ridge', 'ridge', 'ember'],
+    ['Mean Machine Works', 'gears', 'khaki'],
+    ['Chi-Square Chimneys', 'chimneys', 'magenta'],
+    ['Slope Station', 'pylons', 'violet'],
+    ['Exam Summit', 'peak', 'slate'],
+  ],
+
   'ap-eng-lang': [
     ["Reader's Landing", 'waves', 'turquoise'],
     ["Writer's Workshop", 'towers', 'amber'],

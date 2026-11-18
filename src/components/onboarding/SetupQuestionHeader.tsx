@@ -37,6 +37,7 @@ export function SetupQuestionHeader({
   const styles = useThemedStyles(createStyles);
   const { width, fontScale } = useWindowDimensions();
   const compact = width < 360 || fontScale > 1.2;
+  const wide = width >= 700;
 
   return (
     <View>
@@ -52,10 +53,10 @@ export function SetupQuestionHeader({
               Step {step} of {total}
             </Text>
           </View>
-          <Text style={[typography.title, compact && { fontSize: 24, lineHeight: 29 }]}>{question}</Text>
+          <Text style={[typography.title, compact && { fontSize: 24, lineHeight: 29 }, wide && { fontSize: 34, lineHeight: 40 }]}>{question}</Text>
           {subtitle ? <Text style={[typography.body, styles.subtitle]}>{subtitle}</Text> : null}
         </View>
-        {!compact ? <Mascot size={64} pose={mascotPose} /> : null}
+        {!compact ? <Mascot size={wide ? 96 : 64} pose={mascotPose} /> : null}
       </View>
     </View>
   );

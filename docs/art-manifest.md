@@ -8,7 +8,7 @@ Updated 15 November 2026. All active character and study artwork is generated ra
 | Brand marks | Light/dark | `src/assets/mascot/prochoro/{mark,mark-dark}.png` |
 | Boss rivals | 60 across ten families | `src/assets/characters/prochoro/bosses/` |
 | Study pets | 12 | `src/assets/characters/prochoro/companions.png` |
-| AP subject icons | 8 | `src/assets/characters/prochoro/courses.png` |
+| AP subject icons | 10 | `src/assets/characters/prochoro/courses.png`, plus `course-ap-csp.png` and `course-ap-stats.png` drawn by `scripts/draw-course-icons.py` |
 | Study and placement icons | 8 | `src/assets/characters/prochoro/activities.png` |
 | Score, timeline and reward icons | 12 | `src/assets/characters/prochoro/utilities.png` |
 | Area doodle landscapes | 10 | `src/assets/areas/prochoro/` |

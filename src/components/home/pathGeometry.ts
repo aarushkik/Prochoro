@@ -1,9 +1,11 @@
 /**
  * Where things sit on the learning path.
  *
- * The trail tiles are drawn for exactly these numbers
- * (`scripts/draw-path-art.py`), so the path never stretches a drawing: change
- * one here and re-run the script.
+ * The trail tiles are drawn for exactly the base numbers here
+ * (`scripts/draw-path-art.py`); change one and re-run the script. A larger
+ * screen multiplies every number by the same `scale`, so the drawings grow
+ * evenly and the trail still lands centre to centre. The PNGs are exported at
+ * three times their base size, which covers any scale used here.
  */
 
 /** Vertical distance between two stops. */
@@ -21,18 +23,38 @@ export const BOSS_STOP = { width: 104, height: 110, face: 49, icon: 70 } as cons
 export const PATH_TOP = 76;
 export const PATH_BOTTOM = 64;
 
-/** The path is one slow wave: eight stops to swing right, back, left and back. */
-export function offsetAt(index: number): number {
-  return Math.round(AMPLITUDE * Math.sin((index * Math.PI) / 4));
+export interface PathGeometry {
+  scale: number;
+  step: number;
+  amplitude: number;
+  trailPad: number;
+  trailWidth: number;
+  stop: { width: number; height: number; face: number; icon: number };
+  boss: { width: number; height: number; face: number; icon: number };
+  /** Horizontal offset of stop `index` from the centre line. */
+  offsetAt: (index: number) => number;
+  /** Centre of stop `index`, from the top of the path. */
+  stopY: (index: number) => number;
+  height: (count: number) => number;
 }
 
-/** The centre of a stop, measured from the top of the path. */
-export function stopY(index: number): number {
-  return PATH_TOP + index * STEP;
-}
+const sized = <T extends Record<string, number>>(value: T, scale: number) =>
+  Object.fromEntries(Object.entries(value).map(([key, n]) => [key, Math.round(n * scale)])) as { [K in keyof T]: number };
 
-export function pathHeight(count: number): number {
-  return PATH_TOP + Math.max(0, count - 1) * STEP + PATH_BOTTOM;
+export function pathGeometry(scale = 1): PathGeometry {
+  const step = Math.round(STEP * scale);
+  const amplitude = AMPLITUDE * scale;
+  const top = Math.round(PATH_TOP * scale);
+  return {
+    scale, step, amplitude,
+    trailPad: TRAIL_PAD * scale,
+    trailWidth: TRAIL_WIDTH * scale,
+    stop: sized(STOP, scale),
+    boss: sized(BOSS_STOP, scale),
+    offsetAt: index => Math.round(amplitude * Math.sin((index * Math.PI) / 4)),
+    stopY: index => top + index * step,
+    height: count => top + Math.max(0, count - 1) * step + Math.round(PATH_BOTTOM * scale),
+  };
 }
 
 /** Which of the four trail drawings joins stop `index` to the next, and whether it is mirrored. */
@@ -43,7 +65,8 @@ export function trailTile(index: number): { tile: 0 | 1 | 2 | 3; mirrored: boole
 
 /** A stop's label sits on the side with more room: away from the swing. */
 export function labelSide(index: number): 'left' | 'right' {
-  const offset = offsetAt(index);
-  if (offset !== 0) return offset > 0 ? 'left' : 'right';
-  return index % 8 === 0 ? 'right' : 'left';
+  const phase = ((index % 8) + 8) % 8;
+  if (phase === 0) return 'right';
+  if (phase === 4) return 'left';
+  return phase < 4 ? 'left' : 'right';
 }
