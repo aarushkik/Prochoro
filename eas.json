@@ -1,19 +1,40 @@
 {
-  "cli": { "version": ">= 16.0.0", "appVersionSource": "remote" },
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
   "build": {
     "preview": {
       "distribution": "internal",
       "environment": "preview",
       "node": "24.15.0",
-      "ios": { "image": "macos-sequoia-15.6-xcode-26.0" }
+      "ios": {
+        "image": "macos-sequoia-15.6-xcode-26.0"
+      }
     },
-    "simulator": { "extends": "preview", "ios": { "simulator": true } },
+    "simulator": {
+      "extends": "preview",
+      "ios": {
+        "simulator": true
+      }
+    },
     "production": {
       "autoIncrement": true,
       "environment": "production",
       "node": "24.15.0",
-      "ios": { "image": "macos-sequoia-15.6-xcode-26.0" }
+      "ios": {
+        "image": "macos-sequoia-15.6-xcode-26.0"
+      }
     }
   },
-  "submit": { "production": {} }
+  "submit": {
+    "production": {
+      "ios": {
+        "ascApiKeyPath": "~/Keys/asc-api-AuthKey_VTGZRVB63V.p8",
+        "ascApiKeyIssuerId": "df7ea7a8-6e77-4c77-be94-4d8a902c980c",
+        "ascApiKeyId": "VTGZRVB63V",
+        "appleTeamId": "574V2VBH2Q"
+      }
+    }
+  }
 }
