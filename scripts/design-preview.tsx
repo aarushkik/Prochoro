@@ -66,6 +66,7 @@ function Menu() {
     <AppButton label="Boss duel" tone="secondary" onPress={() => start(boss)} />
     <AppButton label="Endless climb" tone="secondary" onPress={() => nav.navigate('Climb')} />
     <AppButton label="Climb battle" tone="secondary" onPress={() => nav.navigate('ClimbBattle')} />
+    <AppButton label="Climb shop" tone="secondary" onPress={() => nav.navigate('ClimbShop')} />
     <AppButton label="Lesson and questions" tone="secondary" onPress={() => start(lesson)} />
     <AppButton label="Data question preview" tone="secondary" onPress={() => openSample('ap-biology', 'Data practice', 'Osmosis')} />
     <AppButton label="Code question preview" tone="secondary" onPress={() => openSample('ap-csa', 'Code practice', 'String methods')} />
@@ -95,6 +96,15 @@ function ClimbBattle() {
   });
   return <ClimbGame initial={run} startOpen />;
 }
+/** The shop with coins to spend. */
+function ClimbShop() {
+  const [run] = useState(() => {
+    let state = newRun('preview-shop');
+    while (state.phase === 'draft') state = takeCard(state, state.offer[0].uid);
+    return chooseRoom({ ...state, floor: 3, rooms: ['shop'], coins: 120 }, 'shop');
+  });
+  return <ClimbGame initial={run} startOpen />;
+}
 function PreviewHome() {
   const tab = (useRoute().params as { tab?: QuestTab } | undefined)?.tab;
   return <HomeContent key={tab ?? 'learn'} initialTab={tab} renderMe={topInset => <ProfileContent topInset={topInset} account={{ user: { user_metadata: { name: 'Sam Rivera' } }, signOut: async () => {}, deleteAccount: async () => false, deleting: false, error: null }} connection={{ offline: false, error: null, notice: null, retry: () => {} }} />} />;
@@ -114,7 +124,7 @@ function PreviewRoot() {
         <Stack.Screen name="PreviewMenu" component={Menu} /><Stack.Screen name="Home" component={PreviewHome} />
         <Stack.Screen name="Artwork" component={Artwork} />
         <Stack.Screen name="CourseSelection" component={CourseSelectionScreen} />
-        <Stack.Screen name="Quiz" component={QuizScreen} /><Stack.Screen name="Climb" component={ClimbScreen} /><Stack.Screen name="ClimbBattle" component={ClimbBattle} /><Stack.Screen name="PlacementResult" component={PlacementResultScreen} />
+        <Stack.Screen name="Quiz" component={QuizScreen} /><Stack.Screen name="Climb" component={ClimbScreen} /><Stack.Screen name="ClimbBattle" component={ClimbBattle} /><Stack.Screen name="ClimbShop" component={ClimbShop} /><Stack.Screen name="PlacementResult" component={PlacementResultScreen} />
         <Stack.Screen name="LessonComplete" component={LessonCompleteScreen} />
       </Stack.Navigator>
     </NavigationContainer>

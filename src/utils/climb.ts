@@ -4,14 +4,16 @@ import type { SkylineKind } from '@/data/tracks';
 /**
  * The endless climb: a card battler you play by answering AP questions.
  *
- * Build a deck of rival cards (each has Recall, Logic and Insight, 0–20),
- * then climb towers of eight floors. Each floor you choose a room: a battle,
- * a tougher elite, a rest, a shop or a mystery, and the top floor is a boss.
+ * Every new card costs one question: answer right and you choose from three
+ * rivals; miss and one of them is dealt to you. Build a deck of rival cards
+ * (each has Recall, Logic and Insight, 0–20), then climb towers of eight
+ * floors. Each floor you choose a room: a battle, a tougher elite, a rest, a
+ * shop or a mystery, and the top floor is a boss.
  *
- * A battle is rounds of one card against one. Answer the question: get it
- * right and the rival's card turns face up, so you choose the stat both
- * cards compare; get it wrong and the rival chooses, always its best. The higher number wins, and the gap is
- * the damage, multiplied by how many rounds that side has won in a row.
+ * A battle is rounds of one card against one, with no questions: you pick
+ * the stat both cards compare while the rival's card is still face down. The
+ * higher number wins, and the gap is the damage, multiplied by how many
+ * rounds that side has won in a row.
  * Your health carries from battle to battle; when it runs out, the climb
  * ends. Towers never run out, and each is harder than the last.
  *
@@ -72,7 +74,7 @@ export interface Run {
   charmOffer: CharmId[];
   shop: ShopItem[];
   mystery: 'good' | 'bad' | null;
-  /** Right answers still needed to finish a rest. */
+  /** 1 while a rest's question is unanswered, 0 once it is earned. */
   restLeft: number;
   /** Coins the last battle paid. */
   earned: number;
@@ -182,6 +184,11 @@ export function roomsFor(run: Run): RoomKind[] {
   return rooms;
 }
 
+/** After a wrong answer: the offered card you are dealt, chosen by the seed. */
+export function dealtCard(run: Run): string | null {
+  return run.offer.length ? pick(run.offer, roll(run, 'dealt')).uid : null;
+}
+
 /** Add an offered card to the deck. Finishing the draft opens the tower. */
 export function takeCard(run: Run, uid: string): Run {
   const card = run.offer.find((item) => item.uid === uid);
@@ -209,7 +216,7 @@ export function chooseRoom(run: Run, room: RoomKind): Run {
   if (run.phase !== 'map' || !run.rooms.includes(room)) return run;
   const entered = { ...run, path: [...run.path, room], tick: run.tick + 1 };
   if (room === 'battle' || room === 'elite' || room === 'boss') return startBattle(entered, room);
-  if (room === 'rest') return { ...entered, phase: 'rest', restLeft: 3 };
+  if (room === 'rest') return { ...entered, phase: 'rest', restLeft: 1 };
   if (room === 'shop') return { ...entered, phase: 'shop', shop: stockFor(entered) };
   const lucky = roll(entered, 'mystery') < 0.55;
   return {
@@ -310,10 +317,12 @@ export function skipReward(run: Run): Run {
 
 /* ---------- rest, shop, mystery ---------- */
 
-/** Count an answer at a rest. Three right answers earn the rest. */
+/** A rest's one question: right earns the choice to heal or train; a miss still heals a little. */
+export const REST_MISS_HEAL = 10;
 export function restAnswer(run: Run, correct: boolean): Run {
-  if (run.phase !== 'rest' || !correct || run.restLeft <= 0) return run;
-  return { ...run, restLeft: run.restLeft - 1 };
+  if (run.phase !== 'rest' || run.restLeft <= 0) return run;
+  if (correct) return { ...run, restLeft: 0 };
+  return advance({ ...run, hp: Math.min(run.maxHp, run.hp + REST_MISS_HEAL) });
 }
 export function restHeal(run: Run): Run {
   if (run.phase !== 'rest' || run.restLeft > 0) return run;

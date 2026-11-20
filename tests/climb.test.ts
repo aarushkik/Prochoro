@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  DRAFT_SIZE, FLOORS, START_HP, REMOVE_COST,
+  DRAFT_SIZE, FLOORS, START_HP, REMOVE_COST, REST_MISS_HEAL, dealtCard,
   advance, bestStat, buy, cardFor, chooseRoom, climbXp, deal, enemyFor, fight, floorsClimbed, heightLabel, leaveShop,
   mysteryHealth, newRun, rarityOf, removeCard, restAnswer, restHeal, restTrain, roomsFor, shuffleWith, skipReward,
   statOf, takeCard, takeCharm, type Card, type Run,
@@ -124,18 +124,26 @@ test('charms change battles: stat bonuses, a stronger streak, an eraser and flas
   assert.equal(fight(healed, 'recall', 'me').hp, 58);
 });
 
-test('a rest needs three right answers, then heals or trains one card', () => {
-  let run: Run = { ...drafted(), floor: 3, rooms: ['rest'] };
-  run = chooseRoom(run, 'rest');
-  assert.equal(run.restLeft, 3);
-  assert.equal(restHeal(run), run, 'no rest before the answers');
-  run = restAnswer(run, false); assert.equal(run.restLeft, 3);
-  for (let i = 0; i < 3; i += 1) run = restAnswer(run, true);
-  assert.equal(run.restLeft, 0);
+test('a rest is one question: right earns heal or train, a miss still rests a little', () => {
+  let run: Run = chooseRoom({ ...drafted(), floor: 3, rooms: ['rest'] }, 'rest');
+  assert.equal(run.restLeft, 1);
+  assert.equal(restHeal(run), run, 'no rest before the answer');
+  const missed = restAnswer({ ...run, hp: 50 }, false);
+  assert.equal(missed.hp, 50 + REST_MISS_HEAL); assert.equal(missed.phase, 'map');
+  run = restAnswer(run, true);
+  assert.equal(run.restLeft, 0); assert.equal(run.phase, 'rest');
   assert.equal(restHeal({ ...run, hp: 50 }).hp, 75);
   const target = run.deck[0];
   const trained = restTrain(run, target.uid).deck.find((item) => item.uid === target.uid)!;
   assert.equal(trained.recall, Math.min(20, target.recall + 2)); assert.equal(trained.insight, Math.min(20, target.insight + 2));
+});
+
+test('a missed unlock deals one of the offered cards, the same one every time for a seed', () => {
+  const run = newRun('dealt');
+  const uid = dealtCard(run);
+  assert.ok(run.offer.some((item) => item.uid === uid));
+  assert.equal(dealtCard(run), uid);
+  assert.equal(dealtCard({ ...run, offer: [] }), null);
 });
 
 test('the shop sells for coins, removes cards for a fee, and never empties the deck', () => {
