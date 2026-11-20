@@ -21,10 +21,10 @@ import { readBestFloor, saveBestFloor } from '@/lib/climbRecord';
 import { useOnboarding } from '@/state/OnboardingContext';
 import { useQuest } from '@/state/QuestContext';
 import {
-  CHARMS, DRAFT_SIZE, FLOORS, REMOVE_COST, REST_MISS_HEAL, STAT_NAME, STATS,
+  CHARMS, DRAFT_SIZE, FLOORS, HAND, REST_MISS_HEAL, STAT_NAME, STATS,
   buy, chooseRoom, climbXp, deal, dealtCard, fight, floorsClimbed, heightLabel, leaveShop, mysteryHealth, newRun,
-  removeCard, restAnswer, restHeal, restTrain, shuffleWith, skipReward, statOf, takeCard, takeCharm,
-  type Phase, type RoomKind, type Run, type Stat,
+  restAnswer, restHeal, restTrain, shuffleWith, skipReward, statOf, takeCard, takeCharm,
+  type Card, type Phase, type RoomKind, type Run, type Stat,
 } from '@/utils/climb';
 import { shuffleQuizChoices } from '@/utils/shuffleQuizChoices';
 import type { AnswerOutcome } from '@/utils/questProgress';
@@ -33,24 +33,25 @@ import type { RootStackParamList } from '@/navigation/types';
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Climb'>;
 
 const ROOM: Record<RoomKind, { icon: GlyphName; title: string; detail: string }> = {
-  battle: { icon: 'swords', title: 'Battle', detail: 'A rival crew. Win coins and a card.' },
-  elite: { icon: 'flag', title: 'Elite', detail: 'Tougher rivals, rarer cards.' },
-  rest: { icon: 'heart', title: 'Rest', detail: 'One question, then heal or train.' },
-  shop: { icon: 'gem', title: 'Shop', detail: 'Spend coins on cards and charms.' },
-  mystery: { icon: 'sparkle', title: 'Mystery', detail: 'A prize, or a trap.' },
-  boss: { icon: 'trophy', title: 'Boss', detail: 'The crew that guards the top.' },
+  battle: { icon: 'swords', title: 'Battle', detail: 'Coins and a card' },
+  elite: { icon: 'flag', title: 'Elite', detail: 'Tougher, better cards' },
+  rest: { icon: 'heart', title: 'Rest', detail: 'Heal or train' },
+  shop: { icon: 'gem', title: 'Shop', detail: 'Spend coins' },
+  mystery: { icon: 'sparkle', title: 'Mystery', detail: 'Prize or trap' },
+  boss: { icon: 'trophy', title: 'Boss', detail: 'Guards the top' },
 };
 
 /** How long a round's result stays up before the next cards are dealt. */
-const ROUND_PAUSE = 1500;
+const ROUND_PAUSE = 1200;
 
 export function ClimbScreen() { return <ClimbGame />; }
 
 /**
- * Endless climb: a deck-building card battle. Every new card costs one AP
- * question (right: choose from three; wrong: one is dealt to you). Battles
- * have no questions: pick a stat while the rival's card is face down, and
- * the higher number wins. Visual QA can open it on a prepared run.
+ * Endless climb: a card battle. You hold three cards; every new card costs
+ * one AP question (right: choose from three; wrong: one is dealt to you) and,
+ * once your hand is full, swaps out one you hold. Battles have no questions:
+ * pick a stat while the rival's card is face down, and the higher number
+ * wins. Visual QA can open it on a prepared run.
  */
 export function ClimbGame({ initial, startOpen = false }: { initial?: Run; startOpen?: boolean }) {
   const theme = useAppTheme();
@@ -68,10 +69,11 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
 
   // Card sizes come from the screen, so three always fit side by side.
   const offerWidth = Math.floor(Math.min(160, (columnWidth - 32 - 20) / 3));
-  // The shop shows four cards a row, or two on a narrow phone.
-  const shopPerRow = columnWidth < 380 ? 2 : 4;
+  // The shop's three cards sit in a row.
+  const shopPerRow = 3;
   const shopWidth = Math.floor(Math.min(140, (columnWidth - 32 - 10 * (shopPerRow - 1)) / shopPerRow));
   const duelWidth = Math.floor(Math.min(200, (columnWidth - 32 - 20 - 40) / 2));
+  const stripWidth = Math.floor(Math.min(92, (columnWidth - 32 - 16) / HAND));
 
   const [runId] = useState(() => 'climb-' + Date.now().toString(36));
   const [run, setRun] = useState<Run>(() => initial ?? newRun(runId));
@@ -95,7 +97,8 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
   const [step, setStep] = useState<'choose' | 'result'>('choose');
   const [holding, setHolding] = useState(false);
   const [training, setTraining] = useState(false);
-  const [removing, setRemoving] = useState(false);
+  /** A new card waiting for a slot: with a full hand, you pick the card it replaces. */
+  const [swap, setSwap] = useState<{ card: Card; place: (replace?: string) => void } | null>(null);
   const [best, setBest] = useState(0);
   const [newBest, setNewBest] = useState(false);
   const [confirm, setConfirm] = useState<(() => void) | null>(null);
@@ -140,7 +143,15 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
     if (!correct) setTimeout(() => scroll.current?.scrollToEnd({ animated: true }), 60);
   };
 
-  const take = (uid: string) => { haptic(); setRun((state) => takeCard(state, uid)); nextQuestion(); };
+  /** Add a card now, or ask which held card it replaces once the hand is full. */
+  const offerCard = (card: Card, place: (replace?: string) => void) => {
+    if (run.deck.length < HAND) place();
+    else { haptic(); setSwap({ card, place }); toTop(); }
+  };
+  const take = (uid: string) => {
+    const card = run.offer.find((item) => item.uid === uid);
+    if (card) offerCard(card, (replace) => { haptic(); setSwap(null); setRun((state) => takeCard(state, uid, replace)); nextQuestion(); });
+  };
   const leave = () => { haptic(); setRun(skipReward); nextQuestion(); };
 
   /* ---------- battle ---------- */
@@ -176,7 +187,7 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
   };
 
   const enter = (room: RoomKind) => { haptic(); setRun((state) => chooseRoom(state, room)); setStep('choose'); toTop(); };
-  const update = (change: (state: Run) => Run) => { haptic(); setRun(change); setTraining(false); setRemoving(false); toTop(); };
+  const update = (change: (state: Run) => Run) => { haptic(); setRun(change); setTraining(false); setSwap(null); toTop(); };
 
   const restart = () => navigation.replace('Climb');
   usePreventRemove(answers.length > 0 && run.phase !== 'over', ({ data }) => {
@@ -228,7 +239,7 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
       <Text style={styles.prompt}>{prompt}</Text>
       {questionArea}
       {unlock === 'dealt' && given ? <>
-        <Text style={styles.section}>NOT QUITE. THIS RIVAL JOINS YOU INSTEAD</Text>
+        <Text style={styles.section}>NOT QUITE · YOU GET THIS ONE</Text>
         <View style={styles.offer}><GameCard card={given} width={offerWidth + 20} charms={run.charms} /></View>
       </> : null}
     </>;
@@ -238,7 +249,7 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
       {canLeave ? <AppButton label="Leave it" tone="secondary" style={styles.flex} onPress={leave} /> : null}
       <AppButton label="Add to deck" icon="plus" style={styles.flex} onPress={() => take(dealt)} />
     </View>
-      : <Text style={styles.hint}>Answer to unlock a card</Text>;
+      : <Text style={styles.hint}>Answer to win a card</Text>;
 
   const page = (body: React.ReactNode, dock: React.ReactNode, title: string, backdrop = run.battle?.enemy.kind ?? 'towers', scrolls = true) => (
     <View style={styles.root}>
@@ -275,19 +286,22 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
       <ScrollView contentContainerStyle={[styles.centre, column]}>
         <Mascot pose="levelUp" size={150 * Math.min(layout.scale, 1.2)} />
         <Text style={styles.hero}>Endless climb</Text>
-        <Text style={styles.lead}>Build a deck of rivals and battle up the tower. How high can you go?</Text>
-        <View style={styles.rules}>
-          {([
-            ['plus', 'Every new card costs one question. Right: choose from three. Wrong: one is dealt to you.'],
-            ['swords', 'Battle card against card. Pick Recall, Logic or Insight before their card flips.'],
-            ['bolt', 'The higher number wins. The gap is the damage, and a streak multiplies it.'],
-            ['trophy', 'Choose your rooms, rest, shop, and beat the boss on floor 8.'],
-          ] as [GlyphName, string][]).map(([icon, text]) => <View key={text} style={styles.rule}><Glyph name={icon} size={20} /><Text style={styles.ruleText}>{text}</Text></View>)}
-        </View>
+        <Text style={styles.lead}>Answer to win cards. Battle up the tower.</Text>
         {best ? <Text style={styles.bestBig}>{'Your best: ' + heightLabel(best)}</Text> : null}
       </ScrollView>
       <View style={[styles.footer, column]}><AppButton label="Start climbing" icon="play" emphasis disabled={!question} onPress={() => setStarted(true)} /></View>
     </SafeAreaView>;
+  }
+
+  /* ---------- swap ---------- */
+
+  if (swap) {
+    return page(<>
+      <Text style={styles.section}>NEW CARD</Text>
+      <View style={styles.offer}><GameCard card={swap.card} width={offerWidth + 20} charms={run.charms} selected /></View>
+      <Text style={styles.prompt}>Tap a card to swap out</Text>
+      <View style={styles.offer}>{run.deck.map((item) => <GameCard key={item.uid} card={item} width={offerWidth} charms={run.charms} onPress={() => swap.place(item.uid)} />)}</View>
+    </>, <AppButton label="Keep my cards" tone="secondary" onPress={() => setSwap(null)} />, 'Your hand is full');
   }
 
   /* ---------- draft ---------- */
@@ -295,12 +309,12 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
   if (view === 'draft') {
     return page(<>
       <View style={styles.progressHead}>
-        <Text style={styles.section}>{`BUILD YOUR DECK · ${run.deck.length} OF ${DRAFT_SIZE}`}</Text>
+        <Text style={styles.section}>{`YOUR CARDS · ${run.deck.length} OF ${DRAFT_SIZE}`}</Text>
         <View style={styles.dots}>{Array.from({ length: DRAFT_SIZE }, (_, i) => <View key={i} style={[styles.dot, i < run.deck.length && styles.dotOn]} />)}</View>
       </View>
-      {unlockArea('Answer to recruit a rival.')}
-      {run.deck.length && unlock !== 'pick' ? <><Text style={styles.section}>YOUR DECK</Text><DeckStrip run={run} /></> : null}
-    </>, unlockDock(false), 'Recruit your team');
+      {unlockArea('Answer to win a card')}
+      {run.deck.length && unlock !== 'pick' ? <DeckStrip run={run} width={stripWidth} /> : null}
+    </>, unlockDock(false), 'Pick your cards');
   }
 
   /* ---------- map ---------- */
@@ -325,14 +339,14 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
         {run.rooms.map((room) => (
           <Pressable key={room} accessibilityRole="button" accessibilityLabel={`${ROOM[room].title}. ${ROOM[room].detail}`} onPress={() => enter(room)} style={({ pressed }) => [styles.room, layout.wide && styles.roomWide, room === 'boss' && styles.roomBoss, pressed && styles.pressed]}>
             <View style={[styles.roomIcon, room === 'boss' && styles.roomIconBoss]}><Glyph name={ROOM[room].icon} size={24} color={room === 'boss' ? colors.background : colors.ink} /></View>
-            <View style={styles.flex}><Text style={styles.roomTitle} numberOfLines={1}>{ROOM[room].title}</Text><Text style={styles.roomDetail} numberOfLines={2}>{ROOM[room].detail}</Text></View>
+            <View style={styles.flex}><Text style={styles.roomTitle} numberOfLines={1}>{ROOM[room].title}</Text><Text style={styles.roomDetail} numberOfLines={1}>{ROOM[room].detail}</Text></View>
             <Glyph name="chevron-right" size={18} />
           </Pressable>
         ))}
       </View>
-      <Text style={styles.section}>{`YOUR DECK · ${run.deck.length}`}</Text>
-      <DeckStrip run={run} />
-      {run.charms.length ? <><Text style={styles.section}>CHARMS</Text><View style={styles.charms}>{run.charms.map((id) => <View key={id} style={styles.charm}><Text style={styles.charmName}>{CHARMS[id].name}</Text><Text style={styles.charmDetail}>{CHARMS[id].detail}</Text></View>)}</View></> : null}
+      <Text style={styles.section}>YOUR CARDS</Text>
+      <DeckStrip run={run} width={stripWidth} />
+      {run.charms.length ? <View style={styles.chips}>{run.charms.map((id) => <View key={id} style={styles.chip} accessible accessibilityLabel={`${CHARMS[id].name}. ${CHARMS[id].detail}`}><Glyph name="sparkle" size={13} /><Text style={styles.chipText}>{CHARMS[id].name}</Text></View>)}</View> : null}
     </>, null, `Tower ${run.tower} · Floor ${run.floor}`);
   }
 
@@ -343,7 +357,7 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
     const enemy = battle.enemy;
     const outcome = step === 'result' ? battle.outcome : null;
     const shown = outcome && revealed ? outcome.stat : null;
-    const result = !outcome || !revealed ? 'Pick a stat. Their card flips after you choose.'
+    const result = !outcome || !revealed ? 'Pick a stat'
       : outcome.winner === 'tie' ? `${STAT_NAME[outcome.stat]}: ${outcome.mine} ties ${outcome.theirs}. No damage.`
         : outcome.winner === 'me' ? `${STAT_NAME[outcome.stat]}: ${outcome.mine} beats ${outcome.theirs}.${outcome.streak > 1 ? ` ×${outcome.streak} streak!` : ''}`
           : outcome.erased ? `${STAT_NAME[outcome.stat]}: ${outcome.theirs} beats ${outcome.mine}. Your eraser blocks it.`
@@ -409,7 +423,7 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
             <Text style={styles.charmName}>{CHARMS[id].name}</Text><Text style={styles.charmDetail}>{CHARMS[id].detail}</Text>
           </Pressable>
         ))}</View>
-      </> : unlockArea('Answer to unlock a new card.')}
+      </> : unlockArea('Answer to win a card')}
     </>, run.charmOffer.length ? <AppButton label="Skip the charm" tone="secondary" onPress={() => update(skipReward)} /> : unlockDock(true), 'Victory');
   }
 
@@ -418,19 +432,19 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
   if (view === 'rest') {
     const asking = run.restLeft > 0;
     return page(asking ? <>
-      <Text style={styles.prompt}>Answer one question to rest.</Text>
+      <Text style={styles.prompt}>Answer to rest</Text>
       {questionArea}
     </> : <>
-      <View style={styles.centreBlock}><Mascot pose="meditate" size={120} /><Text style={styles.heroSmall}>Rested</Text><Text style={styles.lead}>Heal up, or make one card stronger.</Text></View>
+      <View style={styles.centreBlock}><Mascot pose="meditate" size={120} /><Text style={styles.heroSmall}>Rested</Text></View>
       {status}
       {training ? <>
-        <Text style={styles.section}>TRAIN A CARD · +2 TO EVERY STAT</Text>
+        <Text style={styles.section}>TRAIN A CARD · +2 ALL STATS</Text>
         <View style={styles.offer}>{run.deck.map((item) => <GameCard key={item.uid} card={item} width={offerWidth} charms={run.charms} onPress={() => update((state) => restTrain(state, item.uid))} />)}</View>
       </> : <View style={styles.rooms}>
-        <Pressable accessibilityRole="button" onPress={() => update(restHeal)} style={({ pressed }) => [styles.room, pressed && styles.pressed]}><View style={styles.roomIcon}><Glyph name="heart" size={24} /></View><View style={styles.flex}><Text style={styles.roomTitle}>Heal</Text><Text style={styles.roomDetail}>Get 25 health back</Text></View></Pressable>
-        <Pressable accessibilityRole="button" onPress={() => setTraining(true)} style={({ pressed }) => [styles.room, pressed && styles.pressed]}><View style={styles.roomIcon}><Glyph name="bolt" size={24} /></View><View style={styles.flex}><Text style={styles.roomTitle}>Train</Text><Text style={styles.roomDetail}>+2 to every stat on one card</Text></View></Pressable>
+        <Pressable accessibilityRole="button" onPress={() => update(restHeal)} style={({ pressed }) => [styles.room, pressed && styles.pressed]}><View style={styles.roomIcon}><Glyph name="heart" size={24} /></View><View style={styles.flex}><Text style={styles.roomTitle}>Heal</Text><Text style={styles.roomDetail}>+25 health</Text></View></Pressable>
+        <Pressable accessibilityRole="button" onPress={() => setTraining(true)} style={({ pressed }) => [styles.room, pressed && styles.pressed]}><View style={styles.roomIcon}><Glyph name="bolt" size={24} /></View><View style={styles.flex}><Text style={styles.roomTitle}>Train</Text><Text style={styles.roomDetail}>+2 to one card</Text></View></Pressable>
       </View>}
-    </>, asking ? (checked ? <AppButton label={`Rest anyway (+${REST_MISS_HEAL} health)`} icon="heart" onPress={() => { setRun((state) => restAnswer(state, false)); nextQuestion(); }} /> : <Text style={styles.hint}>Right: heal or train. Wrong: a short rest.</Text>) : null, 'Rest stop');
+    </>, asking ? (checked ? <AppButton label={`Rest anyway (+${REST_MISS_HEAL} health)`} icon="heart" onPress={() => { setRun((state) => restAnswer(state, false)); nextQuestion(); }} /> : null) : null, 'Rest stop');
   }
 
   /* ---------- shop ---------- */
@@ -441,8 +455,8 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
       <Text style={styles.section}>CARDS</Text>
       <View style={styles.offer}>{run.shop.map((item, index) => item.kind === 'card' && item.card ? (
         <View key={index} style={styles.ware}>
-          <GameCard card={item.card} width={shopWidth} dim={item.sold || run.coins < item.price} onPress={item.sold || run.coins < item.price ? undefined : () => update((state) => buy(state, index))} />
-          <Text style={styles.price}>{item.sold ? 'Sold' : `${item.price}`}</Text>
+          <GameCard card={item.card} width={shopWidth} dim={item.sold || run.coins < item.price} onPress={item.sold || run.coins < item.price ? undefined : () => offerCard(item.card!, (replace) => update((state) => buy(state, index, replace)))} />
+          <View style={styles.priceRow}>{item.sold ? null : <Glyph name="gem" size={13} />}<Text style={styles.price}>{item.sold ? 'Sold' : `${item.price}`}</Text></View>
         </View>
       ) : null)}</View>
       <Text style={styles.section}>SUPPLIES</Text>
@@ -450,17 +464,11 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
         {run.shop.map((item, index) => item.kind === 'card' ? null : (
           <Pressable key={index} accessibilityRole="button" disabled={item.sold || run.coins < item.price} onPress={() => update((state) => buy(state, index))} style={({ pressed }) => [styles.room, (item.sold || run.coins < item.price) && styles.off, pressed && styles.pressed]}>
             <View style={styles.roomIcon}><Glyph name={item.kind === 'heal' ? 'heart' : 'sparkle'} size={22} /></View>
-            <View style={styles.flex}><Text style={styles.roomTitle} numberOfLines={1}>{item.kind === 'heal' ? 'First aid' : CHARMS[item.charm!].name}</Text><Text style={styles.roomDetail} numberOfLines={2}>{item.kind === 'heal' ? 'Get 25 health back' : CHARMS[item.charm!].detail}</Text></View>
-            <Text style={styles.price}>{item.sold ? 'Sold' : `${item.price}`}</Text>
+            <View style={styles.flex}><Text style={styles.roomTitle} numberOfLines={1}>{item.kind === 'heal' ? 'First aid' : CHARMS[item.charm!].name}</Text><Text style={styles.roomDetail} numberOfLines={2}>{item.kind === 'heal' ? '+25 health' : CHARMS[item.charm!].detail}</Text></View>
+            <View style={styles.priceRow}>{item.sold ? null : <Glyph name="gem" size={13} />}<Text style={styles.price}>{item.sold ? 'Sold' : `${item.price}`}</Text></View>
           </Pressable>
         ))}
-        <Pressable accessibilityRole="button" disabled={run.coins < REMOVE_COST || run.deck.length <= 1} onPress={() => setRemoving((value) => !value)} style={({ pressed }) => [styles.room, (run.coins < REMOVE_COST || run.deck.length <= 1) && styles.off, pressed && styles.pressed]}>
-          <View style={styles.roomIcon}><Glyph name="close" size={20} /></View>
-          <View style={styles.flex}><Text style={styles.roomTitle}>Remove a card</Text><Text style={styles.roomDetail} numberOfLines={2}>So your best cards come up more</Text></View>
-          <Text style={styles.price}>{REMOVE_COST}</Text>
-        </Pressable>
       </View>
-      {removing ? <><Text style={styles.section}>TAP A CARD TO REMOVE IT</Text><DeckStrip run={run} onPick={(uid) => update((state) => removeCard(state, uid))} /></> : null}
     </>, <AppButton label="Leave the shop" onPress={() => update(leaveShop)} />, 'Shop');
   }
 
@@ -470,13 +478,13 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
     const good = run.mystery === 'good';
     const found = run.offer[0];
     return page(<>
-      <View style={styles.centreBlock}><Mascot pose={good ? 'excited' : 'surprised'} size={120} /><Text style={styles.heroSmall}>{good ? 'A lucky find!' : 'A trap!'}</Text><Text style={styles.lead}>{good ? 'Take this strong card, or heal 15.' : 'Lose 10 health, or take this weak card.'}</Text></View>
+      <View style={styles.centreBlock}><Mascot pose={good ? 'excited' : 'surprised'} size={120} /><Text style={styles.heroSmall}>{good ? 'A lucky find!' : 'A trap!'}</Text></View>
       {status}
-      <View style={styles.offer}>{found ? <GameCard card={found} width={offerWidth + 20} /> : null}</View>
-    </>, <View style={styles.dockRow}>
-      <AppButton label={good ? 'Heal 15' : 'Lose 10 HP'} tone="secondary" style={styles.flex} onPress={() => update(mysteryHealth)} />
-      {found ? <AppButton label="Take card" style={styles.flex} onPress={() => update((state) => takeCard(state, found.uid))} /> : null}
-    </View>, 'Mystery');
+      {found ? <View style={styles.offer}><GameCard card={found} width={offerWidth + 20} charms={run.charms} /></View> : null}
+    </>, found ? <View style={styles.dockRow}>
+      <AppButton label="Heal 15" tone="secondary" style={styles.flex} onPress={() => update(mysteryHealth)} />
+      <AppButton label="Take card" style={styles.flex} onPress={() => offerCard(found, (replace) => update((state) => takeCard(state, found.uid, replace)))} />
+    </View> : <AppButton label={good ? 'Heal 15' : 'Lose 10 HP'} tone={good ? 'primary' : 'secondary'} onPress={() => update(mysteryHealth)} />, 'Mystery');
   }
 
   /* ---------- over ---------- */
@@ -505,12 +513,10 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
   </SafeAreaView>;
 }
 
-/** Your deck, small and side by side; tappable when `onPick` is given. */
-function DeckStrip({ run, onPick }: { run: Run; onPick?: (uid: string) => void }) {
+/** The cards you hold, small and side by side. */
+function DeckStrip({ run, width }: { run: Run; width: number }) {
   const styles = useThemedStyles(createStyles);
-  return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
-    {run.deck.map((item) => <GameCard key={item.uid} card={item} width={92} charms={run.charms} onPress={onPick ? () => onPick(item.uid) : undefined} />)}
-  </ScrollView>;
+  return <View style={styles.strip}>{run.deck.map((item) => <GameCard key={item.uid} card={item} width={width} charms={run.charms} />)}</View>;
 }
 
 function Stat({ value, label }: { value: number; label: string }) {
@@ -540,9 +546,6 @@ const createStyles = ({ colors, typography, card, glass }: AppTheme) => StyleShe
   lead: { ...typography.body, fontSize: 15, lineHeight: 22, textAlign: 'center', maxWidth: 400 },
   big: { ...typography.display, fontSize: 34, lineHeight: 41, textAlign: 'center', alignSelf: 'stretch' },
   caption: { ...typography.caption, fontSize: 12, lineHeight: 16, marginTop: -6 },
-  rules: { alignSelf: 'stretch', gap: 14, marginTop: 14, ...card, borderRadius: 24, padding: 18 },
-  rule: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  ruleText: { ...typography.bodyStrong, fontSize: 14, lineHeight: 20, flex: 1 },
   bestBig: { ...typography.label, fontSize: 14, lineHeight: 19, marginTop: 8 },
   footer: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 6, width: '100%', alignSelf: 'center' },
   second: { marginTop: 10 },
@@ -555,7 +558,10 @@ const createStyles = ({ colors, typography, card, glass }: AppTheme) => StyleShe
   banner: { flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'center', borderRadius: 18, borderWidth: 2, borderColor: colors.ink, backgroundColor: colors.surface, paddingHorizontal: 16, paddingVertical: 8 },
   bannerText: { ...typography.subtitle, fontSize: 16, lineHeight: 21 },
   offer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
-  strip: { gap: 8, paddingVertical: 2 },
+  strip: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, paddingHorizontal: 10, paddingVertical: 5 },
+  chipText: { ...typography.label, fontSize: 12, lineHeight: 16 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   statusHp: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
   statusText: { ...typography.numeral, fontSize: 14, lineHeight: 18, fontVariant: ['tabular-nums'] },
@@ -599,6 +605,7 @@ const createStyles = ({ colors, typography, card, glass }: AppTheme) => StyleShe
   statValue: { ...typography.numeral, fontSize: 24, lineHeight: 29 },
   ware: { alignItems: 'center', gap: 4 },
   price: { ...typography.label, fontSize: 12.5, lineHeight: 17 },
+  priceRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   winArt: { flexDirection: 'row', alignItems: 'flex-end', gap: 6 },
   downed: { transform: [{ rotate: '-12deg' }], opacity: 0.6 },
   summary: { ...card, alignSelf: 'stretch', borderRadius: 24, flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 8, marginTop: 12 },

@@ -4,16 +4,17 @@ import type { SkylineKind } from '@/data/tracks';
 /**
  * The endless climb: a card battler you play by answering AP questions.
  *
- * Every new card costs one question: answer right and you choose from three
- * rivals; miss and one of them is dealt to you. Build a deck of rival cards
- * (each has Recall, Logic and Insight, 0–20), then climb towers of eight
- * floors. Each floor you choose a room: a battle, a tougher elite, a rest, a
- * shop or a mystery, and the top floor is a boss.
+ * You hold three rival cards (each has Recall, Logic and Insight, 0–20).
+ * Every new card costs one question: answer right and you choose from three;
+ * miss and one of them is dealt to you. Once your hand is full, a new card
+ * swaps out one you hold. Climb towers of six floors: each floor you choose
+ * a room (a battle, a tougher elite, a rest, a shop or a mystery), and the
+ * top floor is a boss.
  *
  * A battle is rounds of one card against one, with no questions: you pick
  * the stat both cards compare while the rival's card is still face down. The
- * higher number wins, and the gap is the damage, multiplied by how many
- * rounds that side has won in a row.
+ * higher number wins; the gap plus a flat bonus is the damage, multiplied by
+ * how many rounds that side has won in a row.
  * Your health carries from battle to battle; when it runs out, the climb
  * ends. Towers never run out, and each is harder than the last.
  *
@@ -82,11 +83,19 @@ export interface Run {
   record: { battles: number; bosses: number };
 }
 
-export const FLOORS = 8;
+export const FLOORS = 6;
 export const RIVAL_STREAK_CAP = 3;
-export const DRAFT_SIZE = 5;
+/** Every winning round lands at least this much, so battles take a few rounds, not twenty. */
+export const HIT_BONUS = 4;
+/** How much harder rivals hit in each tower after the first. */
+export const RIVAL_FURY = 1.2;
+const BATTLE_HP = 22;
+const ELITE_HP = 36;
+const BOSS_HP = [60, 75, 90];
+/** You hold three cards. A new one swaps out one of them, so every card counts. */
+export const HAND = 3;
+export const DRAFT_SIZE = HAND;
 export const START_HP = 100;
-const REMOVE_PRICE = 50;
 const PRICE: Record<Rarity, number> = { common: 30, uncommon: 50, rare: 80, epic: 120 };
 
 /* ---------- randomness ---------- */
@@ -189,11 +198,20 @@ export function dealtCard(run: Run): string | null {
   return run.offer.length ? pick(run.offer, roll(run, 'dealt')).uid : null;
 }
 
-/** Add an offered card to the deck. Finishing the draft opens the tower. */
-export function takeCard(run: Run, uid: string): Run {
+/** Your hand with `card` added, or swapped in for `replace` once the hand is full. */
+function withCard(deck: Card[], card: Card, replace?: string): Card[] | null {
+  if (deck.length < HAND) return [...deck, card];
+  if (!replace || !deck.some((item) => item.uid === replace)) return null;
+  return deck.map((item) => (item.uid === replace ? card : item));
+}
+
+/** Add an offered card. With a full hand, name the card it replaces. Finishing the draft opens the tower. */
+export function takeCard(run: Run, uid: string, replace?: string): Run {
   const card = run.offer.find((item) => item.uid === uid);
   if (!card || !['draft', 'reward', 'mystery'].includes(run.phase)) return run;
-  const next = { ...run, deck: [...run.deck, card], offer: [], tick: run.tick + 1 };
+  const deck = withCard(run.deck, card, replace);
+  if (!deck) return run;
+  const next = { ...run, deck, offer: [], tick: run.tick + 1 };
   if (run.phase === 'draft') {
     if (next.deck.length >= DRAFT_SIZE) return toMap(next);
     return { ...next, offer: offerOf(next, 'draft', 1, 3) };
@@ -221,7 +239,7 @@ export function chooseRoom(run: Run, room: RoomKind): Run {
   const lucky = roll(entered, 'mystery') < 0.55;
   return {
     ...entered, phase: 'mystery', mystery: lucky ? 'good' : 'bad',
-    offer: [lucky ? randomCard(entered, 'find', 4, 5) : randomCard(entered, 'dud', 1, 1, -3)],
+    offer: lucky ? [randomCard(entered, 'find', 4, 5)] : [],
   };
 }
 
@@ -230,9 +248,10 @@ export function chooseRoom(run: Run, room: RoomKind): Run {
 /** Who you meet: everyday rivals, a family's best as elites, its head as the boss. */
 export function enemyFor(run: Run, room: 'battle' | 'elite' | 'boss'): Enemy {
   const kind = room === 'boss' ? KINDS[(run.tower - 1) % KINDS.length] : pick(KINDS, roll(run, 'foe'));
-  const bonus = Math.min(6, run.tower - 1);
+  const bonus = 0;
   // The first boss's crew is a step gentler; from the second tower they are the best there is.
-  const ranks = room === 'boss' ? (run.tower === 1 ? [3, 5] : run.tower === 2 ? [4, 6] : [5, 6]) : room === 'elite' ? [3, 5] : [1, 3];
+  const up = Math.min(5, 2 * (run.tower - 1));
+  const ranks = room === 'boss' ? (run.tower === 1 ? [3, 5] : run.tower === 2 ? [5, 6] : [6, 6]) : room === 'elite' ? [Math.min(6, 3 + up), Math.min(6, 5 + up)] : [Math.min(6, 1 + up), Math.min(6, 3 + up)];
   const size = room === 'boss' ? 4 : 3;
   const deck = Array.from({ length: size }, (_, index) => {
     const tier = ranks[0] + Math.floor(roll(run, `foe${index}`) * (ranks[1] - ranks[0] + 1));
@@ -242,8 +261,8 @@ export function enemyFor(run: Run, room: 'battle' | 'elite' | 'boss'): Enemy {
   });
   const leader = room === 'boss' ? 6 : room === 'elite' ? 4 + Math.floor(roll(run, 'lead') * 2) : 1 + Math.floor(roll(run, 'lead') * 3);
   const hp = room === 'boss'
-    ? [70, 100, 150][run.tower - 1] ?? 150 + 50 * (run.tower - 3)
-    : (room === 'elite' ? 45 : 25) + Math.floor(roll(run, 'hp') * 16) + 10 * (run.tower - 1);
+    ? BOSS_HP[run.tower - 1] ?? BOSS_HP[BOSS_HP.length - 1] + 15 * (run.tower - BOSS_HP.length)
+    : (room === 'elite' ? ELITE_HP : BATTLE_HP) + Math.floor(roll(run, 'hp') * 11) + 4 * (run.tower - 1);
   return { name: BOSS_FAMILIES[kind].names[leader - 1], kind, tier: leader, hp, maxHp: hp, deck, room };
 }
 
@@ -279,7 +298,9 @@ export function fight(run: Run, stat: Stat, chosenBy: 'me' | 'them'): Run {
   // so a run of misses hurts without wiping out a climb in one go.
   const streak = winner === 'me' ? myStreak + boost : winner === 'them' ? Math.min(RIVAL_STREAK_CAP, theirStreak) : 0;
   const erased = winner === 'them' && run.charms.includes('eraser') && !battle.erased;
-  const damage = winner === 'tie' || erased ? 0 : Math.abs(mine - theirs) * streak;
+  // Rivals hit harder in each tower, so later climbs are deadly without dragging on.
+  const fury = winner === 'them' ? 1 + RIVAL_FURY * (run.tower - 1) : 1;
+  const damage = winner === 'tie' || erased ? 0 : Math.round((Math.abs(mine - theirs) + HIT_BONUS) * streak * fury);
   const enemyHp = winner === 'me' ? Math.max(0, battle.enemy.hp - damage) : battle.enemy.hp;
   const hp = winner === 'them' ? Math.max(0, run.hp - damage) : run.hp;
   const outcome: RoundOutcome = { stat, chosenBy, mine, theirs, winner, streak, damage, erased };
@@ -335,31 +356,28 @@ export function restTrain(run: Run, uid: string): Run {
 }
 
 function stockFor(run: Run): ShopItem[] {
-  const cards = [0, 1, 2, 3].map((index) => randomCard(run, `shop${index}`, 2, 5)).map((card) => ({ kind: 'card' as const, card, price: PRICE[card.rarity], sold: false }));
+  const cards = [0, 1, 2].map((index) => randomCard(run, `shop${index}`, 2, 5)).map((card) => ({ kind: 'card' as const, card, price: PRICE[card.rarity], sold: false }));
   const free = CHARM_IDS.filter((id) => !run.charms.includes(id));
   const charm = free.length ? [{ kind: 'charm' as const, charm: pick(free, roll(run, 'shopCharm')), price: 100, sold: false }] : [];
   return [...cards, ...charm, { kind: 'heal', price: 40, sold: false }];
 }
 
-export function buy(run: Run, index: number): Run {
+/** Buy an item. A card needs a free slot, or the card it replaces. */
+export function buy(run: Run, index: number, replace?: string): Run {
   const item = run.shop[index];
   if (run.phase !== 'shop' || !item || item.sold || run.coins < item.price) return run;
+  const deck = item.kind === 'card' && item.card ? withCard(run.deck, item.card, replace) : run.deck;
+  if (!deck) return run;
   const shop = run.shop.map((entry, i) => i === index ? { ...entry, sold: true } : entry);
   const paid = { ...run, coins: run.coins - item.price, shop };
-  if (item.kind === 'card' && item.card) return { ...paid, deck: [...paid.deck, item.card] };
+  if (item.kind === 'card') return { ...paid, deck };
   if (item.kind === 'charm' && item.charm) return { ...paid, charms: [...paid.charms, item.charm] };
   return { ...paid, hp: Math.min(paid.maxHp, paid.hp + 25) };
 }
 
-/** Thin the deck so your best cards come up more often. */
-export function removeCard(run: Run, uid: string): Run {
-  if (run.phase !== 'shop' || run.coins < REMOVE_PRICE || run.deck.length <= 1) return run;
-  return { ...run, coins: run.coins - REMOVE_PRICE, deck: run.deck.filter((card) => card.uid !== uid) };
-}
-export const REMOVE_COST = REMOVE_PRICE;
 export const leaveShop = (run: Run): Run => (run.phase === 'shop' ? advance(run) : run);
 
-/** A mystery: good luck offers a strong card or health; bad luck, a weak card or a cut. */
+/** A mystery: good luck offers a strong card or health; bad luck costs health. */
 export function mysteryHealth(run: Run): Run {
   if (run.phase !== 'mystery') return run;
   const change = run.mystery === 'good' ? 15 : -10;

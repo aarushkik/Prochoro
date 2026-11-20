@@ -21,7 +21,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQuest } from "@/state/QuestContext";
 import { useOnboarding } from "@/state/OnboardingContext";
 import { drillSize, countForSkills } from "@/data";
-import { weakSpots, weakSpotMeta } from "@/data/weakSpots";
+import { weakSpots } from "@/data/weakSpots";
 import type { RootStackParamList } from "@/navigation/types";
 import { readBestFloor } from "@/lib/climbRecord";
 import { heightLabel } from "@/utils/climb";
@@ -136,7 +136,6 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
           >
             <View style={styles.weakBody}>
               <Text style={styles.weakName}>{w.name}</Text>
-              <Text style={styles.weakMeta}>{weakSpotMeta(w)}</Text>
               {w.pct >= 0 ? (
                 <View style={styles.barTrack}>
                   <View style={[styles.barFill, { width: `${w.pct}%` }]} />
@@ -166,7 +165,7 @@ function ClimbCard({ best, wide, onStart }: { best: number; wide: boolean; onSta
       <View style={styles.climbCopy}>
         <Text style={styles.climbKicker}>ENDLESS CLIMB</Text>
         <Text style={[styles.climbTitle, wide && styles.heroTitleWide]}>How high can you go?</Text>
-        <Text style={styles.climbBody}>{best ? `Your best: ${heightLabel(best)}` : "A card battle you win by knowing the material"}</Text>
+        <Text style={styles.climbBody}>{best ? `Your best: ${heightLabel(best)}` : "A card battle game"}</Text>
         <View style={styles.climbCta}>
           <Glyph name="play" size={15} color={colors.textOnPrimary} strokeWidth={2} />
           <Text style={styles.heroCtaText}>Climb</Text>
@@ -375,12 +374,6 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   },
   weakBody: { flex: 1 },
   weakName: { fontFamily: fonts.bodyHeavy, fontSize: 15, color: colors.ink },
-  weakMeta: {
-    fontFamily: fonts.bodySemibold,
-    fontSize: 12,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
   barTrack: {
     marginTop: 8,
     height: 10,

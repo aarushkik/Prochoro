@@ -31,12 +31,12 @@ export function BossEncounter({ nodeId, correct, attempted, total, damageTotal =
   const blow = move ?? last;
   const message = blow?.finisher ? 'Final strike!'
     : battle.defeated ? `${boss.name} defeated.`
-    : blow ? blow.correct ? (blow.crit ? `Critical hit! −${blow.damage} HP` : `Hit! −${blow.damage} HP`)
-      : blow.timeout ? `Too slow! ${boss.name} strikes first. −${blow.damage} HP` : `Counterattack! −${blow.damage} HP.`
-    : battle.canFinish ? 'Final strike ready. Finish this boss.'
-    : danger ? `${boss.name} is winding up. Answer now!`
-    : correct >= battle.target ? 'Strike charged. Finish the set.'
-    : `${battle.target - correct} more right to charge your final strike. Fast answers hit harder.`;
+    : blow ? blow.correct ? (blow.crit ? `Critical hit! −${blow.damage}` : `Hit! −${blow.damage}`)
+      : blow.timeout ? `Too slow! −${blow.damage}` : `Ouch! −${blow.damage}`
+    : battle.canFinish ? 'Final strike ready!'
+    : danger ? 'Hurry!'
+    : correct >= battle.target ? 'Strike charged'
+    : 'Answer fast to hit harder';
   return <Arena
     backdrop={boss.kind}
     rival={(size) => <BossSprite nodeId={nodeId} size={size} />}

@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  DRAFT_SIZE, FLOORS, START_HP, REMOVE_COST, REST_MISS_HEAL, dealtCard,
+  DRAFT_SIZE, FLOORS, HAND, HIT_BONUS, RIVAL_FURY, START_HP, REST_MISS_HEAL, dealtCard,
   advance, bestStat, buy, cardFor, chooseRoom, climbXp, deal, enemyFor, fight, floorsClimbed, heightLabel, leaveShop,
-  mysteryHealth, newRun, rarityOf, removeCard, restAnswer, restHeal, restTrain, roomsFor, shuffleWith, skipReward,
+  mysteryHealth, newRun, rarityOf, restAnswer, restHeal, restTrain, roomsFor, shuffleWith, skipReward,
   statOf, takeCard, takeCharm, type Card, type Run,
 } from '../src/utils/climb';
 import { isQuick, secondsFor } from '../src/utils/battleClock';
@@ -17,14 +17,14 @@ const drafted = (seed = 'test'): Run => {
   return run;
 };
 const card = (recall: number, logic: number, insight: number): Card => ({ uid: `c${recall}${logic}${insight}`, kind: 'waves', tier: 1, name: 'Test', rarity: 'common', recall, logic, insight });
-/** A battle on floor 1 with chosen cards on each side. */
+/** A battle on floor 1 with chosen cards on each side, against a rival that will not fall by accident. */
 const battleWith = (mine: Card, theirs: Card, extra: Partial<Run> = {}): Run => {
   const start = { ...drafted(), ...extra };
   const run = chooseRoom(start, 'battle');
-  return { ...run, battle: { ...run.battle!, mine, theirs } };
+  return { ...run, battle: { ...run.battle!, mine, theirs, enemy: { ...run.battle!.enemy, hp: 999, maxHp: 999 } } };
 };
 
-test('a climb opens with a five-card draft of everyday rivals, then the first floor', () => {
+test('a climb opens with a three-card draft of everyday rivals, then the first floor', () => {
   let run = newRun('draft');
   assert.equal(run.phase, 'draft'); assert.equal(run.hp, START_HP); assert.equal(run.offer.length, 3);
   assert.ok(run.offer.every((offered) => offered.tier >= 1 && offered.tier <= 3));
@@ -56,13 +56,13 @@ test('the higher stat wins the round, the gap is the damage, and streaks multipl
   let run = battleWith(card(15, 5, 5), card(9, 12, 12));
   const hp = run.battle!.enemy.hp;
   run = fight(run, 'recall', 'me');
-  assert.equal(run.battle!.outcome!.winner, 'me'); assert.equal(run.battle!.outcome!.damage, 6); assert.equal(run.battle!.enemy.hp, hp - 6);
+  assert.equal(run.battle!.outcome!.winner, 'me'); assert.equal(run.battle!.outcome!.damage, 6 + HIT_BONUS); assert.equal(run.battle!.enemy.hp, hp - 6 - HIT_BONUS);
   run = { ...deal(run), battle: { ...deal(run).battle!, mine: card(15, 5, 5), theirs: card(9, 12, 12) } };
   run = fight(run, 'recall', 'me');
-  assert.equal(run.battle!.outcome!.streak, 2); assert.equal(run.battle!.outcome!.damage, 12, 'second win in a row doubles');
+  assert.equal(run.battle!.outcome!.streak, 2); assert.equal(run.battle!.outcome!.damage, 2 * (6 + HIT_BONUS), 'second win in a row doubles');
   run = { ...deal(run), battle: { ...deal(run).battle!, mine: card(15, 5, 5), theirs: card(9, 12, 12) } };
   run = fight(run, 'logic', 'them');
-  assert.equal(run.battle!.outcome!.winner, 'them'); assert.equal(run.battle!.myStreak, 0); assert.equal(run.hp, START_HP - 7);
+  assert.equal(run.battle!.outcome!.winner, 'them'); assert.equal(run.battle!.myStreak, 0); assert.equal(run.hp, START_HP - 7 - HIT_BONUS);
   assert.equal(fight(run, 'logic', 'me'), run, 'one stat per round');
 });
 
@@ -79,8 +79,11 @@ test('winning pays coins and offers three cards; bosses add a charm; losing all 
   run = fight(run, 'recall', 'me');
   assert.equal(run.phase, 'reward'); assert.equal(run.coins, 20); assert.equal(run.offer.length, 3); assert.equal(run.charmOffer.length, 0);
   assert.equal(run.record.battles, 1);
-  const after = takeCard(run, run.offer[0].uid);
-  assert.equal(after.phase, 'map'); assert.equal(after.floor, 2); assert.equal(after.deck.length, DRAFT_SIZE + 1);
+  assert.equal(takeCard(run, run.offer[0].uid), run, 'a full hand needs a card to swap out');
+  const after = takeCard(run, run.offer[0].uid, run.deck[0].uid);
+  assert.equal(after.phase, 'map'); assert.equal(after.floor, 2); assert.equal(after.deck.length, HAND);
+  assert.ok(after.deck.some((item) => item.uid === run.offer[0].uid)); assert.ok(!after.deck.some((item) => item.uid === run.deck[0].uid));
+  assert.equal(takeCard(run, run.offer[0].uid, 'nope'), run, 'only a held card can be swapped out');
 
   let lost = battleWith(card(0, 0, 0), card(20, 20, 20), { hp: 10 });
   lost = fight(lost, 'recall', 'them');
@@ -90,10 +93,10 @@ test('winning pays coins and offers three cards; bosses add a charm; losing all 
 test('the top floor is the boss, and beating it starts a harder tower', () => {
   const top = { ...drafted(), floor: FLOORS };
   assert.deepEqual(roomsFor(top), ['boss']);
-  assert.equal(enemyFor(top, 'boss').maxHp, 70);
-  assert.equal(enemyFor({ ...top, tower: 2 }, 'boss').maxHp, 100);
-  assert.equal(enemyFor({ ...top, tower: 3 }, 'boss').maxHp, 150);
-  assert.equal(enemyFor({ ...top, tower: 4 }, 'boss').maxHp, 200);
+  assert.equal(enemyFor(top, 'boss').maxHp, 60);
+  assert.equal(enemyFor({ ...top, tower: 2 }, 'boss').maxHp, 75);
+  assert.equal(enemyFor({ ...top, tower: 3 }, 'boss').maxHp, 90);
+  assert.equal(enemyFor({ ...top, tower: 4 }, 'boss').maxHp, 105);
   assert.equal(enemyFor(top, 'boss').tier, 6);
   assert.ok(enemyFor({ ...top, tower: 3 }, 'battle').maxHp >= enemyFor(top, 'battle').maxHp);
   let run = chooseRoom({ ...top, rooms: ['boss'] }, 'boss');
@@ -112,7 +115,7 @@ test('charms change battles: stat bonuses, a stronger streak, an eraser and flas
   assert.equal(statOf(card(10, 10, 10), 'logic', ['highlighter']), 10);
   let run = battleWith(card(12, 5, 5), card(9, 9, 9), { charms: ['study-group'] });
   run = fight(run, 'recall', 'me');
-  assert.equal(run.battle!.outcome!.streak, 2); assert.equal(run.battle!.outcome!.damage, 6);
+  assert.equal(run.battle!.outcome!.streak, 2); assert.equal(run.battle!.outcome!.damage, 2 * (3 + HIT_BONUS));
   let erased = battleWith(card(5, 5, 5), card(15, 15, 15), { charms: ['eraser'] });
   erased = fight(erased, 'recall', 'them');
   assert.equal(erased.hp, START_HP); assert.equal(erased.battle!.outcome!.erased, true);
@@ -146,18 +149,20 @@ test('a missed unlock deals one of the offered cards, the same one every time fo
   assert.equal(dealtCard({ ...run, offer: [] }), null);
 });
 
-test('the shop sells for coins, removes cards for a fee, and never empties the deck', () => {
-  let run = chooseRoom({ ...drafted(), floor: 3, rooms: ['shop'], coins: 200 }, 'shop');
-  assert.ok(run.shop.length >= 5);
+test('the shop sells three cards for coins; a card swaps into a full hand', () => {
+  const run = chooseRoom({ ...drafted(), floor: 3, rooms: ['shop'], coins: 200 }, 'shop');
+  assert.equal(run.shop.filter((item) => item.kind === 'card').length, 3);
   const index = run.shop.findIndex((item) => item.kind === 'card');
-  const bought = buy(run, index);
-  assert.equal(bought.coins, 200 - run.shop[index].price); assert.equal(bought.deck.length, run.deck.length + 1);
-  assert.equal(buy(bought, index), bought, 'sold out');
-  assert.equal(buy({ ...run, coins: 0 }, index).coins, 0, 'no coins, no sale');
-  run = removeCard(run, run.deck[0].uid);
-  assert.equal(run.coins, 200 - REMOVE_COST); assert.equal(run.deck.length, DRAFT_SIZE - 1);
-  const single = { ...run, deck: run.deck.slice(0, 1) };
-  assert.equal(removeCard(single, single.deck[0].uid), single);
+  assert.equal(buy(run, index), run, 'a full hand needs a card to swap out');
+  const bought = buy(run, index, run.deck[0].uid);
+  assert.equal(bought.coins, 200 - run.shop[index].price); assert.equal(bought.deck.length, HAND);
+  assert.equal(bought.deck[0].uid, run.shop[index].card!.uid);
+  assert.equal(buy(bought, index, bought.deck[1].uid), bought, 'sold out');
+  assert.equal(buy({ ...run, coins: 0 }, index, run.deck[0].uid).coins, 0, 'no coins, no sale');
+  const roomy = buy({ ...run, deck: run.deck.slice(0, 2) }, index);
+  assert.equal(roomy.deck.length, 3, 'a free slot takes the card');
+  const heal = run.shop.findIndex((item) => item.kind === 'heal');
+  assert.equal(buy({ ...run, hp: 50 }, heal).hp, 75);
   assert.equal(leaveShop(run).phase, 'map');
 });
 
@@ -168,7 +173,8 @@ test('a mystery is either a find or a trap, and every choice moves the climb on'
     outcomes.add(run.mystery!);
     const after = mysteryHealth({ ...run, hp: 50 });
     assert.equal(after.hp, run.mystery === 'good' ? 65 : 40); assert.equal(after.phase, 'map');
-    assert.equal(takeCard(run, run.offer[0].uid).deck.length, DRAFT_SIZE + 1);
+    if (run.mystery === 'good') assert.equal(takeCard(run, run.offer[0].uid, run.deck[0].uid).deck[0].uid, run.offer[0].uid);
+    else assert.equal(run.offer.length, 0, 'a trap has nothing to take');
   }
   assert.deepEqual([...outcomes].sort(), ['bad', 'good']);
 });
@@ -219,13 +225,13 @@ test('the climb pool is only tap-to-answer questions, from reached units when th
 });
 
 test('a rival streak tops out at ×3, while yours keeps climbing', () => {
-  let run = battleWith(card(1, 1, 1), card(9, 9, 9));
+  let run = battleWith(card(1, 1, 1), card(9, 9, 9), { hp: 999, maxHp: 999 });
   for (let round = 0; round < 5; round += 1) {
     run = fight(run, 'recall', 'them');
     const dealt = deal(run);
     run = { ...dealt, battle: { ...dealt.battle!, mine: card(1, 1, 1), theirs: card(9, 9, 9) } };
   }
-  assert.equal(run.hp, START_HP - 8 * (1 + 2 + 3 + 3 + 3));
+  assert.equal(run.hp, 999 - (8 + HIT_BONUS) * (1 + 2 + 3 + 3 + 3));
   let mine = battleWith(card(9, 9, 9), card(1, 1, 1));
   mine = { ...mine, battle: { ...mine.battle!, enemy: { ...mine.battle!.enemy, hp: 999, maxHp: 999 } } };
   for (let round = 0; round < 5; round += 1) {
@@ -233,7 +239,16 @@ test('a rival streak tops out at ×3, while yours keeps climbing', () => {
     const dealt = deal(mine);
     mine = { ...dealt, battle: { ...dealt.battle!, mine: card(9, 9, 9), theirs: card(1, 1, 1) } };
   }
-  assert.equal(mine.battle!.enemy.hp, 999 - 8 * (1 + 2 + 3 + 4 + 5));
+  assert.equal(mine.battle!.enemy.hp, 999 - (8 + HIT_BONUS) * (1 + 2 + 3 + 4 + 5));
+});
+
+test('rivals hit harder in every tower after the first, so later battles end fast', () => {
+  const hit = (tower: number) => START_HP - fight(battleWith(card(1, 1, 1), card(9, 9, 9), { tower }), 'recall', 'them').hp;
+  assert.equal(hit(1), 8 + HIT_BONUS);
+  assert.equal(hit(2), Math.round((8 + HIT_BONUS) * (1 + RIVAL_FURY)));
+  assert.ok(hit(3) > hit(2));
+  const yours = (tower: number) => 999 - fight(battleWith(card(9, 9, 9), card(1, 1, 1), { tower }), 'recall', 'me').battle!.enemy.hp;
+  assert.equal(yours(3), yours(1), 'your hits stay the same');
 });
 
 test('every offer is three different rivals', () => {

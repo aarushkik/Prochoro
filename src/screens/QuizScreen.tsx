@@ -137,7 +137,8 @@ export function QuizScreen() {
   const displayedRun = useMemo(() => shuffleQuizChoices(run, routeKey), [run, routeKey]);
   const total = run.length;
 
-  const [phase, setPhase] = useState<'intro' | 'study' | 'quiz'>(stop?.kind === 'lesson' ? 'study' : session ? 'quiz' : 'intro');
+  // Lessons and practice open straight on the first question; only placement has an intro.
+  const [phase, setPhase] = useState<'intro' | 'quiz'>(session ? 'quiz' : 'intro');
   const [index, setIndex] = useState(0);
   useEffect(() => { questionScroll.current?.scrollTo({ y: 0, animated: false }); }, [index]);
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
@@ -364,19 +365,7 @@ export function QuizScreen() {
     ? question.choices?.find((c) => c.id === question.correctAnswerId)?.text
     : question?.acceptedAnswers?.[0];
 
-  if (!question) return <SafeAreaView style={styles.root}><AreaBackdrop kind={areaKind} opacity={0.14} /><View style={styles.introBody}><Mascot pose="reading" size={130} /><Text style={typography.title}>You’re all caught up.</Text><Text style={[typography.body, styles.introText]}>There are no questions in this practice set. Pick another topic to keep exploring.</Text><AppButton label="Back to practice" onPress={() => navigation.goBack()} /></View></SafeAreaView>;
-
-  if (phase === 'study') {
-    const example = questions[0];
-    return <SafeAreaView style={styles.root} edges={['top', 'bottom']}><AreaBackdrop kind={areaKind} opacity={0.14} /><StatusBar style={appTheme.isDark ? "light" : "dark"} />
-      <ScrollView contentContainerStyle={[styles.studyContent, column]}>
-        <View style={styles.studyHeading}><Mascot size={82} pose="reading" /><View style={{ flex: 1 }}><Text style={typography.overline}>QUICK LESSON</Text><Text style={typography.title}>{session?.title}</Text></View></View>
-        <QuestionCard question={example}><Text style={typography.label}>{'Answer: ' + (example.choices?.find(choice => choice.id === example.correctAnswerId)?.text ?? example.acceptedAnswers?.[0])}</Text><Text style={[typography.body, { marginTop: 12 }]}>{example.explanation}</Text></QuestionCard>
-        <AppButton label={`Try ${questions.length} questions`} icon="arrow-right" onPress={() => setPhase('quiz')} />
-        <Pressable accessibilityRole="button" onPress={() => navigation.goBack()} style={styles.skip}><Text style={styles.skipText}>Back to Home</Text></Pressable>
-      </ScrollView>
-    </SafeAreaView>;
-  }
+  if (!question) return <SafeAreaView style={styles.root}><AreaBackdrop kind={areaKind} opacity={0.14} /><View style={styles.introBody}><Mascot pose="reading" size={130} /><Text style={typography.title}>All caught up</Text><AppButton label="Back to practice" onPress={() => navigation.goBack()} /></View></SafeAreaView>;
 
   // --- Intro (placement only): take the quest, or skip to the first unit ---
   if (phase === 'intro') {
@@ -393,7 +382,6 @@ export function QuizScreen() {
         <ScrollView contentContainerStyle={[styles.introBody, column]}>
           <Mascot size={200} pose="wave" />
           <Text style={[typography.title, styles.introTitle]}>Where should you start?</Text>
-          <Text style={[typography.body, styles.introText]}>Begin at Unit 1, or answer a few questions and skip what you already know.</Text>
         </ScrollView>
 
         <View style={[styles.footer, column]}>
@@ -500,7 +488,7 @@ export function QuizScreen() {
 
       <Modal transparent visible={confirmExit !== null} animationType="fade" onRequestClose={() => setConfirmExit(null)}>
         <View style={styles.exitBackdrop}><GlassSurface variant="thick" accessibilityViewIsModal style={styles.exitCard}>
-          <Text style={typography.title}>Leave this practice?</Text><Text style={[typography.body, { marginVertical: 16 }]}>This unfinished session won’t be saved. Your earlier progress is safe.</Text>
+          <Text style={typography.title}>Leave this practice?</Text><Text style={[typography.body, { marginVertical: 16 }]}>This session won’t be saved.</Text>
           <AppButton label="Keep studying" onPress={() => setConfirmExit(null)} />
           <AppButton label="Leave session" tone="secondary" style={{ marginTop: 16 }} onPress={() => { const action = confirmExit; setConfirmExit(null); setExitAction(() => action); }} />
         </GlassSurface></View>
@@ -532,11 +520,8 @@ const REVIEW_BATCH = 5;
 /** What one right answer is worth in an endless review. */
 const REVIEW_XP_EACH = 4;
 
-const createStyles = ({ colors, palette, typography, stroke, glass, card }: AppTheme) => StyleSheet.create({
+const createStyles = ({ colors, palette, typography, stroke, glass }: AppTheme) => StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  studyContent: { padding: 24, width: '100%', maxWidth: 620, alignSelf: 'center' },
-  studyHeading: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 },
-  studyCard: { ...card, padding: 18, borderRadius: 22, marginBottom: 16 },
   exitBackdrop: { flex: 1, backgroundColor: glass.scrim, padding: 24, alignItems: 'center', justifyContent: 'center' },
   exitCard: { width: '100%', maxWidth: 400, borderRadius: 34, padding: 24 },
 
@@ -547,10 +532,7 @@ const createStyles = ({ colors, palette, typography, stroke, glass, card }: AppT
   introTop: { paddingHorizontal: spacing.xl, paddingTop: spacing.sm },
   introBody: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, width: '100%', maxWidth: 620, alignSelf: 'center' },
   introTitle: { marginTop: spacing.md, textAlign: 'center' },
-  introText: { textAlign: 'center', marginTop: spacing.sm, paddingHorizontal: spacing.sm },
   secondChoice: { marginTop: spacing.md },
-  skip: { alignSelf: 'center', paddingVertical: spacing.md, marginTop: spacing.xs },
-  skipText: { ...typography.bodyStrong, color: colors.textSecondary, textShadowColor: colors.background, textShadowRadius: 6 },
 
   headerWrap: { paddingHorizontal: 16, paddingTop: 8, width: '100%', maxWidth: 620, alignSelf: 'center' },
   encounterWrap: { width: '100%', maxWidth: 620, alignSelf: 'center' },

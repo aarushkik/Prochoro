@@ -19,7 +19,7 @@ owner review. Follow [production sign-in setup](auth-production.md).
 - Required sign-in with Apple (release flag on), Google, Microsoft and email, local offline persistence and account synchronization. Native scheme, bundle identifiers and stored progress IDs did not change. The sign-in screen and Options state that Prochoro is not affiliated with or endorsed by the College Board.
 - The repository now has the custom Pages domain `prochoro.net`. Web assets export under `/app`; OAuth/recovery use actual static directories at `/app/auth/callback/` and `/app/auth/recovery/`. Policy links use the new domain. Public authentication requires HTTPS; loopback development remains supported.
 
-- Two-tap setup, a Learn screen where any open circle (or one big Start button) starts a level, three tabs (Learn, Practice, Me), hats earned by studying in place of pets, timed one-tap boss duels with critical hits, an endless deck-building card battle (the climb) in Practice, official AP-unit progress, and direct next-level/retry actions. XP is a reward total rather than a second level rank. Every official AP unit has a final boss; choice order shuffles per attempt while grading stays tied to semantic IDs.
+- Two-tap setup, a Learn screen where any open circle (or one big Start button) starts a level, three tabs (Learn, Practice, Me), hats earned by studying in place of pets, timed one-tap boss duels with critical hits, an endless 3-card battle (the climb) in Practice, lessons that open straight on a question with short feedback, official AP-unit progress, and direct next-level/retry actions. XP is a reward total rather than a second level rank. Every official AP unit has a final boss; choice order shuffles per attempt while grading stays tied to semantic IDs.
 
 ## Verified 17 November 2026
 
@@ -69,7 +69,7 @@ Remaining before submission:
 
 ## Native acceptance
 
-The owner checked build 4 on an iPhone on 17 November 2026 and reported it works well; the items below have not each been certified. Check small iPhone/iPad layouts, long text/keyboard, worked examples, all quiz states, Play, pet options, Light/Dark/System, larger text, VoiceOver, Reduce Motion/Transparency and native glass. Use disposable accounts for native Apple/Google/Microsoft/email sign-in, recovery, offline/reconnect/two-device progress, account switching and deletion/revocation tests. Destructive account deletion requires explicit authorization. Validate the signed archive and install it through TestFlight before submission.
+The owner checked build 4 on an iPhone on 17 November 2026 and reported it works well; the items below have not each been certified. Check small iPhone/iPad layouts, long text/keyboard, all quiz states (including the "Why?" toggle), Play, the climb's 3-card swap, Light/Dark/System, larger text, VoiceOver, Reduce Motion/Transparency and native glass. Use disposable accounts for native Apple/Google/Microsoft/email sign-in, recovery, offline/reconnect/two-device progress, account switching and deletion/revocation tests. Destructive account deletion requires explicit authorization. Validate the signed archive and install it through TestFlight before submission.
 
 ## Draft listing
 

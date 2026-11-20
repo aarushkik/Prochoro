@@ -94,7 +94,7 @@ export function LessonCompleteScreen() {
                     ]}
                   >
                     <Glyph name="check" size={17} color={colors.successDeep} />
-                    <Text style={typography.label}>FIELD GUIDE · CLEARED</Text>
+                    <Text style={typography.label}>CLEARED</Text>
                   </View>
                 ) : null}
               </View>
@@ -143,11 +143,6 @@ export function LessonCompleteScreen() {
               </View>
             </View>
 
-            {cleared === false || !boss ? (
-              <Text style={[typography.body, styles.note]}>
-                {cleared === false ? "Read the explanations, then try again." : verdict.note}
-              </Text>
-            ) : null}
             {prize ? (
               <View style={styles.prize}>
                 <HatArt id={prize.id} size={84} surface={colors.surface} />
@@ -181,22 +176,18 @@ const VERDICTS = [
   {
     min: 100,
     headline: "Flawless",
-    note: "Every answer correct.",
   },
   {
     min: 80,
     headline: "Strong run",
-    note: "Review what you missed and keep going.",
   },
   {
     min: 50,
     headline: "Good progress",
-    note: "Another pass will close the gaps.",
   },
   {
     min: 0,
     headline: "Round one done",
-    note: "First tries are rough. Take it again.",
   },
 ];
 
@@ -285,11 +276,6 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     borderRadius: 1,
   },
 
-  note: {
-    textAlign: "center",
-    marginTop: spacing.lg,
-    paddingHorizontal: spacing.md,
-  },
   footer: {
     width: "100%",
     maxWidth: 760,

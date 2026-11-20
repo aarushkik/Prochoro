@@ -74,9 +74,3 @@ export function weakSpots(skills: SkillTally, courseId: string | null, limit = 3
         seen, wrong: seen - (tally?.correct ?? 0), count: drillLength(courseId, name) };
     });
 }
-
-/** The supporting line under a weak spot. */
-export function weakSpotMeta(s: WeakSpot): string {
-  if (s.seen === 0) return 'Not attempted yet';
-  return `${s.seen} answered · ${s.wrong} wrong`;
-}
