@@ -127,7 +127,7 @@ export function SignInScreen() {
                   {!recovering && <Field label="Email" value={email} onChangeText={setEmail} placeholder="you@example.com" keyboardType="email-address" textContentType="emailAddress" autoComplete="email" editable={!busy} returnKeyType={resetting ? 'go' : 'next'} onSubmitEditing={resetting ? submit : () => passwordInput.current?.focus()} />}
                   {!resetting || recovering ? <Field inputRef={passwordInput} label={recovering ? 'New password' : 'Password'} value={password} onChangeText={setPassword} placeholder={signingUp || recovering ? 'At least 8 characters' : 'Your password'} secureTextEntry textContentType={signingUp || recovering ? 'newPassword' : 'password'} autoComplete={signingUp || recovering ? 'new-password' : 'current-password'} editable={!busy} onSubmitEditing={recovering ? undefined : submit} returnKeyType={recovering ? 'next' : 'go'} /> : null}
                   {recovering && <Field label="Confirm password" value={confirmation} onChangeText={setConfirmation} placeholder="Enter it again" secureTextEntry textContentType="newPassword" autoComplete="new-password" editable={!busy} onSubmitEditing={submit} returnKeyType="go" />}
-                  {!signingUp && !resetting && !recovering && <Pressable accessibilityRole="button" disabled={busy} onPress={() => changeMode('reset')} style={styles.forgot}><Text style={styles.linkText}>Forgot password?</Text></Pressable>}
+                  {/* No password-reset link until the project can send email (custom SMTP). */}
                   <AppButton label={recovering ? 'Save new password' : resetting ? 'Send reset link' : signingUp ? 'Create account' : 'Sign in'} loading={busy} onPress={submit} />
                   {!recovering && <Pressable accessibilityRole="button" disabled={busy} onPress={() => changeMode(signingUp || resetting ? 'signIn' : 'signUp')} style={styles.textButton}>
                     <Text style={styles.textButtonLabel}>{signingUp || resetting ? 'Back to sign in' : 'New here? Create an account'}</Text>
@@ -201,8 +201,6 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   fieldLabel: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.textPrimary, marginBottom: 8, marginLeft: 2 },
   input: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 16, fontFamily: fonts.bodySemibold, fontSize: 16, color: colors.textPrimary, minHeight: 56 },
   inputFocused: { borderColor: colors.ink, backgroundColor: colors.surfaceSelected },
-  forgot: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', marginTop: -10, marginBottom: 8 },
-  linkText: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.textPrimary, textAlign: 'center' },
   message: { padding: 16, borderWidth: 1, borderColor: colors.border, borderRadius: 18, backgroundColor: colors.surfaceSelected, marginBottom: 18 },
   messageText: { fontFamily: fonts.bodySemibold, fontSize: 14, lineHeight: 21, color: colors.textPrimary },
   error: { backgroundColor: colors.dangerSoft, borderColor: colors.danger },

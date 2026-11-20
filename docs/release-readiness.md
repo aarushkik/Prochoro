@@ -2,14 +2,13 @@
 
 Updated 17 November 2026. TestFlight build 4 (version 1.0.0; Expo SDK 58, Xcode 27.1, iOS 27 SDK, minimum iOS 16.4) is valid and App Store eligible in App Store Connect, and the owner installed it on an iPhone and reported that it works well. App Store version 1.0 is in Prepare for Submission. Build 5 added the in-app College Board disclaimer. On 18 November 2026 the app was simplified (two-tap setup, one Start button, three tabs, hats instead of pets); submit a build made after that change.
 
-Sign-in: Apple, Google, Microsoft and email are enabled in Supabase. The
-`verify-email` function and its `email_verifications` migration were deployed on
-17 November 2026; CORS preflight, signed-out and foreign-origin requests behave as
-designed. Confirm Email is enabled. Supabase's built-in sender only delivers to
-project team members (about 2 emails an hour), so configure custom SMTP before
-launch or sign-up confirmations, password resets and verification codes will not
-reach other people. Google audience/branding and Microsoft credentials still need
-owner review. Follow [production sign-in setup](auth-production.md).
+Sign-in: Apple, Google, Microsoft and email are enabled in Supabase. The project
+sends no email yet, so on 19 November 2026 Confirm Email was turned off (email
+sign-up signs in at once) and the app stopped offering "Forgot password?" and the
+optional email verification. The owner plans to add custom SMTP later; then
+restore both in `SignInScreen.tsx` and `ProfilePanel.tsx` (the `verify-email`
+function is still deployed). Until then, reset a password under Authentication →
+Users. Google audience/branding and Microsoft credentials still need owner review. Follow [production sign-in setup](auth-production.md).
 
 ## Implemented
 
@@ -62,10 +61,9 @@ Done:
 
 Remaining before submission:
 
-1. Custom SMTP in Supabase (see above).
-2. Google Auth Platform: publish the app under Audience and complete branding. Microsoft: confirm the app accepts personal accounts and its client secret has not expired.
-3. App Store Connect: attach the newest build, upload the screenshots, listing text, App Privacy, age rating, content rights, price, and a review login (a confirmed email/password account entered only in App Review Information).
-4. Academic review. The ten courses have 952 distinct original items across 400 reasoning families, reused across their paths; see [question-bank scope](question-bank.md). Structural checks do not certify academic depth, exam alignment or answer accuracy.
+1. Google Auth Platform: publish the app under Audience and complete branding. Microsoft: confirm the app accepts personal accounts and its client secret has not expired.
+2. App Store Connect: attach the newest build, upload the screenshots, listing text, App Privacy, age rating, content rights, price, and a review login (a confirmed email/password account entered only in App Review Information).
+3. Academic review. The ten courses have 952 distinct original items across 400 reasoning families, reused across their paths; see [question-bank scope](question-bank.md). Structural checks do not certify academic depth, exam alignment or answer accuracy.
 
 ## Native acceptance
 
