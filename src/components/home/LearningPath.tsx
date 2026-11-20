@@ -67,7 +67,7 @@ export const LearningPath = memo(function LearningPath({ nodes, width, scale = 1
   );
 });
 
-const STATE_LABEL: Record<QuestNodeState, string> = { locked: 'Locked', current: 'Ready to play', complete: 'Completed' };
+const STATE_LABEL: Record<QuestNodeState, string> = { locked: 'Locked', current: 'Tap to start', complete: 'Done. Tap to play again' };
 
 const PathStop = memo(function PathStop({ node, index, centre, width, g, state, number, selected, onSelect }: {
   node: QuestNode; index: number; centre: number; width: number; g: PathGeometry; state: QuestNodeState; number: number; selected: boolean;
@@ -160,6 +160,13 @@ const PathStop = memo(function PathStop({ node, index, centre, width, g, state, 
             <Image {...hidden} source={badge} tintColor={colors.ink} fadeDuration={0} style={[styles.layer, locked && styles.dim]} />
           </View>
         ) : null}
+        {current ? (
+          // A flag over the stone you are up to: this is where to press.
+          <View pointerEvents="none" style={[styles.flag, { width: 74 * s, left: size.width / 2 - 37 * s, top: -34 * s }]}>
+            <View style={[styles.flagFace, { minHeight: 26 * s, borderRadius: 13 * s }]}><Text style={[styles.flagText, { fontSize: 11 * s, lineHeight: 14 * s }]}>START</Text></View>
+            <View style={[styles.flagTip, { width: 9 * s, height: 9 * s, marginTop: -5.5 * s }]} />
+          </View>
+        ) : null}
         {node.unitBoss && !locked ? (
           <View pointerEvents="none" style={[styles.badge, { width: badgeSize, height: badgeSize, left: -5 * s, top: -3 * s }]}>
             <Image {...hidden} source={PATH_ART.badgeFill} tintColor={colors.background} fadeDuration={0} style={styles.layer} />
@@ -186,6 +193,10 @@ const createStyles = ({ colors, typography }: AppTheme) => StyleSheet.create({
   dim: { opacity: 0.5 },
   badge: { position: 'absolute' },
   label: { position: 'absolute', justifyContent: 'center' },
+  flag: { position: 'absolute', alignItems: 'center' },
+  flagFace: { alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background, borderWidth: 2, borderColor: colors.ink, paddingHorizontal: 8 },
+  flagText: { ...typography.overline, letterSpacing: 1.4, color: colors.ink },
+  flagTip: { backgroundColor: colors.background, borderColor: colors.ink, borderRightWidth: 2, borderBottomWidth: 2, transform: [{ rotate: '45deg' }] },
   // A halo of the page colour, so the landscape behind never runs through a word.
   number: { ...typography.overline, letterSpacing: 0.8, color: colors.textMuted, textShadowColor: colors.background, textShadowRadius: 5 },
   title: { ...typography.caption, color: colors.textSecondary, textShadowColor: colors.background, textShadowRadius: 5 },

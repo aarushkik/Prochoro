@@ -1,6 +1,6 @@
 # Prochoro release readiness
 
-Updated 17 November 2026. TestFlight build 4 (version 1.0.0; Expo SDK 58, Xcode 27.1, iOS 27 SDK, minimum iOS 16.4) is valid and App Store eligible in App Store Connect, and the owner installed it on an iPhone and reported that it works well. App Store version 1.0 is in Prepare for Submission. Build 5 adds the in-app College Board disclaimer and is the one to submit.
+Updated 17 November 2026. TestFlight build 4 (version 1.0.0; Expo SDK 58, Xcode 27.1, iOS 27 SDK, minimum iOS 16.4) is valid and App Store eligible in App Store Connect, and the owner installed it on an iPhone and reported that it works well. App Store version 1.0 is in Prepare for Submission. Build 5 added the in-app College Board disclaimer. On 18 November 2026 the app was simplified (two-tap setup, one Start button, three tabs, hats instead of pets); submit a build made after that change.
 
 Sign-in: Apple, Google, Microsoft and email are enabled in Supabase. The
 `verify-email` function and its `email_verifications` migration were deployed on
@@ -14,12 +14,12 @@ owner review. Follow [production sign-in setup](auth-production.md).
 ## Implemented
 
 - Pure white/light and black/dark page backgrounds with opposite outline artwork. Floating controls and sheets use the shared Liquid Glass material, with blur/solid fallbacks. Old colored scenery, filled illustrations and sticker surfaces are retired.
-- 27 platypus expressions/activities, 12 pets, 60 cute angry bosses, ten AP subject icons, ten generated area doodle backgrounds, and generated study/score/timeline/reward art. Sprite frames preserve accessories and exclude neighboring portraits. See [design refinement](design-refinement.md) and [art manifest](art-manifest.md).
+- 27 platypus expressions/activities, 8 hats, 60 cute angry bosses, ten AP subject icons, ten generated area doodle backgrounds, and generated study/score/timeline/reward art. Sprite frames preserve accessories and exclude neighboring portraits. See [design refinement](design-refinement.md) and [art manifest](art-manifest.md).
 - The quiz now uses a glass toolbar, question cards, inline explanations and an action dock. Boss questions deal real HP damage with hit reactions, counterattacks and a final strike after a complete passing attempt. Repeated presses are latched. Learning, pass conditions and atomic XP banking remain intact.
 - Required sign-in with Apple (release flag on), Google, Microsoft and email, local offline persistence and account synchronization. Native scheme, bundle identifiers and stored progress IDs did not change. The sign-in screen and Options state that Prochoro is not affiliated with or endorsed by the College Board.
 - The repository now has the custom Pages domain `prochoro.net`. Web assets export under `/app`; OAuth/recovery use actual static directories at `/app/auth/callback/` and `/app/auth/recovery/`. Policy links use the new domain. Public authentication requires HTTPS; loopback development remains supported.
 
-- Simplified Play Level N flow, official AP-unit progress, one-tap pet selection in Options, and direct next-level/retry actions. XP is a reward total rather than a second level rank. Every official AP unit has a final boss; choice order shuffles per attempt while grading stays tied to semantic IDs.
+- Two-tap setup, a Learn screen where any open circle (or one big Start button) starts a level, three tabs (Learn, Practice, Me), hats earned by studying in place of pets, timed one-tap boss duels with critical hits, an endless deck-building card battle (the climb) in Practice, official AP-unit progress, and direct next-level/retry actions. XP is a reward total rather than a second level rank. Every official AP unit has a final boss; choice order shuffles per attempt while grading stays tied to semantic IDs.
 
 ## Verified 17 November 2026
 
@@ -64,7 +64,7 @@ Remaining before submission:
 
 1. Custom SMTP in Supabase (see above).
 2. Google Auth Platform: publish the app under Audience and complete branding. Microsoft: confirm the app accepts personal accounts and its client secret has not expired.
-3. App Store Connect: attach build 5, upload the screenshots, listing text, App Privacy, age rating, content rights, price, and a review login (a confirmed email/password account entered only in App Review Information).
+3. App Store Connect: attach the newest build, upload the screenshots, listing text, App Privacy, age rating, content rights, price, and a review login (a confirmed email/password account entered only in App Review Information).
 4. Academic review. The ten courses have 952 distinct original items across 400 reasoning families, reused across their paths; see [question-bank scope](question-bank.md). Structural checks do not certify academic depth, exam alignment or answer accuracy.
 
 ## Native acceptance
@@ -77,7 +77,7 @@ Name: Prochoro: AP Study
 
 Subtitle: Small steps. Stronger study.
 
-Description: Build a steady AP study habit with your platypus companion. Choose one of ten courses, read short lessons, practise topic questions and challenge cute rivals in boss duels. Track sessions, topic accuracy and progress. Choose a study pet with a helpful ability. Your account saves progress across devices. Original practice material; independent of and not endorsed by the College Board. AP is its registered trademark.
+Description: Build a steady AP study habit with your platypus companion. Choose one of ten courses, read short lessons, practise topic questions and challenge cute rivals in boss duels. Track sessions, topic accuracy and progress. Earn hats for your platypus as you study. Your account saves progress across devices. Original practice material; independent of and not endorsed by the College Board. AP is its registered trademark.
 
 Support URL: https://prochoro.net/support.html · Privacy Policy URL: https://prochoro.net/privacy.html
 

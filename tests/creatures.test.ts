@@ -42,7 +42,6 @@ test("sixty boss portraits use ten distinct monochrome atlases bundled for offli
   }
   assert.equal(hashes.size, 10, "each family needs its own artwork");
   for (const [path, width, height] of [
-    ["../src/assets/characters/prochoro/companions.png", 1448, 1086],
     ["../src/assets/characters/prochoro/courses.png", 1774, 887],
     ["../src/assets/characters/prochoro/activities.png", 1774, 887],
     ["../src/assets/characters/prochoro/utilities.png", 1448, 1086],
@@ -54,14 +53,12 @@ test("sixty boss portraits use ten distinct monochrome atlases bundled for offli
   }
 });
 
-test('mascot expressions, companions and utility icons have distinct bounded portrait crops', () => {
+test('mascot expressions, bosses and utility icons have distinct bounded portrait crops', () => {
   const mascot = JSON.parse(readFileSync(new URL('../src/data/mascotFrames.json', import.meta.url), 'utf8'));
-  const companions = JSON.parse(readFileSync(new URL('../src/data/companionFrames.json', import.meta.url), 'utf8'));
   const utilities = JSON.parse(readFileSync(new URL('../src/data/utilityFrames.json', import.meta.url), 'utf8'));
   const bosses = JSON.parse(readFileSync(new URL('../src/data/bossFrames.json', import.meta.url), 'utf8'));
   for (const [file, data, count] of [
     ...Object.entries(mascot).map(([name, data]) => [`../src/assets/mascot/prochoro/${name}.png`, data, 9]),
-    ['../src/assets/characters/prochoro/companions.png', companions, 12],
     ['../src/assets/characters/prochoro/utilities.png', utilities, 12],
     ...Object.entries(bosses).map(([name, data]) => [`../src/assets/characters/prochoro/bosses/${name}.png`, data, 6]),
   ] as [string, { width: number; height: number; frames: number[][] }, number][]) {
@@ -83,5 +80,26 @@ test('mascot expressions, companions and utility icons have distinct bounded por
         });
       });
     }
+  }
+});
+
+test('every hat has both art layers and sits on a measured head in every mascot pose', async () => {
+  const { LOOKS, NO_LOOK } = await import('../src/data/looks');
+  const anchors = JSON.parse(readFileSync(new URL('../src/data/lookAnchors.json', import.meta.url), 'utf8'));
+  const mascot = JSON.parse(readFileSync(new URL('../src/data/mascotFrames.json', import.meta.url), 'utf8'));
+  const poses = Object.values(mascot).reduce((sum: number, sheet) => sum + (sheet as { frames: unknown[] }).frames.length, 0);
+  assert.equal(Object.keys(anchors).length, poses, 'one head per pose');
+  for (const [pose, head] of Object.entries(anchors) as [string, { x: number; y: number; w: number; tilt: number }][]) {
+    assert.ok(head.x > 0.25 && head.x < 0.75, `${pose} head centre`);
+    assert.ok(head.y > 0 && head.y < 0.4, `${pose} head top`);
+    assert.ok(head.w > 0.2 && head.w < 0.8, `${pose} head width`);
+    assert.ok(Math.abs(head.tilt) <= 25, `${pose} tilt`);
+  }
+  for (const look of LOOKS.filter(item => item.id !== NO_LOOK)) for (const layer of [look.id, `${look.id}-fill`]) {
+    const image = readFileSync(new URL(`../src/assets/looks/${layer}.png`, import.meta.url));
+    assert.equal(image.readUInt32BE(16), 600, layer);
+    assert.equal(image.readUInt32BE(20), 600, layer);
+    // RGBA, or a palette with a transparency chunk once oxipng has shrunk it.
+    assert.ok(image[25] === 6 || (image[25] === 3 && image.includes('tRNS')), `${layer} needs transparency`);
   }
 });

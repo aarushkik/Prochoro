@@ -1,4 +1,3 @@
-import type { CompanionEffect } from '@/data/companions';
 import { daysBetween, nextStreak } from './studyDates';
 
 export interface AnswerOutcome { skillTag: string; correct: boolean }
@@ -50,15 +49,10 @@ export function bankSession(previous: QuestProgress, input: {
   answers: AnswerOutcome[];
   today: string;
   clearedNodeId?: string;
-  ability?: CompanionEffect | null;
-  shieldDays?: number;
 }): QuestProgress {
   if (!input.answers.length || !Number.isFinite(input.xp) || input.xp < 0) return previous;
-  const shieldDays = input.ability === 'shield' && !previous.streakShieldUsed ? input.shieldDays ?? 0 : 0;
   const gap = daysBetween(previous.lastSessionOn, input.today);
-  const shieldSaved = previous.streakDays > 0 && gap !== null && gap > 1 && gap <= shieldDays + 1;
-  const streakDays = nextStreak(previous.streakDays, previous.lastSessionOn, input.today, shieldDays);
-  const broke = gap === null || (gap > 1 && !shieldSaved);
+  const streakDays = nextStreak(previous.streakDays, previous.lastSessionOn, input.today, 0);
   // Preserve the latest date when a timezone change moves the clock backwards.
   const day = gap !== null && gap < 0 ? previous.lastSessionOn! : input.today;
   const skills = { ...previous.skills };
@@ -72,14 +66,13 @@ export function bankSession(previous: QuestProgress, input: {
     earned: input.clearedNodeId && !previous.earned.includes(input.clearedNodeId)
       ? [...previous.earned, input.clearedNodeId] : previous.earned,
     xp: previous.xp + Math.round(input.xp),
-    gems: previous.gems + (input.ability === 'gems' ? 2 : 1),
+    gems: previous.gems + 1,
     sessions: previous.sessions + 1,
     perfectSessions: previous.perfectSessions + (input.answers.every((answer) => answer.correct) ? 1 : 0),
     todayCount: (previous.lastSessionOn === day ? previous.todayCount : 0) + 1,
     lastSessionOn: day,
     streakDays,
     bestStreak: Math.max(previous.bestStreak, streakDays),
-    streakShieldUsed: shieldSaved || (!broke && previous.streakShieldUsed),
     skills,
   };
 }

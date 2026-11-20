@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { registerRootComponent } from 'expo';
 import { Image, ScrollView, Text, View, Pressable, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NavigationContainer, DefaultTheme, createNavigationContainerRef, useNavigation } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, createNavigationContainerRef, useNavigation, useRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 import { ThemeProvider, useAppTheme, useAppearancePreference } from '../src/theme/ThemeProvider';
@@ -22,17 +22,14 @@ import { BOSS_ART } from '../src/data/characterArt';
 import { getCourse } from '../src/data';
 import { questionCountFor } from '../src/data/questMap';
 import { HomeContent } from '../src/screens/HomeScreen';
-import { IntroScreen } from '../src/screens/IntroScreen';
 import { CourseSelectionScreen } from '../src/screens/CourseSelectionScreen';
-import { SubjectExperienceScreen } from '../src/screens/SubjectExperienceScreen';
-import { GoalScoreScreen } from '../src/screens/GoalScoreScreen';
-import { ExamTimelineScreen } from '../src/screens/ExamTimelineScreen';
-import { AchievementPreviewScreen } from '../src/screens/AchievementPreviewScreen';
 import { PlacementResultScreen } from '../src/screens/PlacementResultScreen';
 import { LessonCompleteScreen } from '../src/screens/LessonCompleteScreen';
 import { QuizScreen } from '../src/screens/QuizScreen';
-import { CharactersScreen } from '../src/screens/CharactersScreen';
+import { ClimbGame, ClimbScreen } from '../src/screens/ClimbScreen';
+import { chooseRoom, newRun, takeCard } from '../src/utils/climb';
 import type { QuestNode } from '../src/types/quest';
+import type { QuestTab } from '../src/components/home/QuestTabBar';
 
 const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef<any>();
@@ -40,8 +37,9 @@ const navigationRef = createNavigationContainerRef<any>();
 function Seed() {
   const setup = useOnboarding(); const quest = useQuest();
   useEffect(() => {
-    setup.hydrate({ courseId: 'ap-biology', goalScoreId: 'score5', placementLevelId: 'beginner', onboarded: true });
-    quest.hydrate({ xp: 240, gems: 5, streakDays: 3, bestStreak: 3, lastSessionOn: todayKey(), todayCount: 1, sessions: 4, completedStops: quest.map.order.slice(0, 2) });
+    setup.hydrate({ courseId: 'ap-biology', placementLevelId: 'beginner', onboarded: true });
+    // Four lessons, one perfect, three days running: three hats earned, the cap on.
+    quest.hydrate({ xp: 240, gems: 5, streakDays: 3, bestStreak: 3, lastSessionOn: todayKey(), todayCount: 1, sessions: 4, perfectSessions: 1, completedStops: quest.map.order.slice(0, 2), equippedId: 'grad-cap' });
   }, []);
   return null;
 }
@@ -62,10 +60,12 @@ function Menu() {
     <Text style={theme.typography.body}>Real screens with disposable sample progress. Account and saved study data are never loaded here.</Text>
     <AppearanceControls />
     <AppButton label="Study home" onPress={() => nav.navigate('Home')} />
-    <AppButton label="Onboarding flow" tone="secondary" onPress={() => nav.navigate('Intro')} />
+    <AppButton label="Me and hats" tone="secondary" onPress={() => nav.navigate('Home', { tab: 'me' })} />
+    <AppButton label="First run" tone="secondary" onPress={() => nav.navigate('CourseSelection')} />
+    <AppButton label="Where to start" tone="secondary" onPress={() => nav.navigate('Quiz')} />
     <AppButton label="Boss duel" tone="secondary" onPress={() => start(boss)} />
-    <AppButton label="Retry duel · Benny" tone="secondary" onPress={() => { quest.equip('quill'); start(boss); }} />
-    <AppButton label="Review duel · Remy" tone="secondary" onPress={() => { quest.hydrate({ completedStops: quest.map.units.slice(0, 4).flatMap(u => u.nodes.map(n => n.id)), equippedId: 'slate' }); start(boss); }} />
+    <AppButton label="Endless climb" tone="secondary" onPress={() => nav.navigate('Climb')} />
+    <AppButton label="Climb battle" tone="secondary" onPress={() => nav.navigate('ClimbBattle')} />
     <AppButton label="Lesson and questions" tone="secondary" onPress={() => start(lesson)} />
     <AppButton label="Data question preview" tone="secondary" onPress={() => openSample('ap-biology', 'Data practice', 'Osmosis')} />
     <AppButton label="Code question preview" tone="secondary" onPress={() => openSample('ap-csa', 'Code practice', 'String methods')} />
@@ -73,21 +73,31 @@ function Menu() {
     <AppButton label="Statistics table preview" tone="secondary" onPress={() => openSample('ap-stats', 'Statistics practice', 'Two-way tables')} />
     <AppButton label="Reading question preview" tone="secondary" onPress={() => openSample('ap-eng-lang', 'Reading practice', 'Rhetorical situation')} />
     <AppButton label="Subjects" tone="secondary" onPress={() => nav.navigate('CourseSelection')} />
-    <AppButton label="Pets and bosses" tone="secondary" onPress={() => nav.navigate('Characters')} />
     <AppButton label="Session results" tone="secondary" onPress={() => nav.navigate('LessonComplete', { title: boss.title, correct: 6, total: 8, xp: 45, cleared: true, bossNodeId: boss.id })} />
+    <AppButton label="Results with a new hat" tone="secondary" onPress={() => nav.navigate('LessonComplete', { title: lesson.title, correct: 5, total: 5, xp: 30, cleared: true, nodeId: lesson.id, level: 1, looksBefore: ['none', 'grad-cap', 'party-hat'] })} />
     <AppButton label="Artwork sheets" tone="secondary" onPress={() => nav.navigate('Artwork')} />
   </ScrollView>;
 }
 function Artwork() {
-  const sheets = { ...BOSS_ART, ...MASCOT_SHEETS, ...Object.fromEntries(Object.entries(AREA_ART).map(([id, source]) => [`area-${id}`, source])), utilities: require('../src/assets/characters/prochoro/utilities.png'), courses: require('../src/assets/characters/prochoro/courses.png'), activities: require('../src/assets/characters/prochoro/activities.png'), companions: require('../src/assets/characters/prochoro/companions.png') };
+  const sheets = { ...BOSS_ART, ...MASCOT_SHEETS, ...Object.fromEntries(Object.entries(AREA_ART).map(([id, source]) => [`area-${id}`, source])), utilities: require('../src/assets/characters/prochoro/utilities.png'), courses: require('../src/assets/characters/prochoro/courses.png'), activities: require('../src/assets/characters/prochoro/activities.png') };
   const [selected, setSelected] = useState<keyof typeof sheets>('waves');
   return <ScrollView contentContainerStyle={{ padding: 20, backgroundColor: '#FFFFFF' }}>
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>{Object.keys(sheets).map(id => <Pressable key={id} accessibilityRole="button" onPress={() => setSelected(id as keyof typeof sheets)} style={{ padding: 12, borderWidth: 1, borderRadius: 12 }}><Text>{id}</Text></Pressable>)}</View>
     <Text>{selected}</Text><Image source={sheets[selected]} resizeMode="contain" style={{ width:'100%',height:500,tintColor:'#000000'}} />
   </ScrollView>;
 }
+/** A climb with its deck drafted and the first battle under way. */
+function ClimbBattle() {
+  const [run] = useState(() => {
+    let state = newRun('preview-climb');
+    while (state.phase === 'draft') state = takeCard(state, state.offer[0].uid);
+    return chooseRoom(state, 'battle');
+  });
+  return <ClimbGame initial={run} startOpen />;
+}
 function PreviewHome() {
-  return <HomeContent renderOptions={topInset => <ProfileContent topInset={topInset} account={{ user: { user_metadata: { name: 'Your study space' } }, signOut: async () => {}, deleteAccount: async () => false, deleting: false, error: null }} connection={{ offline: false, error: null, notice: null, retry: () => {} }} />} />;
+  const tab = (useRoute().params as { tab?: QuestTab } | undefined)?.tab;
+  return <HomeContent key={tab ?? 'learn'} initialTab={tab} renderMe={topInset => <ProfileContent topInset={topInset} account={{ user: { user_metadata: { name: 'Sam Rivera' } }, signOut: async () => {}, deleteAccount: async () => false, deleting: false, error: null }} connection={{ offline: false, error: null, notice: null, retry: () => {} }} />} />;
 }
 function PreviewRoot() {
   const theme = useAppTheme(); const appearance = useAppearancePreference();
@@ -103,11 +113,9 @@ function PreviewRoot() {
       <Stack.Navigator initialRouteName="PreviewMenu" screenOptions={{ headerShown: false, animation: 'none', contentStyle: { backgroundColor: theme.colors.background } }}>
         <Stack.Screen name="PreviewMenu" component={Menu} /><Stack.Screen name="Home" component={PreviewHome} />
         <Stack.Screen name="Artwork" component={Artwork} />
-        <Stack.Screen name="Intro" component={IntroScreen} /><Stack.Screen name="CourseSelection" component={CourseSelectionScreen} />
-        <Stack.Screen name="SubjectExperience" component={SubjectExperienceScreen} /><Stack.Screen name="GoalScore" component={GoalScoreScreen} />
-        <Stack.Screen name="ExamTimeline" component={ExamTimelineScreen} /><Stack.Screen name="AchievementPreview" component={AchievementPreviewScreen} />
-        <Stack.Screen name="Quiz" component={QuizScreen} /><Stack.Screen name="PlacementResult" component={PlacementResultScreen} />
-        <Stack.Screen name="LessonComplete" component={LessonCompleteScreen} /><Stack.Screen name="Characters" component={CharactersScreen} />
+        <Stack.Screen name="CourseSelection" component={CourseSelectionScreen} />
+        <Stack.Screen name="Quiz" component={QuizScreen} /><Stack.Screen name="Climb" component={ClimbScreen} /><Stack.Screen name="ClimbBattle" component={ClimbBattle} /><Stack.Screen name="PlacementResult" component={PlacementResultScreen} />
+        <Stack.Screen name="LessonComplete" component={LessonCompleteScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   </View>;

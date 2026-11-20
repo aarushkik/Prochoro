@@ -1,60 +1,51 @@
 import React, { useState } from 'react';
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AreaBackdrop } from '@/components/ui/AreaBackdrop';
-import { GlassSurface } from '@/components/ui/GlassSurface';
-import { AppButton } from '@/components/ui';
 import { QuestHud } from '@/components/home/QuestHud';
 import { QuestTabBar, type QuestTab } from '@/components/home/QuestTabBar';
-import { PlayPanel, type AreaRequest } from '@/components/home/PlayPanel';
+import { PlayPanel } from '@/components/home/PlayPanel';
 import { TrainPanel } from '@/components/home/TrainPanel';
-import { BattlesPanel } from '@/components/home/BattlesPanel';
 import { ProfilePanel } from '@/components/home/ProfilePanel';
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import { useQuest } from '@/state/QuestContext';
-import { questionCountFor } from '@/data/questMap';
-import { levelNumber } from '@/utils/learningLevels';
-import type { QuestNode } from '@/types/quest';
+import { useOnboarding } from '@/state/OnboardingContext';
 import type { RootStackParamList } from '@/navigation/types';
 import { useScreenLayout } from '@/hooks/useScreenLayout';
 
-export function HomeScreen() { return <HomeContent renderOptions={topInset => <ProfilePanel topInset={topInset} />} />; }
+export function HomeScreen() { return <HomeContent renderMe={topInset => <ProfilePanel topInset={topInset} />} />; }
 
-/** Shared with visual QA: identical navigation, without loading a real account. */
-export function HomeContent({ renderOptions }: { renderOptions: (topInset: number) => React.ReactNode }) {
+/**
+ * Home opens on Learn, where one button starts the next lesson. Practice and
+ * Me are a tap away and never in the way. Shared with visual QA, which
+ * supplies its own Me tab so no real account is loaded.
+ */
+export function HomeContent({ renderMe, initialTab = 'learn' }: { renderMe: (topInset: number) => React.ReactNode; initialTab?: QuestTab }) {
   const theme = useAppTheme(); const styles = useThemedStyles(createStyles); const quest = useQuest();
+  const { courseId } = useOnboarding();
   const layout = useScreenLayout();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [tab, setTab] = useState<QuestTab>('map'); const [hudHeight, setHudHeight] = useState(74);
+  const [tab, setTab] = useState<QuestTab>(initialTab); const [hudHeight, setHudHeight] = useState(74);
   const currentArea = quest.map.units.find(unit => unit.nodes.some(node => node.id === quest.currentNodeId))?.index ?? 0;
-  const [area, setArea] = useState(currentArea); const [areaRequest, setAreaRequest] = useState<AreaRequest | null>(null);
-  const [lockedMessage, setLockedMessage] = useState<string | null>(null);
-  const play = (node: QuestNode) => {
-    if (quest.stateOf(node.id) === 'locked') { setLockedMessage('Play Level ' + levelNumber(quest.map, quest.currentNodeId) + ' next. Each win opens the level after it.'); return; }
-    const unit = quest.map.units.find(unit => unit.nodes.some(item => item.id === node.id));
-    navigation.navigate('Quiz', { nodeId: node.id, unit: unit?.index, title: node.title, xp: node.xp, count: questionCountFor(node), boss: node.kind === 'boss' });
-  };
+  const [area, setArea] = useState(currentArea);
   // The landscape runs the full width of the window; everything you read or
   // press stays in one centred column on top of it.
   return <View style={styles.page}>
-    <AreaBackdrop kind={quest.map.units[area]?.track.kind} opacity={tab === 'map' ? 0.17 : 0.11} />
+    <AreaBackdrop kind={quest.map.units[area]?.track.kind} opacity={tab === 'learn' ? 0.17 : 0.11} />
     <View style={[styles.root, { maxWidth: layout.wide ? layout.column : undefined }]}>
     <StatusBar style={theme.isDark ? 'light' : 'dark'} />
-    <View style={[styles.fill, tab !== 'map' && styles.hidden]} pointerEvents={tab === 'map' ? 'auto' : 'none'}><PlayPanel topInset={hudHeight} areaRequest={areaRequest} onPractice={() => setTab('practice')} onAreaChange={setArea} /></View>
+    <View style={[styles.fill, tab !== 'learn' && styles.hidden]} pointerEvents={tab === 'learn' ? 'auto' : 'none'}><PlayPanel topInset={hudHeight} onPractice={() => setTab('practice')} onAreaChange={setArea} /></View>
     {tab === 'practice' ? <TrainPanel topInset={hudHeight} /> : null}
-    {tab === 'progress' ? <BattlesPanel topInset={hudHeight} onSelect={play} onJumpToTrack={index => { setAreaRequest({ index, id: Date.now() }); setTab('map'); }} /> : null}
-    {tab === 'you' ? renderOptions(hudHeight) : null}
-    <QuestHud equippedId={quest.equippedId} streak={quest.streakDays} onOpenCharacters={() => setTab('you')} onLayout={event => setHudHeight(Math.round(event.nativeEvent.layout.height))} />
+    {tab === 'me' ? renderMe(hudHeight) : null}
+    <QuestHud courseId={courseId} streak={quest.streakDays} onSwitchCourse={() => navigation.navigate('CourseSelection', { switching: true })} onOpenMe={() => setTab('me')} onLayout={event => setHudHeight(Math.round(event.nativeEvent.layout.height))} />
     <QuestTabBar active={tab} onChange={setTab} />
-    <Modal transparent visible={lockedMessage !== null} animationType="fade" onRequestClose={() => setLockedMessage(null)}><View style={styles.scrim}><GlassSurface variant="thick" style={styles.dialog}><Text style={styles.title}>One level at a time</Text><Text style={styles.body}>{lockedMessage}</Text><AppButton label="Got it" onPress={() => setLockedMessage(null)} /></GlassSurface></View></Modal>
     </View>
   </View>;
 }
-const createStyles = ({ colors, typography, glass }: AppTheme) => StyleSheet.create({
+const createStyles = ({ colors }: AppTheme) => StyleSheet.create({
   page: { flex: 1, backgroundColor: colors.background },
   root: { flex: 1, width: '100%', alignSelf: 'center' },
-  fill: { flex: 1 }, hidden: { display: 'none' }, scrim: { flex: 1, padding: 24, justifyContent: 'center', alignItems: 'center', backgroundColor: glass.scrim },
-  dialog: { padding: 24, borderRadius: 28, maxWidth: 380, gap: 20 }, title: { ...typography.heading }, body: { ...typography.body },
+  fill: { flex: 1 }, hidden: { display: 'none' },
 });

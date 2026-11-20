@@ -3,12 +3,8 @@ export type RootStackParamList = {
   Splash: undefined;
   /** Signed-out stack only. */
   SignIn: undefined;
-  Intro: undefined;
-  CourseSelection: undefined;
-  SubjectExperience: undefined;
-  GoalScore: undefined;
-  ExamTimeline: undefined;
-  AchievementPreview: undefined;
+  /** First run picks a course; `switching` changes course from Home and returns there. */
+  CourseSelection: { switching?: boolean } | undefined;
   /**
    * The question engine. With no params it runs the placement quest; with
    * params it runs one map stop or one training drill.
@@ -24,7 +20,7 @@ export type RootStackParamList = {
          * it. Off-map only — a stop uses `unit` instead.
          */
         focus?: string[];
-        /** True for a track boss, which pays more and which some companions favour. */
+        /** True for a track boss. */
         boss?: boolean;
         /**
          * Endless review: the run refills instead of ending, and the student
@@ -38,10 +34,14 @@ export type RootStackParamList = {
       }
     | undefined;
   PlacementResult: undefined;
-  LessonComplete: { title: string; correct: number; total: number; xp: number; cleared?: boolean; bossNodeId?: string; nodeId?: string; level?: number };
+  /** Endless practice: climb floor by floor against timed rivals until the hearts run out. */
+  Climb: undefined;
+  LessonComplete: {
+    title: string; correct: number; total: number; xp: number; cleared?: boolean; bossNodeId?: string; nodeId?: string; level?: number;
+    /** Hats earned before this session, so a new one can be announced. */
+    looksBefore?: string[];
+  };
   Home: undefined;
-  /** The companion roster, reached from the HUD avatar and from Profile. */
-  Characters: { page?: 'companions' | 'bosses' } | undefined;
 };
 
 // Enables typed navigation with the untyped `useNavigation()` hook.

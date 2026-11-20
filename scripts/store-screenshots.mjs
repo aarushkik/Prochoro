@@ -29,19 +29,23 @@ const SHOTS = {
   'iphone-6.9': [
     ['01-path', ['Study home']],
     ['02-boss', ['Boss duel']],
-    ['03-code-question', ['CSP pseudocode preview']],
-    ['04-data-question', ['Statistics table preview']],
-    ['05-progress', ['Study home', 'Progress']],
-    ['06-subjects', ['Subjects']],
-    ['07-dark-mode', ['Study home'], 'dark'],
+    ['03-climb', ['Climb battle']],
+    ['04-code-question', ['CSP pseudocode preview']],
+    ['05-data-question', ['Statistics table preview']],
+    ['06-hats', ['Me and hats']],
+    ['07-new-hat', ['Results with a new hat']],
+    ['08-subjects', ['Subjects']],
+    ['09-dark-mode', ['Study home'], 'dark'],
   ],
   'ipad-13': [
     ['01-path', ['Study home']],
     ['02-boss', ['Boss duel']],
-    ['03-code-question', ['CSP pseudocode preview']],
-    ['04-progress', ['Study home', 'Progress']],
-    ['05-subjects', ['Subjects']],
-    ['06-dark-mode', ['Study home'], 'dark'],
+    ['03-climb', ['Climb battle']],
+    ['04-code-question', ['CSP pseudocode preview']],
+    ['05-hats', ['Me and hats']],
+    ['06-new-hat', ['Results with a new hat']],
+    ['07-subjects', ['Subjects']],
+    ['08-dark-mode', ['Study home'], 'dark'],
   ],
 };
 
@@ -96,6 +100,8 @@ try {
   await send('Runtime.enable');
   for (const [device, shots] of Object.entries(SHOTS)) {
     const { width, height, scale } = DEVICES[device];
+    // Start each set fresh, so a renamed or dropped screen never lingers.
+    rmSync(join(OUT, device), { recursive: true, force: true });
     mkdirSync(join(OUT, device), { recursive: true });
     for (const [name, steps, scheme = 'light'] of shots) {
       await send('Emulation.setDeviceMetricsOverride', { width, height: height + BAR, deviceScaleFactor: scale, mobile: false });

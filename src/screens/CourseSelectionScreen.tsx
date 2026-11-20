@@ -2,7 +2,7 @@ import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvid
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppButton, CourseCard, ScreenContainer, SetupQuestionHeader } from '@/components';
 import { spacing } from '@/theme';
@@ -13,30 +13,33 @@ import { OptionGrid } from '@/components/ui/OptionGrid';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'CourseSelection'>;
 
-/** Setup step 1: pick the AP course to study. */
+/**
+ * Pick the AP course to study. On first run it leads to the choice of where
+ * to start; from Home it switches course and goes straight back.
+ */
 export function CourseSelectionScreen() {
   const appTheme = useAppTheme();
   const { colors, palette, typography, chunky } = appTheme;
   const styles = useThemedStyles(createStyles);
 
   const navigation = useNavigation<Nav>();
+  const switching = Boolean(useRoute<RouteProp<RootStackParamList, 'CourseSelection'>>().params?.switching);
   const { courseId, setCourseId } = useOnboarding();
   const [selected, setSelected] = useState<string | null>(courseId);
 
   const onContinue = () => {
     if (!selected) return;
     setCourseId(selected);
-    navigation.navigate('SubjectExperience');
+    if (switching) navigation.goBack();
+    else navigation.navigate('Quiz');
   };
 
   return (
     <ScreenContainer>
       <StatusBar style={appTheme.isDark ? "light" : "dark"} />
       <SetupQuestionHeader
-        onBack={() => navigation.goBack()}
-        step={1}
-        total={5}
-        question="Choose your AP subject."
+        onBack={switching ? () => navigation.goBack() : undefined}
+        question={switching ? 'Switch subject.' : 'What are you studying?'}
         mascotPose="neutral"
       />
 
@@ -54,7 +57,7 @@ export function CourseSelectionScreen() {
         <View style={styles.pad} />
       </ScrollView>
 
-      <AppButton label="Continue" disabled={!selected} onPress={onContinue} />
+      <AppButton label={switching ? 'Switch' : 'Continue'} disabled={!selected} onPress={onContinue} />
     </ScreenContainer>
   );
 }

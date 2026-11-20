@@ -37,12 +37,12 @@ test('empty or invalid sessions award nothing; passing needs a complete 60% atte
   assert.equal(sessionClearsStop(answers.slice(0, 3), 5), false);
   assert.equal(sessionClearsStop(answers.map(a => ({ ...a, correct: false })), 5), false);
 });
-test('a shield is spent once and resets only after the streak breaks', () => {
+test('a missed day restarts the streak, and each session pays one gem', () => {
   let p = bankSession(emptyProgress(), { xp: 10, answers, today: '2026-09-01' });
-  p = bankSession(p, { xp: 10, answers, today: '2026-09-03', ability: 'shield', shieldDays: 1 });
-  assert.equal(p.streakShieldUsed, true); assert.equal(p.streakDays, 1);
-  p = bankSession(p, { xp: 10, answers, today: '2026-09-05', ability: 'shield', shieldDays: 1 });
-  assert.equal(p.streakShieldUsed, false); assert.equal(p.streakDays, 1);
+  p = bankSession(p, { xp: 10, answers, today: '2026-09-02' });
+  assert.equal(p.streakDays, 2); assert.equal(p.bestStreak, 2); assert.equal(p.gems, 2);
+  p = bankSession(p, { xp: 10, answers, today: '2026-09-04' });
+  assert.equal(p.streakDays, 1); assert.equal(p.bestStreak, 2); assert.equal(p.gems, 3);
 });
 test('malformed progress cannot create negative or impossible skill accuracy', () => {
   assert.deepEqual(sanitizeSkills({ bad: { seen: -3, correct: 10 }, good: { seen: 5, correct: 8 } }), { bad: { seen: 0, correct: 0 }, good: { seen: 5, correct: 5 } });

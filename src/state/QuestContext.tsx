@@ -2,7 +2,8 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { AppState } from 'react-native';
 import { findNode, getQuestMap, headStartFor, questionCountFor } from '@/data/questMap';
 import { apCourses } from '@/data/apCourses';
-import { companionById, companionsFor, STARTER_COMPANION_ID, type CompanionEffect, type CompanionStatus } from '@/data/companions';
+import { courseProgressFor, looksFor, NO_LOOK, type LookStatus } from '@/data/looks';
+import { WornLookContext } from '@/components/Mascot/WornLook';
 import { todayKey, visibleStreak } from '@/utils/studyDates';
 import { bankSession, emptyProgress, nonnegativeInteger, sanitizeSkills, sessionClearsStop, type AnswerOutcome, type QuestProgress, type SkillTally } from '@/utils/questProgress';
 import type { QuestMap, QuestNodeState } from '@/types/quest';
@@ -22,6 +23,7 @@ export interface QuestHydration {
   sessions?: number;
   perfectSessions?: number;
   bestStreak?: number;
+  /** The hat being worn; stored in the profile's old companion field. */
   equippedId?: string | null;
   streakShieldUsed?: boolean;
 }
@@ -37,7 +39,7 @@ interface QuestContextValue {
   xp: number;
   gems: number;
   streakDays: number;
-  /** Raw counter at the last session, retained for streak shield decisions. */
+  /** The streak counter as saved at the last session. */
   storedStreakDays: number;
   todayCount: number;
   /** Count associated with lastSessionOn; display-only midnight resets are not persisted. */
@@ -50,10 +52,12 @@ interface QuestContextValue {
   perfectSessions: number;
   bestStreak: number;
   lastSessionOn: string | null;
-  companions: CompanionStatus[];
-  equippedId: string;
-  equip: (id: string) => void;
-  ability: CompanionEffect | null;
+  /** Every hat, and whether this student has earned it yet. */
+  looks: LookStatus[];
+  /** The hat being worn, or `none`. */
+  lookId: string;
+  wear: (id: string) => void;
+  /** Kept only so synced profiles round-trip; nothing sets it any more. */
   streakShieldUsed: boolean;
   hydrate: (next: QuestHydration) => void;
   reset: () => void;
@@ -70,7 +74,7 @@ export function QuestProvider({ children }: { children: React.ReactNode }) {
   // Updated atomically during events, never inside a React updater/render.
   const progressRef = useRef(progress);
   const bankedSessions = useRef(new Set<string>());
-  const [equippedRaw, setEquippedRaw] = useState(STARTER_COMPANION_ID);
+  const [lookRaw, setLookRaw] = useState(NO_LOOK);
   const [today, setToday] = useState(todayKey);
 
   useEffect(() => {
@@ -97,19 +101,17 @@ export function QuestProvider({ children }: { children: React.ReactNode }) {
   }, [seeded, progress.earned, map]);
   const completedSet = useMemo(() => new Set(completed), [completed]);
   const currentNodeId = map.order.find((id) => !completedSet.has(id)) ?? null;
-  const companions = useMemo(() => companionsFor({
-    completed: progress.earned, map, skills: progress.skills, bestStreak: progress.bestStreak, sessions: progress.sessions,
-  }), [map, progress.earned, progress.skills, progress.bestStreak, progress.sessions]);
-  const equippedId = companions.some((companion) => companion.id === equippedRaw && companion.owned)
-    ? equippedRaw : STARTER_COMPANION_ID;
-  const equipped = companionById(equippedId);
-  const ability = equipped?.effect ?? null;
-  const shieldDays = ability === 'shield' && !progress.streakShieldUsed ? equipped?.shieldDays ?? 0 : 0;
-  const streakDays = visibleStreak(progress.streakDays, progress.lastSessionOn, today, shieldDays);
+  const courseProgress = useMemo(() => courseProgressFor(progress.earned), [progress.earned]);
+  const looks = useMemo(() => looksFor({
+    sessions: progress.sessions, perfectSessions: progress.perfectSessions, bestStreak: progress.bestStreak, ...courseProgress,
+  }), [progress.sessions, progress.perfectSessions, progress.bestStreak, courseProgress]);
+  // A saved ID that is not an earned hat (an old pet, say) shows no hat.
+  const lookId = looks.some((look) => look.id === lookRaw && look.owned) ? lookRaw : NO_LOOK;
+  const wear = useCallback((id: string) => {
+    if (looks.some((look) => look.id === id && look.owned)) setLookRaw(id);
+  }, [looks]);
+  const streakDays = visibleStreak(progress.streakDays, progress.lastSessionOn, today, 0);
   const todayCount = progress.lastSessionOn === today ? progress.todayCount : 0;
-  const equip = useCallback((id: string) => {
-    if (companions.some((companion) => companion.id === id && companion.owned)) setEquippedRaw(id);
-  }, [companions]);
   const stateOf = useCallback((nodeId: string): QuestNodeState =>
     completedSet.has(nodeId) ? 'complete' : nodeId === currentNodeId ? 'current' : 'locked',
   [completedSet, currentNodeId]);
@@ -129,9 +131,9 @@ export function QuestProvider({ children }: { children: React.ReactNode }) {
     if (sessionId) bankedSessions.current.add(sessionId);
     const day = todayKey();
     setToday(day);
-    commit(bankSession(previous, { xp: earnedXp, answers, today: day, clearedNodeId, ability, shieldDays: equipped?.shieldDays }));
+    commit(bankSession(previous, { xp: earnedXp, answers, today: day, clearedNodeId }));
     return true;
-  }, [ability, equipped?.shieldDays, map, seeded, commit]);
+  }, [map, seeded, commit]);
 
   const hydrate = useCallback((next: QuestHydration) => {
     const restored = { ...progressRef.current };
@@ -144,22 +146,22 @@ export function QuestProvider({ children }: { children: React.ReactNode }) {
     if (next.streakShieldUsed !== undefined) restored.streakShieldUsed = Boolean(next.streakShieldUsed);
     restored.perfectSessions = Math.min(restored.sessions, restored.perfectSessions);
     restored.bestStreak = Math.max(restored.bestStreak, restored.streakDays);
-    if (next.equippedId !== undefined) setEquippedRaw(next.equippedId ?? STARTER_COMPANION_ID);
+    if (next.equippedId !== undefined) setLookRaw(next.equippedId ?? NO_LOOK);
     commit(restored);
   }, [commit]);
 
   const reset = useCallback(() => {
     bankedSessions.current.clear();
-    setEquippedRaw(STARTER_COMPANION_ID);
+    setLookRaw(NO_LOOK);
     commit(emptyProgress());
   }, [commit]);
 
   const value = useMemo<QuestContextValue>(() => ({
     map, completed, currentNodeId, stateOf,
     ...progress, streakDays, storedStreakDays: progress.streakDays, storedTodayCount: progress.todayCount, todayCount, dailyGoal: 3,
-    companions, equippedId, equip, ability, recordSession, hydrate, reset,
-  }), [map, completed, progress, currentNodeId, stateOf, streakDays, todayCount, companions, equippedId, equip, ability, recordSession, hydrate, reset]);
-  return <QuestContext.Provider value={value}>{children}</QuestContext.Provider>;
+    looks, lookId, wear, recordSession, hydrate, reset,
+  }), [map, completed, progress, currentNodeId, stateOf, streakDays, todayCount, looks, lookId, wear, recordSession, hydrate, reset]);
+  return <QuestContext.Provider value={value}><WornLookContext.Provider value={lookId === NO_LOOK ? null : lookId}>{children}</WornLookContext.Provider></QuestContext.Provider>;
 }
 
 export function useQuest(): QuestContextValue {

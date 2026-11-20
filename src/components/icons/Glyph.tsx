@@ -5,7 +5,7 @@ import { UtilityIllustration, type UtilityIllustrationId } from '@/components/ui
 import { ActivityIllustration } from '@/components/ui/ActivityIllustration';
 
 export type GlyphName = 'check' | 'close' | 'chevron-left' | 'chevron-right' | 'chevron-down' | 'chevron-up' | 'settings' | 'arrow-right' | 'plus' | 'lock' | 'info' | 'refresh' | 'play' | 'flame' | 'gem' | 'heart' | 'star' | 'crown' | 'trophy' | 'medal' | 'sparkle' | 'target' | 'book' | 'bolt' | 'page' | 'chest' | 'flag' | 'swords' | 'shield' | 'map' | 'compass' | 'chart' | 'avatar' | 'layers' | 'rocket' | 'quill' | 'brain' | 'clock' | 'calendar' | 'bulb';
-interface GlyphProps { name: GlyphName; size?: number; color?: string; strokeWidth?: number }
+interface GlyphProps { name: GlyphName; size?: number; color?: string; strokeWidth?: number; /** Solid instead of outlined; for drawn controls such as hearts. */ filled?: boolean }
 const utility: Partial<Record<GlyphName, UtilityIllustrationId>> = {
   flame: 'streak', gem: 'gems', star: 'xp', sparkle: 'xp', crown: 'score5', trophy: 'score5', medal: 'score4',
   map: 'map', compass: 'map', clock: 'class', calendar: 'exam', bulb: 'undecided',
@@ -15,14 +15,14 @@ const activity: Partial<Record<GlyphName, string>> = {
 };
 
 /** Small interface controls stay precise; study/reward artwork uses authored ink assets. */
-export function Glyph({ name, size = 24, color: explicitColor, strokeWidth = 1.7 }: GlyphProps) {
+export function Glyph({ name, size = 24, color: explicitColor, strokeWidth = 1.7, filled = false }: GlyphProps) {
   const { colors } = useAppTheme();
   const color = explicitColor ?? colors.ink;
   const utilityId = utility[name];
   if (utilityId) return <UtilityIllustration id={utilityId} size={size} color={color} />;
   const activityId = activity[name];
   if (activityId) return <ActivityIllustration id={activityId} size={size} color={color} />;
-  return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none"><G stroke={color} strokeWidth={Math.min(strokeWidth, 2)} strokeLinecap="round" strokeLinejoin="round">{control(name)}</G></Svg>;
+  return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none"><G stroke={color} fill={filled ? color : 'none'} strokeWidth={Math.min(strokeWidth, 2)} strokeLinecap="round" strokeLinejoin="round">{control(name)}</G></Svg>;
 }
 function control(name: GlyphName): React.ReactNode {
   switch (name) {

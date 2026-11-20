@@ -1,12 +1,10 @@
 # Prochoro creatures
 
-Updated 16 October 2026. The illustrated field guide has 12 pets and 60 distinct boss rivals. Each uses hollow monochrome line art with transparent interiors, so the page background shows through the character rather than becoming a gray or white silhouette.
+Updated 18 November 2026. There are 60 distinct boss rivals. Each uses hollow monochrome line art with transparent interiors, so the page background shows through the character rather than becoming a gray or white silhouette.
 
-## Pets
+## Hats (replaced pets on 18 November 2026)
 
-Ellie, Buddy, Penny, Benny, Stella, Bruno, Toby, Daisy, Oakley, Remy, Wally and Leo are twelve distinct drawings on `src/assets/characters/prochoro/companions.png`. Their existing saved IDs, unlocks, equipment and abilities remain stable. Names changed; earned progress did not.
-
-`CompanionSprite` uses explicit bounds in `src/data/companionFrames.json`, preserving full accessories and aspect ratio. The same art appears in the HUD, profile, roster and session ability controls.
+The twelve pets and their session abilities were removed to keep studying simple. In their place the platypus can wear one of eight hats, earned by studying and chosen in Me. Each hat is an ink layer and a fill layer drawn by `scripts/draw-looks.py`; `scripts/measure-heads.py` measures the head in every pose so the hat sits right everywhere the platypus appears. The worn hat is saved in the profile's existing `equipped_companion` column, so no migration was needed; an old pet ID simply shows no hat.
 
 ## Boss rivals
 

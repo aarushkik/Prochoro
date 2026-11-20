@@ -9,7 +9,7 @@ import { CourseIllustration } from '@/components/ui/CourseIllustration';
 import { Glyph, PlacementIcon } from '@/components/icons';
 import { Mascot } from '@/components/Mascot';
 import { colors, radius, shadows, spacing, typography, fonts } from '@/theme';
-import { getCourse, getScoreGoal, PLACEMENT_LEVELS } from '@/data';
+import { getCourse, PLACEMENT_LEVELS } from '@/data';
 import { getQuestMap, headStartFor } from '@/data/questMap';
 import { useOnboarding } from '@/state/OnboardingContext';
 import type { RootStackParamList } from '@/navigation/types';
@@ -27,10 +27,9 @@ export function PlacementResultScreen() {
   const styles = useThemedStyles(createStyles);
 
   const navigation = useNavigation<Nav>();
-  const { courseId, goalScoreId, placementLevelId, markOnboarded } = useOnboarding();
+  const { courseId, placementLevelId, markOnboarded } = useOnboarding();
 
   const course = getCourse(courseId);
-  const goal = getScoreGoal(goalScoreId);
   const level = PLACEMENT_LEVELS[placementLevelId ?? 'beginner'];
   const map = getQuestMap(courseId);
   const headStart = headStartFor(placementLevelId);
@@ -59,7 +58,7 @@ export function PlacementResultScreen() {
         </Animated.View>
 
         <Animated.View style={{ opacity: fade, transform: [{ translateY: shift }] }}>
-          <Text style={[typography.title, styles.title]}>You’re ready to play</Text>
+          <Text style={[typography.title, styles.title]}>You’re all set</Text>
 
           <View style={styles.levelWrap}>
             <View style={styles.levelCard}>
@@ -81,8 +80,6 @@ export function PlacementResultScreen() {
               text={course?.name ?? 'Your course'}
             />
             <View style={styles.divider} />
-            <Row leading={<Glyph name="target" size={20} color={colors.textSecondary} strokeWidth={2.1} />} text={goal?.label ?? 'Your goal'} />
-            <View style={styles.divider} />
             <Row
               leading={<Glyph name="map" size={20} color={colors.textSecondary} strokeWidth={2.1} />}
               text={
@@ -97,7 +94,7 @@ export function PlacementResultScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <AppButton label="Start playing" icon="play" emphasis onPress={startQuest} />
+        <AppButton label="Start learning" icon="play" emphasis onPress={startQuest} />
       </View>
     </ScreenContainer>
   );

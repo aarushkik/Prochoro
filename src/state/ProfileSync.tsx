@@ -59,9 +59,9 @@ export function ProfileSync({ children }: { children: React.ReactNode }) {
     sessions: quest.sessions,
     perfectSessions: quest.perfectSessions,
     bestStreak: quest.bestStreak,
-    equippedId: quest.equippedId,
+    equippedId: quest.lookId,
     streakShieldUsed: quest.streakShieldUsed,
-  }), [onboarding.courseId, onboarding.experienceLevelId, onboarding.goalScoreId, onboarding.examTimeframeId, onboarding.placementLevelId, onboarding.onboarded, quest.xp, quest.gems, quest.storedStreakDays, quest.lastSessionOn, quest.earned, quest.skills, quest.storedTodayCount, quest.sessions, quest.perfectSessions, quest.bestStreak, quest.equippedId, quest.streakShieldUsed]);
+  }), [onboarding.courseId, onboarding.experienceLevelId, onboarding.goalScoreId, onboarding.examTimeframeId, onboarding.placementLevelId, onboarding.onboarded, quest.xp, quest.gems, quest.storedStreakDays, quest.lastSessionOn, quest.earned, quest.skills, quest.storedTodayCount, quest.sessions, quest.perfectSessions, quest.bestStreak, quest.lookId, quest.streakShieldUsed]);
 
   useEffect(() => {
     let alive = true;

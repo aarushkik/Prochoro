@@ -1,75 +1,58 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
+import React from 'react';
 import { BossSprite } from './BossSprite';
-import { Mascot } from '@/components/Mascot';
-import { GlassSurface } from '@/components/ui/GlassSurface';
-import { ProgressBar } from '@/components/ui';
-import { AreaIllustration } from '@/components/ui/AreaBackdrop';
+import { Arena, type ArenaMove } from './Arena';
 import { bossForNode } from '@/data/bosses';
 import { bossBattle } from '@/utils/bossBattle';
-import { useMotionPreference } from '@/hooks/useMotionPreference';
+import type { Countdown } from '@/hooks/useCountdown';
 
-export interface DuelMove { id: number; correct: boolean; damage: number; finisher?: boolean }
+/** One answer's blow. `crit` was right and fast; `timeout` means the clock ran out first. */
+export interface DuelMove { id: number; correct: boolean; damage: number; finisher?: boolean; crit?: boolean; timeout?: boolean }
 
-/** A question-driven battle: real HP loss, hit reactions and a passing-score finisher. */
-export function BossEncounter({ nodeId, correct, attempted, total, damageTotal = total, reviewPending = false, move = null, finalStrike = false, onMoveComplete }: {
+/**
+ * A timed, question-driven boss battle. Every question has a clock; answer
+ * before it runs out or the boss strikes first. Right answers hit, fast right
+ * answers hit harder, and a passing set charges the final strike.
+ */
+export function BossEncounter({ nodeId, correct, attempted, total, damageTotal = total, crits = 0, combo = 0, move = null, last = null, finalStrike = false, clock = null, clockLive = false, onMoveComplete }: {
   nodeId: string; correct: number; attempted: number; total: number;
-  damageTotal?: number; reviewPending?: boolean;
-  move?: DuelMove | null; finalStrike?: boolean; onMoveComplete?: () => void;
+  damageTotal?: number; crits?: number; combo?: number;
+  /** `last` is this question's blow, kept for the message after the animation ends. */
+  move?: DuelMove | null; last?: DuelMove | null; finalStrike?: boolean;
+  clock?: Countdown | null; clockLive?: boolean; onMoveComplete?: () => void;
 }) {
-  const styles = useThemedStyles(createStyles);
-  const { height, fontScale } = useWindowDimensions();
-  const compact = height < 740 || fontScale > 1.2;
-  const { motionEnabled } = useMotionPreference();
-  const impact = useRef(new Animated.Value(0)).current;
-  const complete = useRef(onMoveComplete); complete.current = onMoveComplete;
   const boss = bossForNode(nodeId)!;
-  const battle = bossBattle(correct, attempted, total, finalStrike, damageTotal);
-  useEffect(() => {
-    impact.setValue(0);
-    if (!move) return;
-    if (!motionEnabled) { complete.current?.(); return; }
-    const animation = Animated.timing(impact, { toValue: 1, duration: move.finisher ? 650 : 420, useNativeDriver: true });
-    animation.start(({ finished }) => { if (finished) complete.current?.(); });
-    return () => animation.stop();
-  }, [move?.id, motionEnabled, impact]);
-  const attack = move?.correct;
-  const heroX = impact.interpolate({ inputRange: [0, 0.32, 0.6, 1], outputRange: attack ? [0, move?.finisher ? 52 : 28, 0, 0] : [0, 0, -12, 0] });
-  const bossX = impact.interpolate({ inputRange: [0, 0.32, 0.6, 1], outputRange: attack ? [0, 0, 14, 0] : [0, -28, 0, 0] });
-  const recoil = impact.interpolate({ inputRange: [0, 0.32, 0.6, 1], outputRange: attack ? [1, 1, 0.9, 1] : [1, 1.04, 1, 1] });
-  const hitFlash = impact.interpolate({ inputRange: [0, 0.32, 0.48, 0.65, 1], outputRange: attack ? [1, 1, 0.25, 1, 1] : [1, 1, 1, 1, 1] });
-  const message = move?.finisher ? 'Final strike!' : battle.defeated ? `${boss.name} defeated.` : move ? move.correct ? `Hit! −${move.damage} HP` : `Counterattack! −${move.damage} HP. Learn their weak spot below.` : reviewPending ? 'Review round ahead. Keep your charge.' : battle.canFinish ? 'Final strike ready. Finish this boss.' : correct >= battle.target ? 'Strike charged. Complete the question set.' : `${battle.target - correct} more correct to charge your final strike.`;
-  return <GlassSurface style={[styles.card, compact && styles.compact]}>
-    <AreaIllustration kind={boss.kind} opacity={0.14} />
-    <View style={styles.healthRow}>
-      <View style={styles.playerHealth}><Text style={styles.smallName}>You · {battle.playerHealth} HP</Text><ProgressBar progress={battle.playerHealth / 100} height={4} /></View>
-      <View style={styles.enemyHealth} accessible accessibilityLabel={`${boss.name}, ${battle.bossHealth} health remaining`}>
-        <View style={styles.enemyTitle}><Text style={styles.bossName}>{boss.name}</Text><Text style={styles.hp}>{battle.bossHealth} HP</Text></View>
-        <ProgressBar progress={battle.bossHealth / 100} height={7} />
-      </View>
-    </View>
-    <View style={[styles.arena, compact && styles.arenaCompact]}>
-      <Animated.View style={{ transform: [{ translateX: heroX }] }}><Mascot size={compact ? 58 : 94} pose={move ? move.correct ? 'bossWin' : 'wince' : battle.defeated ? 'bossWin' : 'bossReady'} /></Animated.View>
-      <View style={styles.encounterCopy}><Text style={styles.phase}>{move?.finisher ? 'FINISHER' : battle.defeated ? 'VICTORY' : 'BOSS DUEL'}</Text><Text style={styles.combo}>{battle.defeated && !move?.finisher ? 'Cleared' : correct >= battle.target ? 'Ready' : `${correct} / ${battle.target}`}</Text><Text style={styles.charge}>{battle.defeated && !move?.finisher ? 'well played' : 'final strike'}</Text></View>
-      <Animated.View style={{ opacity: battle.defeated && !move ? 0.35 : hitFlash, transform: [{ translateX: bossX }, { scale: recoil }] }}><BossSprite nodeId={nodeId} size={compact ? 72 : 120} /></Animated.View>
-    </View>
-    <Text accessibilityLiveRegion="polite" style={styles.note}>{compact ? message.replace('more correct to charge your final strike.', 'more to charge final strike.').replace(' Learn their weak spot below.', '') : message}</Text>
-  </GlassSurface>;
+  const battle = bossBattle(correct, attempted, total, finalStrike, damageTotal, crits);
+  const danger = Boolean(clock && clockLive && clock.left <= Math.max(5, Math.ceil(clock.total * 0.3)));
+  const arenaMove: ArenaMove | null = move ? {
+    id: move.id,
+    kind: move.finisher ? 'finisher' : move.correct ? move.crit ? 'crit' : 'hit' : move.timeout ? 'timeout' : 'hurt',
+    amount: move.finisher ? 'K.O.' : move.correct ? (move.crit ? 'CRIT −' : '−') + move.damage : '−' + move.damage,
+  } : null;
+  const blow = move ?? last;
+  const message = blow?.finisher ? 'Final strike!'
+    : battle.defeated ? `${boss.name} defeated.`
+    : blow ? blow.correct ? (blow.crit ? `Critical hit! −${blow.damage} HP` : `Hit! −${blow.damage} HP`)
+      : blow.timeout ? `Too slow! ${boss.name} strikes first. −${blow.damage} HP` : `Counterattack! −${blow.damage} HP.`
+    : battle.canFinish ? 'Final strike ready. Finish this boss.'
+    : danger ? `${boss.name} is winding up. Answer now!`
+    : correct >= battle.target ? 'Strike charged. Finish the set.'
+    : `${battle.target - correct} more right to charge your final strike. Fast answers hit harder.`;
+  return <Arena
+    backdrop={boss.kind}
+    rival={(size) => <BossSprite nodeId={nodeId} size={size} />}
+    rivalName={boss.name}
+    rivalHealth={battle.bossHealth / 100}
+    rivalLabel={`${battle.bossHealth} HP`}
+    playerHealth={battle.playerHealth / 100}
+    playerLabel={`You · ${battle.playerHealth} HP`}
+    phase={move?.finisher ? 'FINISHER' : battle.defeated ? 'VICTORY' : combo >= 2 ? 'COMBO' : 'BOSS DUEL'}
+    headline={battle.defeated && !move?.finisher ? 'Cleared' : combo >= 2 ? '×' + combo : correct >= battle.target ? 'Ready' : `${correct} / ${battle.target}`}
+    detail={battle.defeated && !move?.finisher ? 'well played' : combo >= 2 ? 'in a row' : 'final strike'}
+    message={message}
+    move={arenaMove}
+    onMoveComplete={onMoveComplete}
+    clock={battle.defeated || battle.complete ? null : clock}
+    clockLive={clockLive}
+    defeated={battle.defeated}
+  />;
 }
-const createStyles = ({ colors, typography }: AppTheme) => StyleSheet.create({
-  card: { borderRadius: 28, padding: 16, marginHorizontal: 16, marginTop: 10, overflow: 'hidden' },
-  compact: { paddingVertical: 10 },
-  healthRow: { flexDirection: 'row', alignItems: 'center', gap: 26 },
-  playerHealth: { flex: 0.8, gap: 6 }, enemyHealth: { flex: 1.2, gap: 7 },
-  smallName: { ...typography.caption, fontSize: 10, color: colors.ink },
-  enemyTitle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  bossName: { ...typography.subtitle, fontSize: 14, lineHeight: 17, flexShrink: 1 }, hp: { ...typography.caption, fontSize: 10, fontVariant: ['tabular-nums'] },
-  arena: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingVertical: 4 },
-  arenaCompact: { paddingVertical: 0 },
-  encounterCopy: { alignItems: 'center', minWidth: 55 },
-  phase: { ...typography.overline, fontSize: 8, letterSpacing: 0.8 },
-  combo: { ...typography.numeral, fontSize: 17, lineHeight: 21, marginTop: 4 },
-  charge: { ...typography.caption, fontSize: 8, lineHeight: 13 },
-  note: { ...typography.caption, fontSize: 10, lineHeight: 15, textAlign: 'center', color: colors.ink },
-});

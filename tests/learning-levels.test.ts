@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { companionsFor } from '../src/data/companions';
+import { courseProgressFor, LOOKS, looksFor, NO_LOOK } from '../src/data/looks';
+import { frameworkFor } from '../src/data/courseFrameworks';
 import { learningLevels, levelNumber } from '../src/utils/learningLevels';
 import { getQuestMap } from '../src/data/questMap';
 
@@ -15,16 +16,27 @@ test('one numbered level follows saved progress, including placement and gaps', 
   assert.equal(learningLevels(map, map.order).next, null);
 });
 
-test('pet level unlocks are countable, ignore duplicate/foreign IDs and retain previous area-based unlocks', () => {
-  for (const course of ['ap-biology', 'ap-csa', 'ap-psych']) {
-    const map = getQuestMap(course);
-    const roster = (completed: string[]) => companionsFor({ map, completed, skills: {}, bestStreak: 0, sessions: 0 });
-    assert.equal(roster([...map.order.slice(0, 71), map.order[0], 'foreign']).find(pet => pet.id === 'slate')!.owned, false);
-    assert.equal(roster(map.order.slice(0, 72)).find(pet => pet.id === 'slate')!.owned, true);
-    assert.equal(roster(map.order.slice(0, 107)).find(pet => pet.id === 'nix')!.owned, false);
-    assert.equal(roster(map.order.slice(0, 108)).find(pet => pet.id === 'nix')!.owned, true);
-    const previouslyUnlocked = roster(map.units.slice(0, 6).flatMap(unit => unit.nodes.map(node => node.id)));
-    assert.equal(previouslyUnlocked.find(pet => pet.id === 'slate')!.owned, true);
-    assert.equal(previouslyUnlocked.find(pet => pet.id === 'nix')!.owned, true);
-  }
+test('hats are earned only by real study, and the bare head is always available', () => {
+  const none = { sessions: 0, perfectSessions: 0, bestStreak: 0, unitsDone: 0, bossesBeaten: 0 };
+  const owned = (progress: typeof none) => looksFor(progress).filter(look => look.owned).map(look => look.id);
+  assert.deepEqual(owned(none), [NO_LOOK]);
+  assert.ok(owned({ ...none, sessions: 1 }).includes('grad-cap'));
+  assert.ok(!owned({ ...none, sessions: 4 }).includes('beanie'));
+  assert.ok(owned({ ...none, sessions: 5 }).includes('beanie'));
+  assert.ok(owned({ ...none, bestStreak: 7 }).includes('wizard'));
+  const partial = looksFor({ ...none, sessions: 3 }).find(look => look.id === 'beanie')!;
+  assert.equal(partial.have, 3); assert.equal(partial.need, 5);
+  assert.equal(new Set(LOOKS.map(look => look.id)).size, LOOKS.length);
+});
+
+test('units and bosses count across every course and ignore duplicate or foreign IDs', () => {
+  const map = getQuestMap('ap-biology');
+  const unit = frameworkFor('ap-biology').units[0].areas.flatMap(area => map.units[area].nodes.map(node => node.id));
+  assert.equal(courseProgressFor([...unit.slice(0, -1), unit[0], 'foreign']).unitsDone, 0);
+  const done = courseProgressFor(unit);
+  assert.equal(done.unitsDone, 1);
+  assert.equal(done.bossesBeaten, unit.filter(id => map.units.flatMap(u => u.nodes).find(node => node.id === id)?.kind === 'boss').length);
+  const other = getQuestMap('ap-csp');
+  const both = courseProgressFor([...unit, ...frameworkFor('ap-csp').units[0].areas.flatMap(area => other.units[area].nodes.map(node => node.id))]);
+  assert.equal(both.unitsDone, 2);
 });

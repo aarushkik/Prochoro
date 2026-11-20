@@ -15,6 +15,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { AppButton } from "@/components/ui";
 import { Glyph, type GlyphName } from "@/components/icons";
 import { Mascot } from "@/components/Mascot";
+import { HatArt } from "@/components/home/LookOptions";
 import { colors, radius, spacing, typography } from "@/theme";
 import { SaveStatusNotice } from "@/components/account/SaveStatusNotice";
 import { useMotionPreference } from "@/hooks/useMotionPreference";
@@ -38,10 +39,12 @@ export function LessonCompleteScreen() {
 
   const navigation = useNavigation<Nav>();
   const { params } = useRoute<Route>();
-  const { streakDays, map, currentNodeId } = useQuest();
+  const { streakDays, map, currentNodeId, looks, lookId, wear } = useQuest();
 
   const { reduceMotion } = useMotionPreference();
-  const { title, correct, total, xp, cleared, bossNodeId, nodeId, level } = params;
+  const { title, correct, total, xp, cleared, bossNodeId, nodeId, level, looksBefore } = params;
+  // A hat this session earned: the newest one, offered right here to put on.
+  const prize = looksBefore ? looks.filter((look) => look.owned && look.unlock && !looksBefore.includes(look.id)).pop() : undefined;
   const next = currentNodeId ? findNode(map, currentNodeId) : undefined;
   const replay = nodeId ? findNode(map, nodeId) : undefined;
   const destination = cleared === false ? replay : next;
@@ -145,6 +148,16 @@ export function LessonCompleteScreen() {
                 {cleared === false ? "Read the explanations, then try again." : verdict.note}
               </Text>
             ) : null}
+            {prize ? (
+              <View style={styles.prize}>
+                <HatArt id={prize.id} size={84} surface={colors.surface} />
+                <View style={styles.prizeCopy}>
+                  <Text style={typography.overline}>New hat</Text>
+                  <Text style={styles.prizeName}>{prize.name}</Text>
+                </View>
+                <AppButton size="md" label={lookId === prize.id ? "Wearing" : "Wear it"} tone={lookId === prize.id ? "secondary" : "primary"} disabled={lookId === prize.id} onPress={() => wear(prize.id)} />
+              </View>
+            ) : null}
             <SaveStatusNotice />
           </Animated.View>
         </ScrollView>
@@ -213,6 +226,9 @@ function Stat({
 
 const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) => StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
+  prize: { flexDirection: "row", alignItems: "center", gap: 12, alignSelf: "stretch", borderRadius: 24, borderWidth: 2, borderColor: colors.ink, backgroundColor: colors.surface, paddingVertical: 10, paddingLeft: 8, paddingRight: 12, marginTop: 18 },
+  prizeCopy: { flex: 1, minWidth: 0 },
+  prizeName: { ...typography.subtitle, fontSize: 17, lineHeight: 22 },
   safe: { flex: 1 },
   body: {
     flexGrow: 1,

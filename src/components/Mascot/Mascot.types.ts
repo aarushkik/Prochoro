@@ -18,6 +18,10 @@ export interface MascotProps {
   shadow?: boolean;
   /** Override for a surface whose contrast differs from the app theme. */
   ink?: 'light' | 'dark';
+  /** A hat to wear instead of the student's own; null for none. */
+  look?: string | null;
+  /** The colour behind the mascot, when it is not the page background. */
+  surface?: string;
 }
 
 export const MASCOT_SIZES: Record<MascotSize, number> = {

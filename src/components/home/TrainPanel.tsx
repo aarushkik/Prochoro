@@ -1,5 +1,5 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
-import React, { useMemo, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   Animated,
   Image,
@@ -9,7 +9,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { BossSprite } from "@/components/creatures/BossSprite";
 import { useMotionPreference } from "@/hooks/useMotionPreference";
 import { useScreenLayout } from "@/hooks/useScreenLayout";
 import { Mascot } from "@/components/Mascot";
@@ -17,48 +16,22 @@ import { Glyph } from "@/components/icons";
 import { ChunkyCard } from "@/components/ui";
 import { ActivityIllustration } from "@/components/ui/ActivityIllustration";
 import { chunky, colors, fonts, palette, spring } from "@/theme";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQuest } from "@/state/QuestContext";
 import { useOnboarding } from "@/state/OnboardingContext";
 import { drillSize, countForSkills } from "@/data";
-import { questionCountFor } from "@/data/questMap";
 import { weakSpots, weakSpotMeta } from "@/data/weakSpots";
 import type { RootStackParamList } from "@/navigation/types";
+import { readBestFloor } from "@/lib/climbRecord";
+import { heightLabel } from "@/utils/climb";
 
 type Nav = NativeStackNavigationProp<RootStackParamList, "Home">;
 
 /**
- * Practice — everything off the trail.
- *
- * The point of this tab is that nothing on it can hurt you: no stop is spent,
- * no streak is at risk. So it leads with one dark recommendation card that
- * already knows what you are worst at, and only then offers the menu. A grid
- * of four equal options with no recommendation is a decision, and a decision
- * is what stops people practising.
+ * Practice — anything off the path. Nothing here can cost you a level or a
+ * streak. One card picks the questions for you; below it, any topic on its own.
  */
-
-const MODES: {
-  name: string;
-  illustration: 'lesson' | 'drill' | 'study' | 'bonus';
-  count: number;
-  xp: number;
-}[] = [
-  {
-    name: "Quick practice",
-    illustration: "drill",
-    count: 8,
-    xp: 40,
-  },
-  { name: "Mistakes", illustration: "study", count: 6, xp: 30 },
-  { name: "Boss rematch", illustration: "bonus", count: 8, xp: 45 },
-  {
-    name: "Mixed review",
-    illustration: "lesson",
-    count: 5,
-    xp: 35,
-  },
-];
 
 /**
  * `topInset` is the height of the floating HUD, so the panel starts below it
@@ -69,56 +42,25 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
   const { colors, palette, typography, chunky } = appTheme;
   const styles = useThemedStyles(createStyles);
 
-  const { skills, map, earned } = useQuest();
+  const { skills } = useQuest();
   const layout = useScreenLayout();
   // Wider screens lay the same cards out in rows instead of one long column.
   const topicCell = layout.wide ? styles.topicCell : undefined;
-  const modeCell = layout.wide ? styles.modeCell : styles.gridItem;
   const { courseId } = useOnboarding();
   const navigation = useNavigation<Nav>();
+  // The climb's personal best, read again whenever Home comes back into view.
+  const [best, setBest] = useState(0);
+  useFocusEffect(useCallback(() => {
+    let alive = true;
+    void readBestFloor(courseId).then((value) => { if (alive) setBest(value); });
+    return () => { alive = false; };
+  }, [courseId]));
 
   // Clamped to what the course's bank can actually serve, so a card never
   // offers more questions than the quiz behind it will run.
   const sized = (wanted: number) => drillSize(courseId, wanted);
   // Real accuracy, from what this student has actually answered.
   const weak = weakSpots(skills, courseId);
-
-  /** Every topic with at least one wrong answer against it. */
-  const missed = useMemo(
-    () =>
-      Object.entries(skills)
-        .filter(([, s]) => s.correct < s.seen)
-        .map(([tag]) => tag),
-    [skills],
-  );
-
-  /** Bosses already beaten — the only ones there is anything to rematch. */
-  const rematches = useMemo(() => {
-    const cleared = new Set(earned);
-    return map.units
-      .flatMap((u) => u.nodes.filter((n) => n.kind === "boss"))
-      .filter((b) => cleared.has(b.id));
-  }, [map, earned]);
-
-  /**
-   * The line under each mode name.
-   *
-   * Two of these used to be invented counts — "38 saved", "2 available" — on a
-   * screen that had never seen the student answer anything. Both are now read
-   * from the run; the two that are descriptions rather than numbers stay as
-   * they were, because they were never claims.
-   */
-  const modeMeta = (name: string): string => {
-    if (name === "Mistakes") {
-      if (missed.length === 0) return "Nothing missed yet";
-      return `${missed.length} topic${missed.length === 1 ? "" : "s"} missed`;
-    }
-    if (name === "Boss rematch") {
-      if (rematches.length === 0) return "Win a duel first";
-      return `${rematches.length} passed`;
-    }
-    return "";
-  };
 
   /**
    * Start a drill.
@@ -180,7 +122,9 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
         }
       />
 
-      <Text style={styles.section}>TOPICS TO PRACTISE</Text>
+      <ClimbCard best={best} wide={layout.wide} onStart={() => navigation.navigate("Climb")} />
+
+      <Text style={styles.section}>BY TOPIC</Text>
       <View style={[styles.stack, layout.wide && styles.row]}>
         {weak.map((w) => (
           <ChunkyCard
@@ -204,69 +148,32 @@ export function TrainPanel({ topInset = 0 }: { topInset?: number }) {
         ))}
       </View>
 
-      <Text style={styles.section}>MORE PRACTICE</Text>
-      <View style={[styles.grid, layout.wide && styles.gridWide]}>
-        {MODES.map((m) => {
-          // A rematch needs something to rematch. Rather than run a generic
-          // set under a name that promises otherwise, the card goes quiet
-          // until the first boss is down.
-          const off =
-            (m.name === "Boss rematch" && rematches.length === 0) ||
-            (m.name === "Mistakes" && missed.length === 0);
-          const lastBoss = rematches[rematches.length - 1];
-          const focus =
-            m.name === "Mistakes" && missed.length > 0 ? missed : undefined;
-          return (
-            <ChunkyCard
-              key={m.name}
-              onPress={
-                off
-                  ? undefined
-                  : () => {
-                      if (m.name === "Boss rematch" && lastBoss) {
-                        const unit = map.units.find((item) =>
-                          item.nodes.some((node) => node.id === lastBoss.id),
-                        );
-                        navigation.navigate("Quiz", {
-                          nodeId: lastBoss.id,
-                          title: lastBoss.title,
-                          unit: unit?.index,
-                          boss: true,
-                          count: questionCountFor(lastBoss),
-                          xp: lastBoss.xp,
-                        });
-                      } else drill(m.name, m.count, m.xp, focus);
-                    }
-              }
-              accessibilityLabel={off ? undefined : `Start ${m.name}`}
-              style={modeCell}
-              contentStyle={[styles.modeCard, layout.wide && styles.modeCardWide, off && styles.modeCardOff]}
-            >
-              {m.name === "Boss rematch" ? (
-                <BossSprite
-                  nodeId={
-                    lastBoss?.id ??
-                    map.units[0]?.nodes.find((node) => node.kind === "boss")?.id
-                  }
-                  size={54 * layout.scale}
-                  dim={off}
-                />
-              ) : (
-                <ActivityIllustration id={m.illustration} size={44 * layout.scale} dim={off} />
-              )}
-              <Text style={[styles.modeName, layout.wide && styles.modeNameWide, off && styles.modeDim]}>
-                {m.name}
-              </Text>
-              <Text style={[styles.modeMeta, off && styles.modeDim]}>
-                {off
-                  ? modeMeta(m.name)
-                  : `${m.name === "Boss rematch" && lastBoss ? questionCountFor(lastBoss) : focus?.length ? Math.min(m.count, countForSkills(courseId, focus)) : sized(m.count)} questions`}
-              </Text>
-            </ChunkyCard>
-          );
-        })}
-      </View>
     </ScrollView>
+  );
+}
+
+/** Endless practice: a tower of timed rivals, with your best floor to beat. */
+function ClimbCard({ best, wide, onStart }: { best: number; wide: boolean; onStart: () => void }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useAppTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Endless climb.${best ? ` Your best is ${heightLabel(best)}.` : ""} Start climbing`}
+      onPress={onStart}
+      style={({ pressed }) => [styles.climb, pressed && styles.climbPressed]}
+    >
+      <View style={styles.climbCopy}>
+        <Text style={styles.climbKicker}>ENDLESS CLIMB</Text>
+        <Text style={[styles.climbTitle, wide && styles.heroTitleWide]}>How high can you go?</Text>
+        <Text style={styles.climbBody}>{best ? `Your best: ${heightLabel(best)}` : "A card battle you win by knowing the material"}</Text>
+        <View style={styles.climbCta}>
+          <Glyph name="play" size={15} color={colors.textOnPrimary} strokeWidth={2} />
+          <Text style={styles.heroCtaText}>Climb</Text>
+        </View>
+      </View>
+      <Mascot pose="levelUp" size={wide ? 132 : 92} />
+    </Pressable>
   );
 }
 
@@ -309,7 +216,7 @@ function Recommended({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Start recommended practice"
+      accessibilityLabel="Start quick practice"
       onPressIn={() => to(1)}
       onPressOut={() => to(0)}
       onPress={onStart}
@@ -334,9 +241,9 @@ function Recommended({
       >
         <View style={styles.heroTop}>
           <View style={styles.heroCopy}>
-            <Text style={styles.heroKicker}>RECOMMENDED</Text>
-            <Text style={[styles.heroTitle, wide && styles.heroTitleWide]}>{focus || "Today’s mix"}</Text>
-            <Text style={[styles.heroBody, wide && styles.heroBodyWide]}>{count} questions</Text>
+            <Text style={styles.heroKicker}>QUICK PRACTICE</Text>
+            <Text style={[styles.heroTitle, wide && styles.heroTitleWide]}>{focus || "A mix of everything"}</Text>
+            <Text style={[styles.heroBody, wide && styles.heroBodyWide]}>{count} questions picked for you</Text>
           </View>
           <ActivityIllustration id="drill" size={wide ? 132 : 76} />
         </View>
@@ -374,9 +281,6 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   scrollWide: { paddingHorizontal: 24 },
   row: { flexDirection: "row", flexWrap: "wrap" },
   topicCell: { flexBasis: "30%", flexGrow: 1 },
-  gridWide: { gap: 12 },
-  modeCell: { flexBasis: "22%", flexGrow: 1 },
-  modeNameWide: { fontSize: 17, marginTop: 14 },
   weakCardWide: { paddingVertical: 20, paddingHorizontal: 18 },
   heroTitleWide: { fontSize: 36, lineHeight: 42 },
   heroBodyWide: { fontSize: 16, lineHeight: 22 },
@@ -445,6 +349,14 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
     marginTop: 12,
   },
 
+  climb: { marginTop: 12, flexDirection: "row", alignItems: "center", gap: 8, borderRadius: 28, borderWidth: 2, borderColor: colors.ink, backgroundColor: colors.surface, padding: 18 },
+  climbPressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
+  climbCopy: { flex: 1, minWidth: 0 },
+  climbKicker: { fontFamily: fonts.bodyBlack, fontSize: 10, letterSpacing: 1.8, color: colors.textMuted },
+  climbTitle: { fontFamily: fonts.displayHeavy, fontSize: 24, lineHeight: 28, color: colors.ink, marginTop: 4 },
+  climbBody: { fontFamily: fonts.bodySemibold, fontSize: 13.5, lineHeight: 19, color: colors.textSecondary, marginTop: 5 },
+  climbCta: { flexDirection: "row", alignItems: "center", alignSelf: "flex-start", gap: 8, marginTop: 14, backgroundColor: colors.primary, borderRadius: 23, minHeight: 44, paddingLeft: 18, paddingRight: 22 },
+
   section: {
     fontFamily: fonts.bodyBlack,
     fontSize: 10,
@@ -483,22 +395,4 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
     color: palette.ember,
   },
 
-  grid: { marginTop: 9, flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  // Two per row: half the 375-wide gutter box, less half the 10pt gap.
-  gridItem: { width: "48%" },
-  modeCard: { padding: 14 },
-  modeCardWide: { padding: 20, minHeight: 168 },
-  modeCardOff: { backgroundColor: colors.surfaceSunken },
-  modeDim: { opacity: 0.55 },
-  modeName: {
-    fontFamily: fonts.bodyHeavy,
-    fontSize: 14.5,
-    color: colors.ink,
-    marginTop: 10,
-  },
-  modeMeta: {
-    fontFamily: fonts.bodySemibold,
-    fontSize: 12,
-    color: colors.textMuted,
-  },
 });

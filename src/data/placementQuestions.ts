@@ -150,6 +150,19 @@ export function questionsForStop(
  * Topic drills stay on-topic. Their count is bounded by the matching bank,
  * so an unrelated tail cannot dilute the skill the student chose to review.
  */
+/**
+ * The endless climb's pool: every tap-to-answer question from the units the
+ * student has reached, or the whole course if that is still too few to vary.
+ */
+export function climbQuestions(courseId: string | null, reachedArea: number): PlacementQuestion[] {
+  const quiz = getPlacementQuiz(courseId);
+  const tappable = quiz.questions.filter((question) => (question.choices?.length ?? 0) > 1 && question.correctAnswerId);
+  const order = gameAreaOrder(quiz.courseId);
+  const open = new Set(order.slice(0, Math.max(0, order.indexOf(reachedArea)) + 1));
+  const reached = tappable.filter((question) => question.unit !== undefined && open.has(question.unit));
+  return reached.length >= 20 ? reached : tappable;
+}
+
 export function questionsForSkills(
   courseId: string | null,
   tags: string[],

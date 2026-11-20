@@ -7,14 +7,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useQuest } from '@/state/QuestContext';
 import { useOnboarding } from '@/state/OnboardingContext';
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
-import { rimOf, withAlpha } from '@/theme';
+import { fonts, rimOf, withAlpha } from '@/theme';
 import { frameworkFor, officialUnitForArea } from '@/data/courseFrameworks';
 import { findNode, questionCountFor } from '@/data/questMap';
+import { useHaptics } from '@/hooks/useHaptics';
 import { getCourse } from '@/data';
 import { learningLevels, levelNumber } from '@/utils/learningLevels';
 import { useScreenLayout } from '@/hooks/useScreenLayout';
 import { GlassSurface } from '@/components/ui/GlassSurface';
-import { AppButton, ProgressBar } from '@/components/ui';
+import { ProgressBar } from '@/components/ui';
 import { BossSprite } from '@/components/creatures/BossSprite';
 import { Mascot } from '@/components/Mascot';
 import { Glyph } from '@/components/icons';
@@ -31,13 +32,14 @@ export interface AreaRequest { index: number; id: number }
 interface Chapter { label: string; title: string; areas: number[] }
 
 const HEADER = 62;
-const DOCK = 84;
+const DOCK = 76;
 /** Widest the path itself is drawn on a phone or a portrait iPad. */
 const PATH_WIDTH = 720;
 
 /**
- * Play: the current unit as a winding path, with one button that always plays
- * the stone you have picked. The path opens on your next level.
+ * Learn: the current unit as a winding path, and one big button that starts
+ * your next level. Opening the app and pressing it is all it takes to study;
+ * tapping the level you are up to on the path starts it too.
  *
  * A phone or portrait iPad shows the path with the unit above it and the
  * picked level docked below. A landscape iPad or a desktop window has room
@@ -77,7 +79,9 @@ export function PlayPanel({ topInset = 0, areaRequest, onPractice, onAreaChange 
   const progress = learningLevels(quest.map, quest.completed);
   const nextArea = quest.map.units.find(unit => unit.nodes.some(node => node.id === progress.nextId))?.index ?? 0;
   const [chapterIndex, setChapterIndex] = useState(() => chapterOf(areaRequest?.index ?? nextArea));
-  const [selectedId, setSelectedId] = useState<string | null>(progress.nextId);
+  // A short note when a locked circle is tapped; it fades on its own.
+  const [note, setNote] = useState<string | null>(null);
+  useEffect(() => { if (!note) return; const timer = setTimeout(() => setNote(null), 2400); return () => clearTimeout(timer); }, [note]);
   const chapter = chapters[Math.min(chapterIndex, chapters.length - 1)];
   const nodes = useMemo(() => nodesOf(chapter), [chapter, nodesOf]);
   const cleared = nodes.filter(node => quest.stateOf(node.id) === 'complete').length;
@@ -87,7 +91,6 @@ export function PlayPanel({ topInset = 0, areaRequest, onPractice, onAreaChange 
   useEffect(() => {
     if (lastNext.current === progress.nextId) return;
     lastNext.current = progress.nextId;
-    setSelectedId(progress.nextId);
     setChapterIndex(chapterOf(nextArea));
   }, [progress.nextId, nextArea, chapterOf]);
   useEffect(() => {
@@ -119,16 +122,23 @@ export function PlayPanel({ topInset = 0, areaRequest, onPractice, onAreaChange 
   // The button plays the stone you picked on this path. Browsing another unit
   // never strands it: with nothing picked here it offers your next level.
   const upNext = progress.nextId ? findNode(quest.map, progress.nextId)?.node ?? null : null;
-  const selected = nodes.find(node => node.id === selectedId) ?? upNext;
+  // The button always continues where you are up to; any open circle starts its own level.
+  const selected = upNext;
   const state = selected ? quest.stateOf(selected.id) : null;
-  const play = (node: QuestNode) => {
-    if (quest.stateOf(node.id) === 'locked') return;
-    const unit = quest.map.units.find(value => value.nodes.some(item => item.id === node.id));
+  const { stateOf, map } = quest;
+  const play = useCallback((node: QuestNode) => {
+    if (stateOf(node.id) === 'locked') return;
+    const unit = map.units.find(value => value.nodes.some(item => item.id === node.id));
     nav.navigate('Quiz', { nodeId: node.id, unit: unit?.index, title: node.title, count: questionCountFor(node), xp: node.xp, boss: node.kind === 'boss' });
-  };
+  }, [stateOf, map, nav]);
   const numberOf = useCallback((id: string) => levelNumber(quest.map, id) ?? 0, [quest.map]);
-  const select = useCallback((node: QuestNode) => setSelectedId(node.id), []);
-  const turnTo = (index: number) => { setChapterIndex(index); setSelectedId(progress.nextId); };
+  // Like any path game: tap a circle to play it. A locked one says what opens it.
+  const select = useCallback((node: QuestNode) => {
+    if (stateOf(node.id) !== 'locked') { setNote(null); play(node); return; }
+    const number = numberOf(node.id);
+    setNote(number > 1 ? `Finish level ${number - 1} to open level ${number}.` : 'Finish the level before it first.');
+  }, [stateOf, play, numberOf]);
+  const turnTo = (index: number) => { setChapterIndex(index); setNote(null); };
 
   // The path dissolves as it passes under the bars, so a label is never
   // half-read in the gap between two of them. On the web the path itself is
@@ -169,7 +179,7 @@ export function PlayPanel({ topInset = 0, areaRequest, onPractice, onAreaChange 
           <UnitsPanel chapters={chapters} current={chapterIndex} nodesOf={nodesOf} stateOf={quest.stateOf} courseName={getCourse(courseId)?.name ?? 'Your course'} onPick={turnTo} />
         </View>
         <View style={[styles.zone, { right: 0, width: levelWidth, top: topInset + 4, bottom: bottom + 8 }]}>
-          <LevelPanel width={levelWidth} node={selected} state={state} number={selected ? numberOf(selected.id) : 0} onPlay={() => selected ? play(selected) : onPractice()} />
+          <LevelPanel node={selected} state={state} number={selected ? numberOf(selected.id) : 0} onPlay={() => selected ? play(selected) : onPractice()} />
         </View>
       </View>
     );
@@ -210,52 +220,52 @@ export function PlayPanel({ topInset = 0, areaRequest, onPractice, onAreaChange 
       </View>
 
       <View pointerEvents="box-none" style={[styles.barDock, { bottom }]}>
-        <LevelDock width={barWidth} compact={box.width < 350} node={selected} state={state} number={selected ? numberOf(selected.id) : 0} onPlay={() => selected ? play(selected) : onPractice()} />
+        {note ? <GlassSurface variant="thick" style={[styles.note, barWidth ? { width: barWidth } : styles.stretch]}><Glyph name="lock" size={15} /><Text style={styles.noteText} numberOfLines={2}>{note}</Text></GlassSurface> : null}
+        <StartButton width={barWidth} node={selected} state={state} number={selected ? numberOf(selected.id) : 0} onPlay={() => selected ? play(selected) : onPractice()} />
       </View>
     </View>
   );
 }
 
-/** What the picked level is, in one line, and the one button that plays it. */
-function LevelDock({ width, compact, node, state, number, onPlay }: {
-  width?: number; compact: boolean; node: QuestNode | null; state: QuestNodeState | null; number: number; onPlay: () => void;
+/**
+ * The one thing to do on this screen. Big, inked, and it says what it starts,
+ * so nobody has to work out which level is next or where to press.
+ */
+function StartButton({ width, node, state, number, onPlay }: {
+  width?: number; node: QuestNode | null; state: QuestNodeState | null; number: number; onPlay: () => void;
 }) {
   const styles = useThemedStyles(createStyles);
-  const count = node ? questionCountFor(node) : 0;
+  const { colors } = useAppTheme();
+  const haptic = useHaptics();
+  const locked = state === 'locked';
+  const label = !node ? 'Practice' : state === 'complete' ? 'Play again' : locked ? 'Locked' : node.kind === 'boss' ? 'Start boss battle' : 'Start';
+  const detail = !node ? 'Every level cleared' : locked ? `Finish level ${number - 1} first` : `Level ${number} · ${node.title}`;
   return (
-    <GlassSurface variant="thick" style={[styles.dock, width ? { width } : styles.stretch]}>
-      {compact ? null : <LevelArt node={node} state={state} size={56} />}
-      <View style={styles.dockCopy}>
-        <Text style={styles.dockKicker} numberOfLines={1}>{kickerFor(node, number)}</Text>
-        <Text style={styles.dockTitle} numberOfLines={1}>{node?.title ?? 'Every level cleared'}</Text>
-        {node ? <Text style={styles.dockMeta} numberOfLines={1}>{metaFor(state, number, count)}</Text> : null}
+    <Pressable accessibilityRole="button" accessibilityLabel={`${label}. ${detail}`} accessibilityState={{ disabled: locked }} disabled={locked}
+      onPress={() => { haptic(); onPlay(); }}
+      style={({ pressed }) => [styles.start, width ? { width } : styles.stretch, locked && styles.startLocked, pressed && styles.startPressed]}>
+      <View style={styles.startIcon}><Glyph name={locked ? 'lock' : 'play'} size={22} color={colors.primary} strokeWidth={2.4} /></View>
+      <View style={styles.startCopy}>
+        <Text style={styles.startLabel} numberOfLines={1}>{label}</Text>
+        <Text style={styles.startDetail} numberOfLines={1}>{detail}</Text>
       </View>
-      <AppButton size="md" icon={state === 'locked' ? 'lock' : 'play'} label={buttonFor(node, state)} disabled={state === 'locked'} onPress={onPlay} style={styles.dockButton} />
-    </GlassSurface>
+    </Pressable>
   );
 }
 
-/** The wide version of the dock: the level's art large, and the topics it covers. */
-function LevelPanel({ width, node, state, number, onPlay }: {
-  width: number; node: QuestNode | null; state: QuestNodeState | null; number: number; onPlay: () => void;
+/** The wide version: the level's art large, its name, and the same button. */
+function LevelPanel({ node, state, number, onPlay }: {
+  node: QuestNode | null; state: QuestNodeState | null; number: number; onPlay: () => void;
 }) {
   const styles = useThemedStyles(createStyles);
-  const count = node ? questionCountFor(node) : 0;
   return (
     <GlassSurface variant="thick" style={styles.panel}>
-      <ScrollView contentContainerStyle={styles.levelBody} showsVerticalScrollIndicator={false}>
-        <View style={styles.levelArt}><LevelArt node={node} state={state} size={Math.min(176, width - 96)} /></View>
-        <Text style={styles.panelKicker}>{kickerFor(node, number)}</Text>
+      <View style={styles.levelBody}>
+        <View style={styles.levelArt}><LevelArt node={node} state={state} size={176} /></View>
+        <Text style={styles.panelKicker}>{!node ? 'Course complete' : 'Level ' + number + (node.kind === 'boss' ? ' · Boss' : '')}</Text>
         <Text style={styles.levelTitle}>{node?.title ?? 'Every level cleared'}</Text>
-        {node ? <Text style={styles.levelMeta}>{metaFor(state, number, count)}</Text> : null}
-        {node?.skills.length ? (
-          <View style={styles.topics}>
-            <Text style={styles.panelKicker}>Topics</Text>
-            <View style={styles.chips}>{node.skills.slice(0, 4).map(skill => <View key={skill} style={styles.chip}><Text style={styles.chipText} numberOfLines={1}>{skill}</Text></View>)}</View>
-          </View>
-        ) : null}
-      </ScrollView>
-      <AppButton icon={state === 'locked' ? 'lock' : 'play'} label={buttonFor(node, state)} disabled={state === 'locked'} onPress={onPlay} style={styles.levelButton} />
+      </View>
+      <View style={styles.levelButton}><StartButton node={node} state={state} number={number} onPlay={onPlay} /></View>
     </GlassSurface>
   );
 }
@@ -298,13 +308,6 @@ function LevelArt({ node, state, size }: { node: QuestNode | null; state: QuestN
     ? <BossSprite nodeId={node.id} size={size} dim={state === 'locked'} />
     : <Mascot pose={!node ? 'trophy' : state === 'complete' ? 'thumbsup' : state === 'locked' ? 'thinking' : 'point'} size={size} />;
 }
-const kickerFor = (node: QuestNode | null, number: number) =>
-  !node ? 'Course complete' : 'Level ' + number + (node.kind === 'boss' ? (node.unitBoss ? ' · Unit boss' : ' · Boss') : '');
-const metaFor = (state: QuestNodeState | null, number: number, count: number) =>
-  state === 'locked' ? 'Clear level ' + (number - 1) + ' first' : count + ' questions · ' + Math.ceil(count * 0.6) + ' to pass';
-const buttonFor = (node: QuestNode | null, state: QuestNodeState | null) =>
-  !node ? 'Practise' : state === 'complete' ? 'Replay' : state === 'locked' ? 'Locked' : 'Play';
-
 const createStyles = ({ colors, typography, glass }: AppTheme) => StyleSheet.create({
   flex: { flex: 1 },
   stretch: { alignSelf: 'stretch' },
@@ -322,12 +325,15 @@ const createStyles = ({ colors, typography, glass }: AppTheme) => StyleSheet.cre
   onward: { marginTop: 4, borderRadius: 24, maxWidth: '86%' },
   onwardFace: { minHeight: 48, borderRadius: 24, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 10 },
   onwardText: { ...typography.label, fontSize: 13, lineHeight: 18, color: colors.ink, flexShrink: 1 },
-  dock: { minHeight: DOCK, borderRadius: 30, paddingLeft: 14, paddingRight: 12, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  dockCopy: { flex: 1, minWidth: 0 },
-  dockKicker: { ...typography.overline, fontSize: 10, lineHeight: 14 },
-  dockTitle: { ...typography.subtitle, fontSize: 16, lineHeight: 21 },
-  dockMeta: { ...typography.caption, fontSize: 11.5, lineHeight: 16 },
-  dockButton: { marginBottom: 0 },
+  start: { minHeight: DOCK - 4, borderRadius: (DOCK - 4) / 2, backgroundColor: colors.primary, flexDirection: 'row', alignItems: 'center', gap: 14, paddingLeft: 10, paddingRight: 24, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 6 } },
+  startLocked: { opacity: 0.55 },
+  note: { borderRadius: 22, paddingHorizontal: 16, paddingVertical: 11, marginBottom: 8, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  noteText: { ...typography.label, fontSize: 13, lineHeight: 18, flex: 1 },
+  startPressed: { transform: [{ scale: 0.98 }], opacity: 0.92 },
+  startIcon: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.textOnPrimary, alignItems: 'center', justifyContent: 'center' },
+  startCopy: { flex: 1, minWidth: 0 },
+  startLabel: { fontFamily: fonts.displayBold, fontSize: 21, lineHeight: 26, color: colors.textOnPrimary },
+  startDetail: { ...typography.caption, fontSize: 12.5, lineHeight: 17, color: withAlpha(colors.textOnPrimary, 0.74) },
 
   zone: { position: 'absolute' },
   panel: { flex: 1, borderRadius: 30, overflow: 'hidden' },
@@ -338,13 +344,8 @@ const createStyles = ({ colors, typography, glass }: AppTheme) => StyleSheet.cre
   unitRowOn: { backgroundColor: glass.cardSelected, ...rimOf(colors.ink) },
   unitRowTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   unitRowTitle: { ...typography.subtitle, fontSize: 14.5, lineHeight: 19 },
-  levelBody: { padding: 24, paddingBottom: 12, gap: 8 },
+  levelBody: { flex: 1, padding: 24, paddingBottom: 12, gap: 8, justifyContent: 'center' },
   levelArt: { alignItems: 'center', paddingVertical: 8 },
   levelTitle: { ...typography.title, fontSize: 25, lineHeight: 30 },
-  levelMeta: { ...typography.body, fontSize: 14 },
-  topics: { marginTop: 14, gap: 10 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { maxWidth: '100%', borderRadius: 14, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 10, paddingVertical: 5 },
-  chipText: { ...typography.caption, fontSize: 12, lineHeight: 16, color: colors.ink },
-  levelButton: { marginHorizontal: 20, marginBottom: 20, marginTop: 4 },
+  levelButton: { marginHorizontal: 16, marginBottom: 16, marginTop: 4 },
 });

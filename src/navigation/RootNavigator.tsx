@@ -6,17 +6,12 @@ import { Mascot } from '@/components/Mascot';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SplashScreen } from '@/screens/SplashScreen';
-import { IntroScreen } from '@/screens/IntroScreen';
 import { CourseSelectionScreen } from '@/screens/CourseSelectionScreen';
-import { SubjectExperienceScreen } from '@/screens/SubjectExperienceScreen';
-import { GoalScoreScreen } from '@/screens/GoalScoreScreen';
-import { ExamTimelineScreen } from '@/screens/ExamTimelineScreen';
-import { AchievementPreviewScreen } from '@/screens/AchievementPreviewScreen';
 import { PlacementResultScreen } from '@/screens/PlacementResultScreen';
 import { LessonCompleteScreen } from '@/screens/LessonCompleteScreen';
 import { QuizScreen } from '@/screens/QuizScreen';
+import { ClimbScreen } from '@/screens/ClimbScreen';
 import { HomeScreen } from '@/screens/HomeScreen';
-import { CharactersScreen } from '@/screens/CharactersScreen';
 import { SignInScreen } from '@/screens/SignInScreen';
 import { useAuth } from '@/state/AuthContext';
 import { useOnboarding } from '@/state/OnboardingContext';
@@ -29,12 +24,12 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 /**
  * One stack for the whole app.
  *
- * Signed out you get Splash → SignIn and nothing else. Signed in, setup runs
- * linearly — Intro → CourseSelection →
- * SubjectExperience → GoalScore → ExamTimeline → AchievementPreview → Quiz →
- * PlacementResult — and lands on Home, the quest map. From there the map opens
- * Quiz again as a session and comes back through LessonComplete. Headers are
- * hidden; every screen supplies its own back or close control.
+ * Signed out you get Splash → SignIn and nothing else. Signed in, setup is two
+ * taps: pick a course, then start at Unit 1 or take the short placement quiz
+ * (Quiz → PlacementResult). Either way it lands on Home, where one button
+ * starts the next lesson; a lesson opens Quiz and comes back through
+ * LessonComplete. Headers are hidden; every screen supplies its own back or
+ * close control.
  */
 export function RootNavigator() {
   const appTheme = useAppTheme();
@@ -77,8 +72,8 @@ export function RootNavigator() {
   }
 
   /**
-   * How screens arrive. Steps forward — the setup questions, the field guide —
-   * push in the platform's own way, so on iPhone they slide and can be swiped
+   * How screens arrive. Steps forward — choosing a course — push in the
+   * platform's own way, so on iPhone they slide and can be swiped
    * back. A lesson rises from the bottom, because it is something you step
    * into and close, not somewhere you go. Results and Home cross-fade: they
    * replace what was there rather than stacking on it.
@@ -89,24 +84,19 @@ export function RootNavigator() {
   return (
     <Stack.Navigator
       key={session.user.id}
-      initialRouteName={onboarded ? 'Home' : 'Intro'}
+      initialRouteName={onboarded ? 'Home' : 'CourseSelection'}
       screenOptions={{
         headerShown: false,
         animation: motion('push'),
         contentStyle: { backgroundColor: 'transparent' },
       }}
     >
-      <Stack.Screen name="Intro" component={IntroScreen} />
       <Stack.Screen name="CourseSelection" component={CourseSelectionScreen} />
-      <Stack.Screen name="SubjectExperience" component={SubjectExperienceScreen} />
-      <Stack.Screen name="GoalScore" component={GoalScoreScreen} />
-      <Stack.Screen name="ExamTimeline" component={ExamTimelineScreen} />
-      <Stack.Screen name="AchievementPreview" component={AchievementPreviewScreen} />
       <Stack.Screen name="Quiz" component={QuizScreen} options={{ animation: motion('rise') }} />
+      <Stack.Screen name="Climb" component={ClimbScreen} options={{ animation: motion('rise') }} />
       <Stack.Screen name="PlacementResult" component={PlacementResultScreen} options={{ animation: motion('swap') }} />
       <Stack.Screen name="LessonComplete" component={LessonCompleteScreen} options={{ animation: motion('swap') }} />
       <Stack.Screen name="Home" component={HomeScreen} options={{ animation: motion('swap') }} />
-      <Stack.Screen name="Characters" component={CharactersScreen} />
     </Stack.Navigator>
   );
 }

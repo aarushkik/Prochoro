@@ -10,13 +10,13 @@ import { GlassSurface } from '@/components/ui/GlassSurface';
 import { useScreenLayout } from '@/hooks/useScreenLayout';
 import { ActivityIllustration } from '@/components/ui/ActivityIllustration';
 
-export type QuestTab = 'map' | 'practice' | 'progress' | 'you';
+export type QuestTab = 'learn' | 'practice' | 'me';
 
+/** Three places: the path you are on, practice off it, and you. */
 const TABS: { id: QuestTab; label: string; glyph: GlyphName }[] = [
-  { id: 'map', label: 'Play', glyph: 'play' },
+  { id: 'learn', label: 'Learn', glyph: 'play' },
   { id: 'practice', label: 'Practice', glyph: 'bolt' },
-  { id: 'progress', label: 'Progress', glyph: 'chart' },
-  { id: 'you', label: 'Options', glyph: 'settings' },
+  { id: 'me', label: 'Me', glyph: 'avatar' },
 ];
 
 /** Bar geometry. The radii are concentric: lens radius + inset = bar radius. */
@@ -26,8 +26,8 @@ const LENS_RADIUS = TILE_HEIGHT / 2;
 const BAR_RADIUS = LENS_RADIUS + INSET;
 /** The bar and the gap above it, less the safe area: what content keeps clear of. */
 export const TAB_BAR_HEIGHT = TILE_HEIGHT + INSET * 2 + 8;
-/** On a wide screen four tabs stay a compact capsule rather than spanning the window. */
-const WIDE_BAR = 560;
+/** On a wide screen the tabs stay a compact capsule rather than spanning the window. */
+const WIDE_BAR = 460;
 
 /**
  * Bottom navigation: a floating glass capsule with a lens on the active tab.

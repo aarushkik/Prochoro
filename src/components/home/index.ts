@@ -7,5 +7,4 @@ export { QuestTabBar } from './QuestTabBar';
 export type { QuestTab } from './QuestTabBar';
 export { LessonSheet } from './LessonSheet';
 export { TrainPanel } from './TrainPanel';
-export { BattlesPanel } from './BattlesPanel';
 export { ProfilePanel } from './ProfilePanel';

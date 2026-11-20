@@ -7,10 +7,11 @@ import type { MascotPose } from '@/components/Mascot';
 import { colors, radius, spacing, typography } from '@/theme';
 
 interface SetupQuestionHeaderProps {
-  onBack: () => void;
-  /** 1-based position in the setup flow, shown as a "Step n of total" chip. */
-  step: number;
-  total: number;
+  /** Shown as a back control when there is somewhere to go back to. */
+  onBack?: () => void;
+  /** 1-based position in a multi-step flow, shown as a progress bar and chip. */
+  step?: number;
+  total?: number;
   /** The screen's headline question. */
   question: string;
   /** Optional supporting line under the headline. */
@@ -41,18 +42,18 @@ export function SetupQuestionHeader({
 
   return (
     <View>
-      <View style={styles.topRow}>
-        <TopBackButton onPress={onBack} style={styles.back} />
-        <ProgressBar progress={step / total} style={{ flex: 1 }} />
-      </View>
+      {onBack || (step && total) ? <View style={styles.topRow}>
+        {onBack ? <TopBackButton onPress={onBack} style={styles.back} /> : null}
+        {step && total ? <ProgressBar progress={step / total} style={{ flex: 1 }} /> : null}
+      </View> : null}
 
       <View style={styles.headlineRow}>
         <View style={styles.textCol}>
-          <View style={styles.chip}>
+          {step && total ? <View style={styles.chip}>
             <Text style={styles.chipText}>
               Step {step} of {total}
             </Text>
-          </View>
+          </View> : null}
           <Text style={[typography.title, compact && { fontSize: 24, lineHeight: 29 }, wide && { fontSize: 34, lineHeight: 40 }]}>{question}</Text>
           {subtitle ? <Text style={[typography.body, styles.subtitle]}>{subtitle}</Text> : null}
         </View>

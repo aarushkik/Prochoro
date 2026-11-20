@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createSaveQueue } from '../src/lib/saveQueue';
-import { choiceCanBeSubmitted, eliminatedChoiceFor } from '../src/utils/quizChoices';
+import { choiceCanBeSubmitted } from '../src/utils/quizChoices';
 import { resolveAppearance } from '../src/theme/appearance';
 import { getPlacementQuiz } from '../src/data/placementQuestions';
 import { apCourses } from '../src/data/apCourses';
@@ -50,17 +50,14 @@ test('a snapshot arriving during a failed write is retained for retry', async ()
   assert.equal(saved, 2);
 });
 
-test('companion elimination never removes the correct answer or permits a removed choice', () => {
+test('only one of the question\'s own choices can be checked', () => {
   for (const course of apCourses) for (const question of getPlacementQuiz(course.id).questions) {
-    const removed = eliminatedChoiceFor(question);
-    if (!question.choices) { assert.equal(removed, null); continue; }
-    assert.equal(removed, eliminatedChoiceFor(question));
-    assert.notEqual(removed, question.correctAnswerId);
-    assert.equal(choiceCanBeSubmitted(question, removed, removed), false);
-    assert.equal(choiceCanBeSubmitted(question, 'missing-choice', removed), false);
-    assert.equal(choiceCanBeSubmitted(question, question.correctAnswerId!, removed), true);
+    if (!question.choices) continue;
+    assert.equal(choiceCanBeSubmitted(question, null), false);
+    assert.equal(choiceCanBeSubmitted(question, 'missing-choice'), false);
+    assert.equal(choiceCanBeSubmitted(question, question.correctAnswerId!), true);
   }
-  assert.equal(choiceCanBeSubmitted(undefined, null, null), false);
+  assert.equal(choiceCanBeSubmitted(undefined, null), false);
 });
 
 test('explicit appearances override the device and system safely falls back to light', () => {
