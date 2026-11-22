@@ -21,7 +21,7 @@ export function SplashScreen() {
     <StatusBar style={appTheme.isDark ? 'light' : 'dark'} />
     <View style={styles.emblem}><Mascot size={170} pose="wave" shadow={false} /></View>
     <Wordmark size={36} />
-    <Text style={styles.tagline}>Your AP quest starts here.</Text>
+    <Text style={styles.tagline}>Your AP® quest starts here.</Text>
   </View>;
 }
 const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.create({

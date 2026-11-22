@@ -19,12 +19,12 @@ test('recovery and existing implicit email links retain their purpose without ex
   assert.throws(() => readAuthReturn(targets[0] + '#access_token=partial', targets), /expired/);
 });
 test('provider callback errors are visible, actionable and never echo arbitrary descriptions', () => {
-  assert.throws(() => readAuthReturn(targets[0] + '?error=server_error&error_description=AADSTS7000222%20private-detail', targets), /updated client secret/);
+  assert.throws(() => readAuthReturn(targets[0] + '?error=server_error&error_description=AADSTS7000222%20private-detail', targets), /Microsoft sign-in isn’t working/);
   assert.throws(() => readAuthReturn(targets[0] + '#error=access_denied&error_description=private-user-email', targets), /access was denied/);
   const message = authErrorMessage(new Error('unknown private-token-and-email'));
   assert.equal(message.includes('private'), false);
   assert.match(authErrorMessage({ code: 'email_not_confirmed' }), /requires email confirmation/);
-  assert.match(authErrorMessage(new Error('AADSTS50011')), /return address/);
+  assert.match(authErrorMessage(new Error('AADSTS50011')), /return to Prochoro/);
   assert.match(authErrorMessage(new Error('AADSTS50020')), /account type/);
 });
 test('native sheet and deep link share one exchange, including failures; a new code can retry', async () => {

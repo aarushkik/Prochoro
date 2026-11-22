@@ -379,12 +379,13 @@ export function QuizScreen() {
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={[styles.introBody, column]}>
+        <ScrollView contentContainerStyle={styles.introBody}>
           <Mascot size={200} pose="wave" />
           <Text style={[typography.title, styles.introTitle]}>Where should you start?</Text>
         </ScrollView>
 
-        <View style={[styles.footer, column]}>
+        {/* Two choices read as a pair, so they keep a phone-like width on iPad. */}
+        <View style={styles.footer}>
           <AppButton
             label="Start from Unit 1"
             icon="play"
@@ -414,7 +415,7 @@ export function QuizScreen() {
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <View style={[styles.headerWrap, column]}>
             <QuizProgressHeader
-              title={stop ? 'Level ' + levelNumber(map, stop.id) : getCourse(courseId)?.name ?? 'AP practice'}
+              title={stop ? 'Level ' + levelNumber(map, stop.id) : getCourse(courseId)?.name ?? 'AP® practice'}
               subtitle={isBoss ? 'Boss battle · ' + stop.title : session?.title ?? 'Find your starting point'}
               courseId={courseId}
               progress={endless ? ((index % REVIEW_BATCH) + 1) / REVIEW_BATCH : progress}
@@ -488,7 +489,7 @@ export function QuizScreen() {
 
       <Modal transparent visible={confirmExit !== null} animationType="fade" onRequestClose={() => setConfirmExit(null)}>
         <View style={styles.exitBackdrop}><GlassSurface variant="thick" accessibilityViewIsModal style={styles.exitCard}>
-          <Text style={typography.title}>Leave this practice?</Text><Text style={[typography.body, { marginVertical: 16 }]}>This session won’t be saved.</Text>
+          <Text style={typography.title}>{isBoss ? 'Leave this battle?' : stop ? 'Leave this lesson?' : session ? 'Leave this practice?' : 'Leave the level check?'}</Text><Text style={[typography.body, { marginVertical: 16 }]}>This session won’t be saved.</Text>
           <AppButton label="Keep studying" onPress={() => setConfirmExit(null)} />
           <AppButton label="Leave session" tone="secondary" style={{ marginTop: 16 }} onPress={() => { const action = confirmExit; setConfirmExit(null); setExitAction(() => action); }} />
         </GlassSurface></View>

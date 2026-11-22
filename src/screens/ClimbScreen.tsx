@@ -72,7 +72,9 @@ export function ClimbGame({ initial, startOpen = false }: { initial?: Run; start
   // The shop's three cards sit in a row.
   const shopPerRow = 3;
   const shopWidth = Math.floor(Math.min(140, (columnWidth - 32 - 10 * (shopPerRow - 1)) / shopPerRow));
-  const duelWidth = Math.floor(Math.min(200, (columnWidth - 32 - 20 - 40) / 2));
+  // Bigger cards on an iPad, as long as the pair still fits above the stat buttons.
+  const duelCap = layout.expanded ? 270 : layout.wide ? 240 : 200;
+  const duelWidth = Math.floor(Math.max(110, Math.min(duelCap, (columnWidth - 32 - 20 - 40) / 2, (layout.height - 360) / 1.42)));
   const stripWidth = Math.floor(Math.min(92, (columnWidth - 32 - 16) / HAND));
 
   const [runId] = useState(() => 'climb-' + Date.now().toString(36));

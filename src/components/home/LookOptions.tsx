@@ -38,7 +38,8 @@ export function LookOptions() {
     <View style={themed.grid}>
       {looks.map(look => {
         const worn = look.id === lookId;
-        const status = !look.owned ? `${look.unlock?.label} · ${look.have}/${look.need}` : worn ? 'Wearing' : 'Tap to wear';
+        const status = !look.owned ? `${look.unlock?.label}, ${look.have} of ${look.need}` : worn ? 'Wearing' : 'Tap to wear';
+        const progress = look.need > 0 ? Math.min(100, Math.round((look.have / look.need) * 100)) : 0;
         return (
           <Pressable key={look.id} accessibilityRole="button" accessibilityState={{ selected: worn, disabled: !look.owned }}
             accessibilityLabel={`${look.name}. ${status}`} disabled={!look.owned}
@@ -51,7 +52,17 @@ export function LookOptions() {
               {!look.owned ? <View style={themed.lock}><Glyph name="lock" size={13} /></View> : null}
             </View>
             <Text style={[themed.name, !look.owned && themed.off]} numberOfLines={1}>{look.name}</Text>
-            <Text style={[themed.status, worn && themed.statusOn]} numberOfLines={2}>{status}</Text>
+            {look.owned
+              ? <Text style={[themed.status, worn && themed.statusOn]} numberOfLines={2}>{status}</Text>
+              // The requirement, then how close you are: a short bar and count
+              // instead of one run-on line that wrapped mid-number on phones.
+              : <>
+                <Text style={themed.status} numberOfLines={2}>{look.unlock?.label}</Text>
+                <View style={themed.progress}>
+                  <View style={themed.meter}><View style={[themed.meterFill, { width: `${progress}%` }]} /></View>
+                  <Text style={themed.count}>{`${look.have}/${look.need}`}</Text>
+                </View>
+              </>}
           </Pressable>
         );
       })}
@@ -73,4 +84,8 @@ const createStyles = ({ colors, typography }: AppTheme) => StyleSheet.create({
   off: { color: colors.textMuted },
   status: { ...typography.caption, fontSize: 11, lineHeight: 14, textAlign: 'center', color: colors.textMuted },
   statusOn: { color: colors.ink },
+  progress: { flexDirection: 'row', alignItems: 'center', alignSelf: 'stretch', gap: 6, marginTop: 4, paddingHorizontal: 4 },
+  meter: { flex: 1, height: 4, borderRadius: 2, backgroundColor: colors.overlay, overflow: 'hidden' },
+  meterFill: { height: '100%', borderRadius: 2, backgroundColor: colors.textMuted },
+  count: { ...typography.caption, fontSize: 11, lineHeight: 14, color: colors.textMuted, fontVariant: ['tabular-nums'] },
 });

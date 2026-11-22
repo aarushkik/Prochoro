@@ -37,12 +37,12 @@ export const LOOKS: Look[] = [
   { id: NO_LOOK, name: 'No hat', unlock: null },
   { id: 'grad-cap', name: 'Grad cap', unlock: { measure: 'sessions', need: 1, label: 'Finish a lesson' } },
   { id: 'beanie', name: 'Beanie', unlock: { measure: 'sessions', need: 5, label: 'Finish 5 lessons' } },
-  { id: 'party-hat', name: 'Party hat', unlock: { measure: 'perfectSessions', need: 1, label: 'Get a lesson all right' } },
-  { id: 'top-hat', name: 'Top hat', unlock: { measure: 'bestStreak', need: 3, label: 'Study 3 days in a row' } },
+  { id: 'party-hat', name: 'Party hat', unlock: { measure: 'perfectSessions', need: 1, label: 'Ace a lesson' } },
+  { id: 'top-hat', name: 'Top hat', unlock: { measure: 'bestStreak', need: 3, label: '3-day streak' } },
   { id: 'explorer', name: 'Explorer hat', unlock: { measure: 'unitsDone', need: 1, label: 'Finish a unit' } },
   { id: 'flower-crown', name: 'Flower crown', unlock: { measure: 'sessions', need: 20, label: 'Finish 20 lessons' } },
   { id: 'crown', name: 'Crown', unlock: { measure: 'bossesBeaten', need: 5, label: 'Beat 5 bosses' } },
-  { id: 'wizard', name: 'Wizard hat', unlock: { measure: 'bestStreak', need: 7, label: 'Study 7 days in a row' } },
+  { id: 'wizard', name: 'Wizard hat', unlock: { measure: 'bestStreak', need: 7, label: '7-day streak' } },
 ];
 
 export const lookById = (id: string | null | undefined): Look | undefined => LOOKS.find((look) => look.id === id);

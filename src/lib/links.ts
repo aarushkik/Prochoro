@@ -25,7 +25,8 @@ export const links = {
  * The app is named for AP courses, so it says plainly that it is not the
  * College Board's. Same wording as the website's footer and policies.
  */
-export const AP_DISCLAIMER = 'Prochoro is independent and is not affiliated with or endorsed by the College Board. AP and Advanced Placement are registered trademarks of the College Board.';
+/** The College Board's own attribution template for third parties using its marks. */
+export const AP_DISCLAIMER = 'AP® and Advanced Placement® are trademarks registered by the College Board, which is not affiliated with, and does not endorse, Prochoro.';
 
 /**
  * Open one in the system browser.

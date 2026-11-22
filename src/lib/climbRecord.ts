@@ -1,3 +1,4 @@
+import { apCourses } from '@/data/apCourses';
 import { deviceStorage } from './storage';
 
 /**
@@ -19,4 +20,11 @@ export async function saveBestFloor(courseId: string | null, floor: number): Pro
   if (floor <= best) return best;
   try { await deviceStorage.setItem(key(courseId), String(Math.floor(floor))); } catch { return best; }
   return Math.floor(floor);
+}
+
+/** Forgets every course's best floor, as part of deleting the account. */
+export async function clearBestFloors(): Promise<void> {
+  await Promise.all([...apCourses.map((course) => course.id), null].map(async (courseId) => {
+    try { await deviceStorage.removeItem(key(courseId)); } catch { /* Nothing personal is left in a best-floor number. */ }
+  }));
 }

@@ -17,6 +17,10 @@ export interface ProfileAccount {
   user: { user_metadata?: Record<string, unknown>; email?: string } | null;
   signOut: () => void | Promise<void>; deleteAccount: () => Promise<boolean>;
   deleting: boolean; error: string | null;
+  /** Studying without an account: progress is on this device only. */
+  guestMode?: boolean;
+  leaveGuest?: () => void | Promise<void>;
+  eraseGuest?: () => void | Promise<void>;
 }
 export interface ProfileConnection { offline: boolean; error: string | null; notice: string | null; retry: () => void }
 
@@ -28,6 +32,7 @@ export function ProfileContent({ topInset = 0, account, connection, verification
   const styles = useThemedStyles(createStyles); const quest = useQuest();
   const [accountOpen, setAccountOpen] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [confirmingErase, setConfirmingErase] = useState(false);
   const layout = useScreenLayout();
   // A landscape iPad or desktop puts you and your hats on one side, settings on the other.
   const split = layout.expanded;
@@ -56,7 +61,12 @@ export function ProfileContent({ topInset = 0, account, connection, verification
       </View>
       <View style={[styles.stack, split && styles.splitSide]}>
         <AppearanceControls />
-        <View style={styles.rows}>
+        {account.guestMode ? <GlassSurface variant="thick" style={styles.detail}>
+          <Text style={styles.name}>Keep your progress</Text>
+          <Text style={styles.body}>Your progress is saved on this device only. Sign in or create an account to keep it on all your devices.</Text>
+          <AppButton label="Sign in or create an account" onPress={() => void account.leaveGuest?.()} />
+          {confirmingErase ? <View style={styles.deleteBox}><Text style={styles.name}>Erase your progress?</Text><Text style={styles.body}>This removes everything Prochoro saved on this device. It cannot be undone.</Text><AppButton label="Keep my progress" onPress={() => setConfirmingErase(false)} /><AppButton label="Erase my progress" tone="secondary" onPress={() => void account.eraseGuest?.()} /></View> : <Pressable accessibilityRole="button" onPress={() => setConfirmingErase(true)} style={styles.link}><Text style={styles.linkText}>Erase progress on this device</Text></Pressable>}
+        </GlassSurface> : <View style={styles.rows}>
           <Pressable accessibilityRole="button" accessibilityState={{ expanded: accountOpen }} onPress={() => setAccountOpen(value => !value)} style={styles.row}><Text style={styles.rowTitle}>Account</Text><Glyph name={accountOpen ? 'chevron-up' : 'chevron-down'} size={19} /></Pressable>
           {accountOpen ? <GlassSurface variant="thick" style={styles.detail}>
             <Text style={styles.name}>{typeof displayName === 'string' ? displayName : 'Your account'}</Text>
@@ -65,7 +75,7 @@ export function ProfileContent({ topInset = 0, account, connection, verification
             <AppButton label="Sign out" tone="secondary" onPress={account.signOut} />
             {confirmingDelete ? <View style={styles.deleteBox}><Text style={styles.name}>Delete your account?</Text><Text style={styles.body}>This permanently deletes your account and all saved progress. It cannot be undone.</Text><AppButton label="Keep my account" disabled={account.deleting} onPress={() => setConfirmingDelete(false)} /><AppButton label={account.deleting ? 'Deleting…' : 'Delete my account forever'} tone="secondary" disabled={account.deleting} onPress={() => void account.deleteAccount()} /></View> : <Pressable accessibilityRole="button" onPress={() => setConfirmingDelete(true)} style={styles.link}><Text style={styles.linkText}>Delete account</Text></Pressable>}
           </GlassSurface> : null}
-        </View>
+        </View>}
         <View style={styles.legal}>{(['support', 'privacy', 'terms'] as const).map(key => <Pressable key={key} accessibilityRole="link" onPress={() => openLink(links[key])} style={styles.link}><Text style={styles.linkText}>{key === 'support' ? 'Help' : key === 'privacy' ? 'Privacy' : 'Terms'}</Text></Pressable>)}</View>
         <Text style={styles.disclaimer}>{AP_DISCLAIMER}</Text>
       </View>

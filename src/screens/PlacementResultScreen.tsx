@@ -1,6 +1,7 @@
 import { useAppTheme, useThemedStyles, type AppTheme } from '@/theme/ThemeProvider';
 import React, { useEffect, useRef } from 'react';
-import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -33,6 +34,11 @@ export function PlacementResultScreen() {
   const level = PLACEMENT_LEVELS[placementLevelId ?? 'beginner'];
   const map = getQuestMap(courseId);
   const headStart = headStartFor(placementLevelId);
+  // Smaller art on short screens, so the course card never hides behind the button.
+  const { height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const room = height - insets.top - insets.bottom;
+  const mascot = room < 560 ? 0 : room < 740 ? 120 : 182;
 
   const scale = useRef(new Animated.Value(0.5)).current;
   const fade = useRef(new Animated.Value(0)).current;
@@ -53,9 +59,9 @@ export function PlacementResultScreen() {
     <ScreenContainer padded={false}>
       <StatusBar style={appTheme.isDark ? "light" : "dark"} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Animated.View style={{ alignItems: 'center', transform: [{ scale }] }}>
-          <Mascot size={182} pose="celebrate" />
-        </Animated.View>
+        {mascot ? <Animated.View style={{ alignItems: 'center', transform: [{ scale }] }}>
+          <Mascot size={mascot} pose="celebrate" />
+        </Animated.View> : null}
 
         <Animated.View style={{ opacity: fade, transform: [{ translateY: shift }] }}>
           <Text style={[typography.title, styles.title]}>You’re all set</Text>
@@ -79,15 +85,14 @@ export function PlacementResultScreen() {
               }
               text={course?.name ?? 'Your course'}
             />
-            <View style={styles.divider} />
-            <Row
-              leading={<Glyph name="map" size={20} color={colors.textSecondary} strokeWidth={2.1} />}
-              text={
-                headStart > 0
-                  ? `${headStart} levels opened by your starting check`
-                  : "Start at Level 1"
-              }
+            {/* Starting at Level 1 is already said above; only a head start adds news. */}
+            {headStart > 0 ? <>
+              <View style={styles.divider} />
+              <Row
+                leading={<Glyph name="map" size={20} color={colors.textSecondary} strokeWidth={2.1} />}
+                text={`${headStart} levels opened by your starting check`}
               />
+            </> : null}
             </View>
           </View>
         </Animated.View>

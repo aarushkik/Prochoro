@@ -8,19 +8,19 @@ export function authErrorMessage(reason: unknown): string {
   if (/invalid.login.credentials/i.test(raw)) return 'That email and password don’t match an account.';
   if (/already registered|already exists/i.test(raw)) return 'There is already an account with that email. Try signing in.';
   if (/email.not.confirmed/i.test(raw)) return 'This account still requires email confirmation. Open the original confirmation email, or contact support if it never arrived.';
-  if (/AADSTS7000222|AADSTS7000215/i.test(raw)) return 'Microsoft sign-in needs an updated client secret in Supabase. Please contact support or use email.';
-  if (/AADSTS50020|AADSTS50194|AADSTS50105|AADSTS700016/i.test(raw)) return 'Microsoft is not allowing this account type. Try another account or email, and contact support.';
-  if (/redirect_uri_mismatch|AADSTS50011|redirect.*(mismatch|not allowed|invalid)/i.test(raw)) return 'The sign-in return address is misconfigured. Please contact support or use email.';
-  if (/currently being tested|developer.*approved testers|testing.*test users/i.test(raw)) return 'Google is still in Testing and is restricting access. Please use email or contact support.';
-  if (/access_denied|not authorized|authorization.*denied/i.test(raw)) return 'Sign-in was cancelled or access was denied. Try again or use email.';
-  if (/provider.*(disabled|not enabled|unsupported)|unsupported.provider/i.test(raw)) return 'This sign-in provider is not enabled. Please use email and contact support.';
+  if (/AADSTS7000222|AADSTS7000215/i.test(raw)) return 'Microsoft sign-in isn’t working right now. Use another way to sign in, or contact support.';
+  if (/AADSTS50020|AADSTS50194|AADSTS50105|AADSTS700016/i.test(raw)) return 'Microsoft didn’t allow this account type. Try another account or another way to sign in.';
+  if (/redirect_uri_mismatch|AADSTS50011|redirect.*(mismatch|not allowed|invalid)/i.test(raw)) return 'Sign-in couldn’t return to Prochoro. Use another way to sign in, or contact support.';
+  if (/currently being tested|developer.*approved testers|testing.*test users/i.test(raw)) return 'Google sign-in isn’t available right now. Use another way to sign in.';
+  if (/access_denied|not authorized|authorization.*denied/i.test(raw)) return 'Sign-in was cancelled or access was denied. Try again, or use another way to sign in.';
+  if (/provider.*(disabled|not enabled|unsupported)|unsupported.provider/i.test(raw)) return 'This sign-in option isn’t available right now. Use another way to sign in.';
   if (/rate.limit|too.many.requests|over_email_send_rate_limit/i.test(raw)) return 'Too many attempts. Wait a moment, then try again.';
   if (/expired|code.verifier|flow.state|pkce|bad.code|otp_expired/i.test(raw)) return 'This sign-in link has expired. Start again in the same browser and device.';
   if (/ERR_WEB_BROWSER_BLOCKED/i.test(raw)) return 'Your browser blocked sign-in. Open Prochoro in your regular browser and try again.';
   if (/network|fetch|timeout/i.test(raw)) return 'We couldn’t reach the server. Check your connection and try again.';
   if (/storage|quota|securityerror/i.test(raw)) return 'Your browser could not save the sign-in session. Allow site storage and try again.';
   if (/function|delete_account/i.test(raw)) return 'Account deletion is temporarily unavailable. Please try again or contact support.';
-  if (/provider|oauth/i.test(raw)) return 'The sign-in provider could not finish. Try email or contact support.';
+  if (/provider|oauth/i.test(raw)) return 'That sign-in didn’t finish. Try again, or use another way to sign in.';
   return 'We couldn’t complete that request. Please try again.';
 }
 

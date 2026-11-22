@@ -17,7 +17,7 @@ export function QuestHud({ courseId, streak = 0, onSwitchCourse, onOpenMe, onLay
   const course = getCourse(courseId);
   return <View pointerEvents="box-none" onLayout={onLayout} style={[styles.dock, { paddingTop: insets.top + 8 }]}>
     <GlassSurface style={styles.bar}>
-      <Pressable accessibilityRole="button" accessibilityLabel={`${course?.name ?? 'Your course'}. Switch subject`} onPress={onSwitchCourse}
+      <Pressable accessibilityRole="button" accessibilityLabel={`${course?.name.replace('®', '') ?? 'Your course'}. Switch subject`} onPress={onSwitchCourse}
         style={({ pressed }) => [styles.course, pressed && styles.pressed]}>
         {course ? <CourseIllustration courseId={course.id} size={30} /> : null}
         <Text style={styles.courseName} numberOfLines={1}>{course?.shortName ?? 'Choose a course'}</Text>

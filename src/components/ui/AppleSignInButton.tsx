@@ -22,8 +22,9 @@ const RADIUS = HEIGHT / 2;
  * private-use character that only renders on Apple platforms and showed an
  * empty box everywhere else.
  *
- * White on the night ground the sign-in screen always uses; "Continue", to
- * match the Google and Microsoft labels beside it. Renders nothing until the
+ * Apple's guidelines allow the black style only on light backgrounds, so dark
+ * mode uses the white style and light mode the outlined white one. "Continue",
+ * to match the Google and Microsoft labels beside it. Renders nothing until the
  * device confirms it can show the system sheet, so it never offers a button
  * that would fail.
  */
@@ -43,7 +44,7 @@ export function AppleSignInButton({ disabled = false, onPress }: AppleSignInButt
     <View style={[styles.wrap, { borderColor: theme.colors.border }, disabled && styles.disabled]} pointerEvents={disabled ? 'none' : 'auto'}>
       <AppleAuthentication.AppleAuthenticationButton
         buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-        buttonStyle={theme.isDark ? AppleAuthentication.AppleAuthenticationButtonStyle.BLACK : AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+        buttonStyle={theme.isDark ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
         cornerRadius={RADIUS}
         style={styles.button}
         accessibilityState={{ disabled }}

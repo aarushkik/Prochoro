@@ -29,7 +29,7 @@ export function SignInScreen() {
 
   const {
     signIn, signInWithEmail, signUpWithEmail, emailPending, pending, error, clearError,
-    resetPassword, updatePassword, recovering, cancelRecovery,
+    resetPassword, updatePassword, recovering, cancelRecovery, startGuest,
   } = useAuth();
   const { width, height } = useWindowDimensions();
   // iPad and desktop: the welcome splits into a large illustration and the
@@ -90,7 +90,7 @@ export function SignInScreen() {
                 <View style={wide ? styles.welcomeRow : undefined}>
                 <View style={[styles.welcomeBody, wide && styles.welcomeBodyWide]}>
                   <Mascot pose="reading" size={wide ? Math.min(260, height * 0.32) : Math.min(width - 96, height < 700 ? 112 : 156)} shadow={false} />
-                  <Text accessibilityRole="header" style={[styles.headline, wide && styles.headlineWide]}>AP practice,{'\n'}at your pace.</Text>
+                  <Text accessibilityRole="header" style={[styles.headline, wide && styles.headlineWide]} accessibilityLabel="AP practice, at your pace.">AP® practice,{'\n'}at your pace.</Text>
                   <Text style={[styles.tagline, wide && styles.taglineWide]}>{SUBJECTS}. Short lessons, thoughtful{'\n'}questions, and a few cute rivals.</Text>
                 </View>
                 <View style={[styles.actions, wide && styles.actionsWide]}>
@@ -99,12 +99,16 @@ export function SignInScreen() {
                   <ProviderButton provider="google" busy={pending === 'google'} disabled={busy} onPress={() => signIn('google')} />
                   <ProviderButton provider="azure" busy={pending === 'azure'} disabled={busy} onPress={() => signIn('azure')} />
                   {error ? <Message text={error} error /> : null}
-                  {/* An account is required — progress lives with it, on every
-                      device — so email is the last way in, not a way around. */}
                   <AppButton label="Continue with email" icon="arrow-right" disabled={busy} onPress={() => changeMode('signIn')} />
-                  <Text style={styles.deviceNote}>Your progress is saved to your account and syncs across devices.</Text>
+                  <Text style={styles.deviceNote}>With an account, your progress syncs across your devices.</Text>
                   <Pressable accessibilityRole="button" disabled={busy} onPress={() => changeMode('signUp')} style={({ pressed }) => [styles.textButton, pressed && styles.pressed]}>
                     <Text style={styles.textButtonLabel}>New here? Create an account</Text>
+                  </Pressable>
+                  {/* Studying is not an account-based feature, so it never needs
+                      one (guideline 5.1.1(v)). Progress stays on this device
+                      until the student signs in, then moves into the account. */}
+                  <Pressable accessibilityRole="button" accessibilityHint="Your progress is saved on this device" disabled={busy} onPress={() => void startGuest()} style={({ pressed }) => [styles.textButton, pressed && styles.pressed]}>
+                    <Text style={styles.guestLabel}>Try it without an account</Text>
                   </Pressable>
                 </View>
                 </View>
@@ -191,6 +195,7 @@ const createStyles = ({ colors, palette, typography }: AppTheme) => StyleSheet.c
   deviceNote: { fontFamily: fonts.body, fontSize: 11, lineHeight: 16, textAlign: 'center', color: colors.textMuted, marginTop: 8 },
   textButton: { minHeight: 44, paddingHorizontal: 8, paddingVertical: 12, alignItems: 'center', justifyContent: 'center' },
   textButtonLabel: { fontFamily: fonts.bodyHeavy, fontSize: 14, lineHeight: 20, color: colors.textPrimary, textAlign: 'center' },
+  guestLabel: { fontFamily: fonts.bodyHeavy, fontSize: 14, lineHeight: 20, color: colors.textSecondary, textAlign: 'center', textDecorationLine: 'underline' },
   pressed: { opacity: 0.65 },
   formTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: -8 },
   formHero: { alignItems: 'center', paddingTop: 18, paddingBottom: 26 },

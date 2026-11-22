@@ -3,8 +3,8 @@ import { Backdrop } from '@/components/ui/Backdrop';
 import { BossSprite } from "@/components/creatures/BossSprite";
 import { bossForNode } from "@/data/bosses";
 import React, { useEffect, useRef } from "react";
-import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Animated, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import {
   useNavigation,
@@ -42,6 +42,13 @@ export function LessonCompleteScreen() {
   const { streakDays, map, currentNodeId, looks, lookId, wear } = useQuest();
 
   const { reduceMotion } = useMotionPreference();
+  // Everything, buttons included, should fit without scrolling: on an iPhone SE
+  // or a short iPad window the full-size art pushed the new hat out of sight.
+  const { height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const room = height - insets.top - insets.bottom;
+  const fit = room < 560 ? "tiny" : room < 740 ? "compact" : "roomy";
+  const artScale = fit === "roomy" ? 1 : 0.74;
   const { title, correct, total, xp, cleared, bossNodeId, nodeId, level, looksBefore } = params;
   // A hat this session earned: the newest one, offered right here to put on.
   const prize = looksBefore ? looks.filter((look) => look.owned && look.unlock && !looksBefore.includes(look.id)).pop() : undefined;
@@ -76,16 +83,16 @@ export function LessonCompleteScreen() {
         <StatusBar style={appTheme.isDark ? "light" : "dark"} />
 
         <ScrollView
-          contentContainerStyle={styles.body}
+          contentContainerStyle={[styles.body, fit !== "roomy" && styles.bodyCompact]}
           showsVerticalScrollIndicator={false}
         >
           <Animated.View style={{ opacity: pop }}>
             {boss ? (
               <View style={styles.bossArt}>
-                <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10 }}>
-                  <Mascot size={118} pose={cleared ? 'bossWin' : 'bossLose'} />
-                  <BossSprite nodeId={bossNodeId} size={130} />
-                </View>
+                {fit !== "tiny" ? <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10 }}>
+                  <Mascot size={Math.round(118 * artScale)} pose={cleared ? 'bossWin' : 'bossLose'} />
+                  <BossSprite nodeId={bossNodeId} size={Math.round(130 * artScale)} />
+                </View> : null}
                 {cleared ? (
                   <View
                     style={[
@@ -98,16 +105,16 @@ export function LessonCompleteScreen() {
                   </View>
                 ) : null}
               </View>
-            ) : (
+            ) : fit !== "tiny" ? (
               <Mascot
-                size={190}
+                size={fit === "roomy" ? 190 : 128}
                 pose={cleared === false ? "reading" : "celebrate"}
               />
-            )}
+            ) : null}
           </Animated.View>
 
           <Animated.View style={[styles.copy, { opacity: pop }]}>
-            <Text style={[typography.display, styles.headline]}>
+            <Text style={[typography.display, styles.headline, fit !== "roomy" && styles.headlineCompact]}>
               {cleared === false
                 ? "Try again."
                 : boss
@@ -118,8 +125,8 @@ export function LessonCompleteScreen() {
               {level ? "Level " + level + (cleared ? " cleared" : " · " + title) : title}
             </Text>
 
-            <View style={styles.statsWrap}>
-              <View style={styles.stats}>
+            <View style={[styles.statsWrap, fit !== "roomy" && styles.statsWrapCompact]}>
+              <View style={[styles.stats, fit !== "roomy" && styles.statsCompact]}>
                 <Stat
                   glyph="star"
                   color={colors.gold}
@@ -144,8 +151,8 @@ export function LessonCompleteScreen() {
             </View>
 
             {prize ? (
-              <View style={styles.prize}>
-                <HatArt id={prize.id} size={84} surface={colors.surface} />
+              <View style={[styles.prize, fit !== "roomy" && styles.prizeCompact]}>
+                <HatArt id={prize.id} size={fit === "roomy" ? 84 : 64} surface={colors.surface} />
                 <View style={styles.prizeCopy}>
                   <Text style={typography.overline}>New hat</Text>
                   <Text style={styles.prizeName}>{prize.name}</Text>
@@ -218,6 +225,7 @@ function Stat({
 const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) => StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   prize: { flexDirection: "row", alignItems: "center", gap: 12, alignSelf: "stretch", borderRadius: 24, borderWidth: 2, borderColor: colors.ink, backgroundColor: colors.surface, paddingVertical: 10, paddingLeft: 8, paddingRight: 12, marginTop: 18 },
+  prizeCompact: { marginTop: 12, paddingVertical: 6 },
   prizeCopy: { flex: 1, minWidth: 0 },
   prizeName: { ...typography.subtitle, fontSize: 17, lineHeight: 22 },
   safe: { flex: 1 },
@@ -231,6 +239,7 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     justifyContent: "center",
     paddingHorizontal: spacing.xl,
   },
+  bodyCompact: { paddingVertical: 12 },
   bossArt: { alignItems: "center" },
   clearedStamp: {
     flexDirection: "row",
@@ -244,6 +253,7 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
   },
   copy: { alignItems: "center", alignSelf: "stretch" },
   headline: { textAlign: "center", marginTop: spacing.md },
+  headlineCompact: { marginTop: spacing.sm },
   sub: { textAlign: "center", marginTop: spacing.xs },
 
   // The scoreboard was the last surface on a 1px hairline, which next to the
@@ -254,12 +264,14 @@ const createStyles = ({ colors, palette, typography, stroke, card }: AppTheme) =
     marginTop: spacing.xxl,
     marginBottom: 6,
   },
+  statsWrapCompact: { marginTop: spacing.lg },
   stats: {
     ...card,
     flexDirection: "row",
     borderRadius: radius.xxl,
     paddingVertical: spacing.lg,
   },
+  statsCompact: { paddingVertical: spacing.md },
   stat: { flex: 1, alignItems: "center", gap: 2 },
   statValue: {
     ...typography.title,

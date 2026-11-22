@@ -76,7 +76,7 @@ export function SelectRow({
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected }}
-      accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
+      accessibilityLabel={(subtitle ? `${title}. ${subtitle}` : title).replace(/[®™]/g, '')}
       onPress={onPress}
       onPressIn={() => to(1)}
       onPressOut={() => to(0)}

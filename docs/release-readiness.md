@@ -1,6 +1,6 @@
 # Prochoro release readiness
 
-Updated 17 November 2026. TestFlight build 4 (version 1.0.0; Expo SDK 58, Xcode 27.1, iOS 27 SDK, minimum iOS 16.4) is valid and App Store eligible in App Store Connect, and the owner installed it on an iPhone and reported that it works well. App Store version 1.0 is in Prepare for Submission. Build 5 added the in-app College Board disclaimer. On 18 November 2026 the app was simplified (two-tap setup, one Start button, three tabs, hats instead of pets); submit a build made after that change.
+Updated 21 November 2026. Version 1.0 was submitted with build 9; App Review asked for more information (Guideline 2.1), and build 10 carries the fixes from the pass below. Earlier: TestFlight build 4 (version 1.0.0; Expo SDK 58, Xcode 27.1, iOS 27 SDK, minimum iOS 16.4) is valid and App Store eligible in App Store Connect, and the owner installed it on an iPhone and reported that it works well. App Store version 1.0 is in Prepare for Submission. Build 5 added the in-app College Board disclaimer. On 18 November 2026 the app was simplified (two-tap setup, one Start button, three tabs, hats instead of pets); submit a build made after that change.
 
 Sign-in: Apple, Google, Microsoft and email are enabled in Supabase. The project
 sends no email yet, so on 19 November 2026 Confirm Email was turned off (email
@@ -15,10 +15,40 @@ Users. Google audience/branding and Microsoft credentials still need owner revie
 - Pure white/light and black/dark page backgrounds with opposite outline artwork. Floating controls and sheets use the shared Liquid Glass material, with blur/solid fallbacks. Old colored scenery, filled illustrations and sticker surfaces are retired.
 - 27 platypus expressions/activities, 8 hats, 60 cute angry bosses, ten AP subject icons, ten generated area doodle backgrounds, and generated study/score/timeline/reward art. Sprite frames preserve accessories and exclude neighboring portraits. See [design refinement](design-refinement.md) and [art manifest](art-manifest.md).
 - The quiz now uses a glass toolbar, question cards, inline explanations and an action dock. Boss questions deal real HP damage with hit reactions, counterattacks and a final strike after a complete passing attempt. Repeated presses are latched. Learning, pass conditions and atomic XP banking remain intact.
-- Required sign-in with Apple (release flag on), Google, Microsoft and email, local offline persistence and account synchronization. Native scheme, bundle identifiers and stored progress IDs did not change. The sign-in screen and Options state that Prochoro is not affiliated with or endorsed by the College Board.
+- Optional sign-in with Apple (release flag on), Google, Microsoft and email, local offline persistence and account synchronization. "Try it without an account" keeps progress on the device; signing in later moves it into the account, and Me → Erase progress on this device removes it. Native scheme, bundle identifiers and stored progress IDs did not change. The sign-in screen and Options state that Prochoro is not affiliated with or endorsed by the College Board.
 - The repository now has the custom Pages domain `prochoro.net`. Web assets export under `/app`; OAuth/recovery use actual static directories at `/app/auth/callback/` and `/app/auth/recovery/`. Policy links use the new domain. Public authentication requires HTTPS; loopback development remains supported.
 
 - Two-tap setup, a Learn screen where any open circle (or one big Start button) starts a level, three tabs (Learn, Practice, Me), hats earned by studying in place of pets, timed one-tap boss duels with critical hits, an endless 3-card battle (the climb) in Practice, lessons that open straight on a question with short feedback, official AP-unit progress, and direct next-level/retry actions. XP is a reward total rather than a second level rank. Every official AP unit has a final boss; choice order shuffles per attempt while grading stays tied to semantic IDs.
+
+## Verified 21 November 2026
+
+App Review asked for more information on the first submission (Guideline 2.1).
+The answers and the screen-recording plan are in
+[app-store/review-notes.md](app-store/review-notes.md). A guideline and polish
+pass then checked every screen at iPhone SE, 6.9" iPhone, iPad portrait and
+landscape, and short resizable iPad windows, in light and dark:
+
+- Results and placement screens now fit short screens; the buttons no longer
+  cover the new hat or the course card.
+- Locked hats show their goal with a small progress bar instead of a wrapped
+  "goal · 4/20" line.
+- Sign in with Apple uses Apple's white button style in dark mode (the black
+  style is only for light backgrounds).
+- "AP®" carries the ® on the sign-in headline and course names, and the in-app
+  and website disclaimers use the College Board's attribution wording.
+- Sign-in errors no longer mention internal services; the leave dialog names
+  the session (lesson, battle or practice); climb cards are larger on iPad.
+- Deleting an account also clears the climb record kept on the device.
+- An account is optional again (guideline 5.1.1(v)): "Try it without an account"
+  keeps progress on the device, the Me tab offers "Sign in or create an account"
+  (the progress moves into the account) and "Erase progress on this device".
+- App Store name changed to "Prochoro: Study for AP® Exams", with AP® in the
+  subtitle, description and promotional text, the College Board attribution
+  sentence in the description, and "apush" removed from the keywords.
+- The privacy policy, terms and support pages now describe the current app:
+  Me → Account → Delete account, switching subjects, password help.
+
+`npm run check` passes (83 tests). Screenshots were regenerated.
 
 ## Verified 17 November 2026
 
@@ -55,7 +85,7 @@ Done:
 
 1. [Apple sign-in](apple-sign-in.md): App ID capability, Supabase provider, server-only signing secrets, the `delete-apple-account` function and the Apple deletion migration. The release flag is on.
 2. Expo project `@realrushy/studyplat` is linked. EAS builds use the `sdk-58` image (Xcode 27.1, iOS 27 SDK; Apple requires the iOS 27 SDK for uploads from April 2027) and submit to TestFlight with an App Store Connect API key kept outside the repository.
-3. App Store Connect app "Prochoro: AP Study" (`com.aarushkik.studyplat`) with version 1.0. The internal identifier is intentionally stable.
+3. App Store Connect app "Prochoro: Study for AP® Exams" (renamed from "Prochoro: AP Study" on 21 November 2026; `com.aarushkik.studyplat`) with version 1.0. The internal identifier is intentionally stable.
 4. The owner installed TestFlight build 4 on an iPhone.
 5. App Store screenshots in [app-store/screenshots](app-store/screenshots/): 6.9" iPhone (1320 × 2868) and 13" iPad landscape (2752 × 2064), rendered from real screens with sample progress. Regenerate after UI changes with `npm run preview:design`, then `npm run store:screenshots`.
 
@@ -71,14 +101,14 @@ The owner checked build 4 on an iPhone on 17 November 2026 and reported it works
 
 ## Draft listing
 
-Name: Prochoro: AP Study
+Name: Prochoro: Study for AP® Exams
 
 Subtitle: Small steps. Stronger study.
 
-Description: Build a steady AP study habit with your platypus companion. Choose one of ten courses, read short lessons, practise topic questions and challenge cute rivals in boss duels. Track sessions, topic accuracy and progress. Earn hats for your platypus as you study. Your account saves progress across devices. Original practice material; independent of and not endorsed by the College Board. AP is its registered trademark.
+Description: Build a steady AP study habit with your platypus companion. Choose one of ten courses, read short lessons, practise topic questions and challenge cute rivals in boss duels. Track sessions, topic accuracy and progress. Earn hats for your platypus as you study. Your account saves progress across devices. Original practice material. AP® is a trademark registered by the College Board, which is not affiliated with, and does not endorse, this app.
 
 Support URL: https://prochoro.net/support.html · Privacy Policy URL: https://prochoro.net/privacy.html
 
-Category: Education. No subscriptions, ads or in-app purchases are implemented. An account is required. Supply a working demo account through App Store Connect’s review sign-in fields; never put credentials in repository documents.
+Category: Education. No subscriptions, ads or in-app purchases are implemented. An account is optional. Supply a working demo account through App Store Connect’s review sign-in fields; never put credentials in repository documents.
 
 Owner privacy review: name/email, user ID and linked study progress support app functionality. No third-party analytics or cross-app tracking SDK is included. Confirm final collection, retention and hosting behavior against the real deployment before submitting privacy labels.

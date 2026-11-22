@@ -9,6 +9,7 @@ import { AUTH_STORAGE_KEY, isSupabaseConfigured, supabase } from '@/lib/supabase
 import { deviceStorage } from '@/lib/storage';
 import { authConnectionError, authRedirectURL } from '@/lib/authRedirect';
 import { GUEST_MODE_KEY, GUEST_PROFILE_ID, clearProfileCache, flushProfile, prepareProfileExit } from '@/lib/profileCache';
+import { clearBestFloors } from '@/lib/climbRecord';
 
 import { AuthFlowError, authErrorMessage as messageFor, authReturnMatches, oncePerAuthReturn, readAuthReturn } from '@/lib/authFlow';
 export type AuthProvider = 'google' | 'azure' | 'apple';
@@ -87,9 +88,16 @@ interface AuthContextValue {
   session: Session | null;
   user: User | null;
   /**
-   * True when this sign-in should take in progress made on this device before
-   * an account was required — a guest quest from an earlier version.
+   * Studying without an account. Progress stays on this device until the
+   * student signs in, and then moves into the account.
    */
+  guestMode: boolean;
+  startGuest: () => Promise<void>;
+  /** Back to sign-in, keeping this device's progress to bring into the account. */
+  leaveGuest: () => Promise<void>;
+  /** Erase everything a guest saved on this device. */
+  eraseGuest: () => Promise<void>;
+  /** True when this sign-in should take in progress made on this device as a guest. */
   guestUpgrade: boolean;
   restoring: boolean;
   pending: AuthProvider | null;
@@ -108,16 +116,17 @@ interface AuthContextValue {
   deleteAccount: () => Promise<boolean>;
 }
 const AuthContext = createContext<AuthContextValue | null>(null);
-const unavailable = 'Account services are unavailable in this build.';
+const unavailable = 'Sign-in isn’t available right now. Please try again later.';
 
 export function AuthProviderComponent({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   /**
-   * Sign-in is required: there is no guest mode. A device that studied as a
-   * guest before that keeps its progress, though, and the first sign-in on it
-   * brings that progress into the account (ProfileSync does the import and
-   * clears the marker). This remembers that the marker was there.
+   * An account is optional (App Store guideline 5.1.1(v): studying is not an
+   * account-based feature). A guest's progress lives in a device cache, and
+   * the first sign-in on the device brings it into the account (ProfileSync
+   * does the import and clears the marker). This remembers the marker.
    */
+  const [guestMode, setGuestMode] = useState(false);
   const deviceQuest = useRef(false);
   const [guestUpgrade, setGuestUpgrade] = useState(false);
   const [restoring, setRestoring] = useState(true);
@@ -137,6 +146,7 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
         const upgrading = deviceQuest.current;
         setGuestUpgrade((previous) => previous || upgrading);
         deviceQuest.current = false;
+        setGuestMode(false);
         // ProfileSync consumes the persisted guest marker after safely importing.
       }
       setSession(next);
@@ -153,12 +163,13 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
     }, 6000);
     void (async () => {
       try {
-        const guestMode = await deviceStorage.getItem(GUEST_MODE_KEY) === 'true';
+        const storedGuest = await deviceStorage.getItem(GUEST_MODE_KEY) === 'true';
         const { data, error: restoreError } = await supabase.auth.getSession();
         if (!alive || revision !== initialRevision) return;
         if (restoreError) throw restoreError;
-        deviceQuest.current = guestMode && !data.session;
-        setGuestUpgrade(guestMode && Boolean(data.session));
+        deviceQuest.current = storedGuest && !data.session;
+        setGuestMode(storedGuest && !data.session);
+        setGuestUpgrade(storedGuest && Boolean(data.session));
         setSession(data.session);
       } catch {
         if (alive) setError('We could not restore your account. Your saved progress has been kept. Try signing in again.');
@@ -196,6 +207,45 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
       urlListener.remove(); appListener.remove();
       if (Platform.OS !== 'web') supabase.auth.stopAutoRefresh();
     };
+  }, []);
+
+  const startGuest = useCallback(async () => {
+    if (busy.current) return;
+    try {
+      await deviceStorage.setItem(GUEST_MODE_KEY, 'true');
+      deviceQuest.current = true;
+      setError(null);
+      setGuestMode(true);
+    } catch {
+      setError('This device couldn’t save your progress. Free some storage and try again.');
+    }
+  }, []);
+
+  const leaveGuest = useCallback(async () => {
+    try {
+      // Keep the guest's progress and its marker: signing in imports them.
+      await prepareProfileExit(false);
+      deviceQuest.current = true;
+      setGuestMode(false);
+      setError(null);
+    } catch {
+      setError('We couldn’t safely save your latest progress. Try again before signing in.');
+    }
+  }, []);
+
+  const eraseGuest = useCallback(async () => {
+    try {
+      await prepareProfileExit(true);
+      await clearProfileCache(GUEST_PROFILE_ID);
+      await clearBestFloors();
+      await deviceStorage.removeItem(GUEST_MODE_KEY);
+      deviceQuest.current = false;
+      setGuestMode(false);
+      setGuestUpgrade(false);
+      setError(null);
+    } catch {
+      setError('We couldn’t erase the progress on this device. Try again.');
+    }
   }, []);
 
   const signIn = useCallback(async (provider: AuthProvider) => {
@@ -276,7 +326,7 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
         await deviceStorage.removeItem(`${AUTH_STORAGE_KEY}-code-verifier`);
       }
       await deviceStorage.removeItem(GUEST_MODE_KEY);
-      deviceQuest.current = false; setGuestUpgrade(false); setSession(null); setRecovering(false);
+      deviceQuest.current = false; setGuestMode(false); setGuestUpgrade(false); setSession(null); setRecovering(false);
     } catch { setError('We could not safely finish signing out. Check your device storage and try again.'); }
     finally { busy.current = false; }
   }, []);
@@ -317,28 +367,28 @@ export function AuthProviderComponent({ children }: { children: React.ReactNode 
         if (failure) throw failure;
       }
       await prepareProfileExit(true);
-      // Guest progress from before sign-in was required has no screen of its
-      // own any more, so deleting the account is how it gets erased too.
+      // Deleting the account also erases any guest progress left on this device.
       await clearProfileCache(GUEST_PROFILE_ID);
+      await clearBestFloors();
       await supabase.auth.signOut({ scope: 'local' });
       await deviceStorage.removeItem(AUTH_STORAGE_KEY);
       await deviceStorage.removeItem(`${AUTH_STORAGE_KEY}-code-verifier`);
       await deviceStorage.removeItem(GUEST_MODE_KEY);
-      deviceQuest.current = false; setSession(null); setGuestUpgrade(false); setRecovering(false);
+      deviceQuest.current = false; setGuestMode(false); setSession(null); setGuestUpgrade(false); setRecovering(false);
       return true;
     } catch (reason) { setError(messageFor(reason)); return false; }
     finally { busy.current = false; setDeleting(false); }
   }, []);
 
   const value = useMemo<AuthContextValue>(() => ({
-    session, user: session?.user ?? null, guestUpgrade, restoring, pending, emailPending, deleting, recovering, error,
+    session, user: session?.user ?? null, guestMode, startGuest, leaveGuest, eraseGuest, guestUpgrade, restoring, pending, emailPending, deleting, recovering, error,
     clearError: () => setError(null), signIn, signOut, deleteAccount,
     signInWithEmail: (email, password) => emailAction('signIn', email, password),
     signUpWithEmail: (email, password) => emailAction('signUp', email, password),
     resetPassword: (email) => emailAction('reset', email),
     updatePassword: (password) => emailAction('update', '', password),
     cancelRecovery: () => setRecovering(false),
-  }), [session, guestUpgrade, restoring, pending, emailPending, deleting, recovering, error, signIn, signOut, deleteAccount, emailAction]);
+  }), [session, guestMode, startGuest, leaveGuest, eraseGuest, guestUpgrade, restoring, pending, emailPending, deleting, recovering, error, signIn, signOut, deleteAccount, emailAction]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

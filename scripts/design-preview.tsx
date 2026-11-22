@@ -61,6 +61,7 @@ function Menu() {
     <AppearanceControls />
     <AppButton label="Study home" onPress={() => nav.navigate('Home')} />
     <AppButton label="Me and hats" tone="secondary" onPress={() => nav.navigate('Home', { tab: 'me' })} />
+    <AppButton label="Me as a guest" tone="secondary" onPress={() => nav.navigate('Home', { tab: 'me', guest: true })} />
     <AppButton label="First run" tone="secondary" onPress={() => nav.navigate('CourseSelection')} />
     <AppButton label="Where to start" tone="secondary" onPress={() => nav.navigate('Quiz')} />
     <AppButton label="Boss duel" tone="secondary" onPress={() => start(boss)} />
@@ -106,8 +107,11 @@ function ClimbShop() {
   return <ClimbGame initial={run} startOpen />;
 }
 function PreviewHome() {
-  const tab = (useRoute().params as { tab?: QuestTab } | undefined)?.tab;
-  return <HomeContent key={tab ?? 'learn'} initialTab={tab} renderMe={topInset => <ProfileContent topInset={topInset} account={{ user: { user_metadata: { name: 'Sam Rivera' } }, signOut: async () => {}, deleteAccount: async () => false, deleting: false, error: null }} connection={{ offline: false, error: null, notice: null, retry: () => {} }} />} />;
+  const { tab, guest } = (useRoute().params as { tab?: QuestTab; guest?: boolean } | undefined) ?? {};
+  const account = guest
+    ? { user: null, signOut: async () => {}, deleteAccount: async () => false, deleting: false, error: null, guestMode: true, leaveGuest: async () => {}, eraseGuest: async () => {} }
+    : { user: { user_metadata: { name: 'Sam Rivera' } }, signOut: async () => {}, deleteAccount: async () => false, deleting: false, error: null };
+  return <HomeContent key={(tab ?? 'learn') + (guest ? '-guest' : '')} initialTab={tab} renderMe={topInset => <ProfileContent topInset={topInset} account={account} connection={{ offline: false, error: null, notice: null, retry: () => {} }} />} />;
 }
 function PreviewRoot() {
   const theme = useAppTheme(); const appearance = useAppearancePreference();
